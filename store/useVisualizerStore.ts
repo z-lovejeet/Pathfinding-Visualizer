@@ -356,10 +356,10 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
     set((state) => {
       // Stop running animations
       if (state.animationEngine) {
-        state.animationEngine.stop();
+        state.animationEngine.cancel();
       }
       if (state.animationController) {
-        state.animationController.stop();
+        state.animationController.cancel();
       }
 
       const grid = deserializeGrid(
