@@ -4,22 +4,38 @@ import React, { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useVisualizerStore } from '@/store/useVisualizerStore';
-import { getEmissiveColor, getNodeColor } from '@/lib/animation/colorUtils';
+import { getEmissiveColor } from '@/lib/animation/colorUtils';
 import { NODE_PHASE } from '@/lib/animation/AnimationEngine';
-import { NODE_COLORS } from '@/lib/constants';
 
 /**
- * GridMesh — InstancedMesh rendering of the entire grid.
+ * CityMesh — 3D miniature city rendering of the pathfinding grid.
  *
- * Uses a single InstancedMesh for all 1,250 nodes (25×50) for maximum performance.
- * Reads animation buffers from AnimationEngine for cinematic spring-physics
- * height interpolation with overshoot (visited) and elastic bounce (path).
+ * Uses THREE separate InstancedMeshes for maximum visual fidelity:
+ * 1. Roads    — flat asphalt tiles for all cells (glow during animation)
+ * 2. Buildings — tall boxes for wall cells with randomized heights & window glow
+ * 3. Trees    — cone shapes for weight cells (parks)
  *
- * Per-instance emissive glow is achieved by blending the base color toward
- * a bright emissive tint based on the emissive intensity buffer.
+ * Spring physics drive all transitions for satisfying pop-up/bounce effects.
+ * Reads AnimationEngine shared buffers for pathfinding visualization overlays.
  */
-export default function GridMesh() {
-  const meshRef = useRef<THREE.InstancedMesh>(null);
+
+// ─── CONSTANTS ───
+const BUILDING_HEIGHTS = [0.5, 0.7, 0.9, 1.1, 1.4];
+const getBuildingHeight = (row: number, col: number) =>
+  BUILDING_HEIGHTS[(row * 31 + col * 17) % BUILDING_HEIGHTS.length];
+
+// Road phase colors
+const ROAD_BASE = 0x2a2a35;
+const ROAD_WEIGHT = 0x1a3a1a;
+const ROAD_VISITED = 0xe8a849;
+const ROAD_PATH = 0x00d4ff;
+const ROAD_CURRENT = 0x22d3ee;
+
+export default function CityMesh() {
+  const roadRef = useRef<THREE.InstancedMesh>(null);
+  const buildingRef = useRef<THREE.InstancedMesh>(null);
+  const treeRef = useRef<THREE.InstancedMesh>(null);
+
   const grid = useVisualizerStore((s) => s.grid);
   const rows = useVisualizerStore((s) => s.rows);
   const cols = useVisualizerStore((s) => s.cols);
@@ -27,220 +43,231 @@ export default function GridMesh() {
 
   const count = rows * cols;
 
-  // Temp objects for instance matrix calculation
-  const tempObject = useMemo(() => new THREE.Object3D(), []);
-  const tempTargetColor = useMemo(() => new THREE.Color(), []);
-  const tempEmissiveColor = useMemo(() => new THREE.Color(), []);
+  // Temp objects (reused every frame)
+  const tmpObj = useMemo(() => new THREE.Object3D(), []);
+  const tmpColor = useMemo(() => new THREE.Color(), []);
+  const tmpEmColor = useMemo(() => new THREE.Color(), []);
 
-  // State arrays for smooth interpolation
+  // Per-instance spring state for all three meshes
   const stateRef = useRef<{
-    heights: Float32Array;
-    velocities: Float32Array; // For spring physics
-    colors: THREE.Color[];
-    emissives: Float32Array;
+    roadH: Float32Array; roadV: Float32Array; roadC: THREE.Color[]; roadE: Float32Array;
+    bldgH: Float32Array; bldgV: Float32Array;
+    treeS: Float32Array; treeV: Float32Array;
   } | null>(null);
   const needsRenderRef = useRef(true);
 
-  // Keep imperative spring state outside React's render state. Reinitialize it
-  // after a grid resize, before the next visible animation frame.
+  // (Re)initialize spring state when grid size changes
   useEffect(() => {
     stateRef.current = {
-      heights: new Float32Array(count).fill(0.1),
-      velocities: new Float32Array(count), // spring velocity
-      colors: Array.from({ length: count }, () => new THREE.Color(0x1a1a2e)),
-      emissives: new Float32Array(count),
+      roadH: new Float32Array(count).fill(0.08),
+      roadV: new Float32Array(count),
+      roadC: Array.from({ length: count }, () => new THREE.Color(ROAD_BASE)),
+      roadE: new Float32Array(count),
+      bldgH: new Float32Array(count),
+      bldgV: new Float32Array(count),
+      treeS: new Float32Array(count),
+      treeV: new Float32Array(count),
     };
     needsRenderRef.current = true;
   }, [count]);
 
-  // Once the spring state has settled, there is no need to rewrite all 1,250
-  // instance matrices every frame. An engine remains polled while it is active
-  // because it can update its buffers independently of React.
-  useEffect(() => {
-    needsRenderRef.current = true;
-  }, [animationEngine, grid]);
+  // Trigger re-render when grid or animation engine changes
+  useEffect(() => { needsRenderRef.current = true; }, [animationEngine, grid]);
 
-  // Get emissive color for a node phase
-  const getPhaseEmissiveColor = (phase: number): number => {
-    switch (phase) {
-      case NODE_PHASE.CURRENT: return 0x22d3ee; // Bright cyan
-      case NODE_PHASE.VISITED: return 0x8b5cf6; // Purple
-      case NODE_PHASE.PATH: return 0xfbbf24;    // Gold
-      default: return 0x000000;
-    }
-  };
-
+  // ─── PER-FRAME UPDATE ───
   useFrame((_, delta) => {
-    const animationState = stateRef.current;
-    if (!meshRef.current || !grid || grid.length === 0 || !animationState) return;
+    const S = stateRef.current;
+    if (!roadRef.current || !buildingRef.current || !treeRef.current || !grid?.length || !S) return;
     if (!animationEngine && !needsRenderRef.current) return;
     const forceUpload = needsRenderRef.current;
 
-    const { heights, velocities, colors, emissives } = animationState;
     const buffers = animationEngine?.getBuffers();
-
-    // Clamp delta to prevent huge jumps on tab-switch
     const dt = Math.min(delta, 0.05);
-
-    let needsUpdate = false;
+    let dirty = false;
 
     for (let row = 0; row < rows; row++) {
       for (let col = 0; col < cols; col++) {
-        const index = row * cols + col;
+        const i = row * cols + col;
         const node = grid[row]?.[col];
         if (!node) continue;
 
-        // ─── TARGET HEIGHT ───
-        // If animation engine has buffers, use those; otherwise fall back to node data
-        let targetHeight = node.height || 0.1;
-        const activeBuffers =
-          buffers?.activeNodes[index] === 1 ? buffers : null;
-        const isAnimated = activeBuffers !== null;
-
-        // Engine buffers only own cells it has explicitly animated. Preserve
-        // semantic wall and weight heights even when a weighted node is visited.
-        if (activeBuffers && node.type !== 'wall' && node.type !== 'weight') {
-          targetHeight = activeBuffers.targetHeights[index];
-        }
-
-        // ─── SPRING PHYSICS INTERPOLATION ───
-        // Critical damping spring: feels organic with overshoot
-        const phase = activeBuffers
-          ? activeBuffers.nodePhase[index]
-          : NODE_PHASE.IDLE;
-        let stiffness: number;
-        let damping: number;
-
-        switch (phase) {
-          case NODE_PHASE.CURRENT:
-            stiffness = 400; damping = 28; // Fast snap
-            break;
-          case NODE_PHASE.VISITED:
-            stiffness = 180; damping = 12; // Overshoot bounce (like back.out)
-            break;
-          case NODE_PHASE.PATH:
-            stiffness = 120; damping = 8;  // Elastic bounce
-            break;
-          default:
-            stiffness = 200; damping = 20; // Default smooth
-        }
-
-        const displacement = targetHeight - heights[index];
-        const springForce = stiffness * displacement;
-        const dampingForce = damping * velocities[index];
-        const acceleration = springForce - dampingForce;
-
-        velocities[index] += acceleration * dt;
-        heights[index] += velocities[index] * dt;
-
-        // Settle when close enough
-        if (Math.abs(displacement) < 0.001 && Math.abs(velocities[index]) < 0.001) {
-          heights[index] = targetHeight;
-          velocities[index] = 0;
-        } else {
-          needsUpdate = true;
-        }
-
-        // ─── EMISSIVE INTENSITY ───
-        let targetEmissive = node.emissiveIntensity;
-        if (activeBuffers) {
-          targetEmissive = activeBuffers.targetEmissives[index];
-        }
-
-        // Smooth lerp for emissive
-        const emissiveLerp = 1 - Math.pow(0.001, dt);
-        if (Math.abs(emissives[index] - targetEmissive) > 0.01) {
-          emissives[index] += (targetEmissive - emissives[index]) * emissiveLerp;
-          needsUpdate = true;
-        } else {
-          emissives[index] = targetEmissive;
-        }
-
-        // ─── COLOR ───
-        // Base color from node state
-        let targetHex = getNodeColor(node);
-
-        // Override with phase-based color when animation engine is active
-        if (isAnimated && phase > NODE_PHASE.IDLE) {
-          switch (phase) {
-            case NODE_PHASE.CURRENT:
-              targetHex = NODE_COLORS.current.hex;
-              break;
-            case NODE_PHASE.VISITED:
-              targetHex = NODE_COLORS.visited.hex;
-              break;
-            case NODE_PHASE.PATH:
-              targetHex = NODE_COLORS.path.hex;
-              break;
-          }
-        }
-
-        tempTargetColor.set(targetHex);
-
-        // Blend emissive glow into the display color for per-instance bloom effect
-        if (emissives[index] > 0.1) {
-          const emissiveHex =
-            phase > NODE_PHASE.IDLE
-              ? getPhaseEmissiveColor(phase)
-              : getEmissiveColor(node);
-          tempEmissiveColor.set(emissiveHex);
-          // Additive blend: mix base color with emissive based on intensity
-          const blendFactor = Math.min(emissives[index] * 0.15, 0.6);
-          tempTargetColor.lerp(tempEmissiveColor, blendFactor);
-        }
-
-        // Smooth color interpolation
-        const colorLerp = 1 - Math.pow(0.0005, dt);
-        if (
-          Math.abs(colors[index].r - tempTargetColor.r) > 0.005 ||
-          Math.abs(colors[index].g - tempTargetColor.g) > 0.005 ||
-          Math.abs(colors[index].b - tempTargetColor.b) > 0.005
-        ) {
-          colors[index].lerp(tempTargetColor, colorLerp);
-          needsUpdate = true;
-        } else {
-          colors[index].copy(tempTargetColor);
-        }
-
-        // ─── APPLY MATRICES AND COLORS ───
+        const active = buffers?.activeNodes[i] === 1 ? buffers : null;
+        const phase = active ? active.nodePhase[i] : NODE_PHASE.IDLE;
         const x = col - cols / 2 + 0.5;
         const z = row - rows / 2 + 0.5;
 
-        tempObject.position.set(x, heights[index] / 2, z);
-        tempObject.scale.set(0.9, Math.max(0.01, heights[index]), 0.9);
-        tempObject.updateMatrix();
+        // ════════════════════════════════════════
+        //  ROAD TILE
+        // ════════════════════════════════════════
+        // Target height: flat normally, slight pop during animation
+        let rTgtH = 0.08;
+        if (phase === NODE_PHASE.CURRENT) rTgtH = 0.18;
+        else if (phase === NODE_PHASE.VISITED) rTgtH = 0.13;
+        else if (phase === NODE_PHASE.PATH) rTgtH = 0.22;
+        // Baked visual state (post-animation)
+        else if (node.visualState === 'path') rTgtH = 0.22;
+        else if (node.visualState === 'visited') rTgtH = 0.13;
 
-        meshRef.current.setMatrixAt(index, tempObject.matrix);
-        meshRef.current.setColorAt(index, colors[index]);
+        // Spring physics
+        let rK = 200, rD = 20;
+        if (phase === NODE_PHASE.CURRENT) { rK = 400; rD = 28; }
+        else if (phase === NODE_PHASE.VISITED) { rK = 180; rD = 12; }
+        else if (phase === NODE_PHASE.PATH) { rK = 120; rD = 8; }
+
+        const rDisp = rTgtH - S.roadH[i];
+        S.roadV[i] += (rK * rDisp - rD * S.roadV[i]) * dt;
+        S.roadH[i] += S.roadV[i] * dt;
+        if (Math.abs(rDisp) < 0.001 && Math.abs(S.roadV[i]) < 0.001) {
+          S.roadH[i] = rTgtH; S.roadV[i] = 0;
+        } else { dirty = true; }
+
+        // Road emissive intensity
+        let rTgtE = 0;
+        if (active) { rTgtE = active.targetEmissives[i]; }
+        else if (node.visualState === 'visited') rTgtE = 1.5;
+        else if (node.visualState === 'path') rTgtE = 3.0;
+        else if (node.visualState === 'current') rTgtE = 2.5;
+
+        const eLerp = 1 - Math.pow(0.001, dt);
+        if (Math.abs(S.roadE[i] - rTgtE) > 0.01) {
+          S.roadE[i] += (rTgtE - S.roadE[i]) * eLerp;
+          dirty = true;
+        } else { S.roadE[i] = rTgtE; }
+
+        // Road color
+        let rHex = ROAD_BASE;
+        if (node.type === 'weight') rHex = ROAD_WEIGHT;
+        // Animation phase overrides
+        if (phase === NODE_PHASE.CURRENT) rHex = ROAD_CURRENT;
+        else if (phase === NODE_PHASE.VISITED) rHex = ROAD_VISITED;
+        else if (phase === NODE_PHASE.PATH) rHex = ROAD_PATH;
+        // Baked visual state overrides
+        else if (node.visualState === 'visited') rHex = ROAD_VISITED;
+        else if (node.visualState === 'path') rHex = ROAD_PATH;
+        else if (node.visualState === 'current') rHex = ROAD_CURRENT;
+
+        tmpColor.set(rHex);
+
+        // Emissive bloom blend
+        if (S.roadE[i] > 0.1) {
+          const emHex = phase === NODE_PHASE.VISITED ? ROAD_VISITED
+            : phase === NODE_PHASE.PATH ? ROAD_PATH
+            : phase === NODE_PHASE.CURRENT ? ROAD_CURRENT
+            : getEmissiveColor(node);
+          tmpEmColor.set(emHex);
+          tmpColor.lerp(tmpEmColor, Math.min(S.roadE[i] * 0.15, 0.6));
+        }
+
+        // Smooth color lerp
+        const cLerp = 1 - Math.pow(0.0005, dt);
+        if (
+          Math.abs(S.roadC[i].r - tmpColor.r) > 0.005 ||
+          Math.abs(S.roadC[i].g - tmpColor.g) > 0.005 ||
+          Math.abs(S.roadC[i].b - tmpColor.b) > 0.005
+        ) { S.roadC[i].lerp(tmpColor, cLerp); dirty = true; }
+        else { S.roadC[i].copy(tmpColor); }
+
+        // Apply road instance
+        tmpObj.position.set(x, S.roadH[i] / 2, z);
+        tmpObj.scale.set(0.92, Math.max(0.01, S.roadH[i]), 0.92);
+        tmpObj.updateMatrix();
+        roadRef.current!.setMatrixAt(i, tmpObj.matrix);
+        roadRef.current!.setColorAt(i, S.roadC[i]);
+
+        // ════════════════════════════════════════
+        //  BUILDING
+        // ════════════════════════════════════════
+        const bTgtH = node.type === 'wall' ? getBuildingHeight(row, col) : 0;
+        const bK = node.type === 'wall' ? 150 : 200;
+        const bD = node.type === 'wall' ? 10 : 20;
+        const bDisp = bTgtH - S.bldgH[i];
+        S.bldgV[i] += (bK * bDisp - bD * S.bldgV[i]) * dt;
+        S.bldgH[i] += S.bldgV[i] * dt;
+        if (Math.abs(bDisp) < 0.001 && Math.abs(S.bldgV[i]) < 0.001) {
+          S.bldgH[i] = bTgtH; S.bldgV[i] = 0;
+        } else { dirty = true; }
+
+        if (S.bldgH[i] > 0.01) {
+          tmpObj.position.set(x, 0.08 + S.bldgH[i] / 2, z);
+          tmpObj.scale.set(0.82, S.bldgH[i], 0.82);
+        } else {
+          tmpObj.position.set(x, -10, z);
+          tmpObj.scale.set(0, 0, 0);
+        }
+        tmpObj.updateMatrix();
+        buildingRef.current!.setMatrixAt(i, tmpObj.matrix);
+
+        // ════════════════════════════════════════
+        //  TREE (park weight indicator)
+        // ════════════════════════════════════════
+        const tTgt = node.type === 'weight' ? 1 : 0;
+        const tDisp = tTgt - S.treeS[i];
+        S.treeV[i] += (200 * tDisp - 18 * S.treeV[i]) * dt;
+        S.treeS[i] += S.treeV[i] * dt;
+        if (Math.abs(tDisp) < 0.001 && Math.abs(S.treeV[i]) < 0.001) {
+          S.treeS[i] = tTgt; S.treeV[i] = 0;
+        } else { dirty = true; }
+
+        if (S.treeS[i] > 0.01) {
+          const ts = S.treeS[i];
+          tmpObj.position.set(x, 0.12 + 0.28 * ts, z);
+          tmpObj.scale.set(ts, ts, ts);
+        } else {
+          tmpObj.position.set(x, -10, z);
+          tmpObj.scale.set(0, 0, 0);
+        }
+        tmpObj.updateMatrix();
+        treeRef.current!.setMatrixAt(i, tmpObj.matrix);
       }
     }
 
-    if (needsUpdate || forceUpload) {
-      meshRef.current.instanceMatrix.needsUpdate = true;
-      if (meshRef.current.instanceColor) {
-        meshRef.current.instanceColor.needsUpdate = true;
-      }
+    if (dirty || forceUpload) {
+      roadRef.current!.instanceMatrix.needsUpdate = true;
+      if (roadRef.current!.instanceColor) roadRef.current!.instanceColor.needsUpdate = true;
+      buildingRef.current!.instanceMatrix.needsUpdate = true;
+      treeRef.current!.instanceMatrix.needsUpdate = true;
     }
-
-    if (!animationEngine) needsRenderRef.current = needsUpdate;
+    if (!animationEngine) needsRenderRef.current = dirty;
   });
 
   return (
-    <instancedMesh
-      ref={meshRef}
-      args={[undefined, undefined, count]}
-      castShadow
-      receiveShadow
-    >
-      <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial
-        vertexColors
-        roughness={0.3}
-        metalness={0.15}
-        emissive="#8b5cf6"
-        emissiveIntensity={0.3}
-        toneMapped={false}
-      />
-    </instancedMesh>
+    <group>
+      {/* Road tiles — flat asphalt surface for all cells */}
+      <instancedMesh ref={roadRef} args={[undefined, undefined, count]} receiveShadow>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial
+          vertexColors
+          roughness={0.85}
+          metalness={0.05}
+          emissive="#e8a849"
+          emissiveIntensity={0.2}
+          toneMapped={false}
+        />
+      </instancedMesh>
+
+      {/* Buildings — tall dark structures with warm window glow */}
+      <instancedMesh ref={buildingRef} args={[undefined, undefined, count]} castShadow receiveShadow>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial
+          color="#1a1a2e"
+          roughness={0.6}
+          metalness={0.2}
+          emissive="#ffaa44"
+          emissiveIntensity={0.12}
+        />
+      </instancedMesh>
+
+      {/* Trees — pine cones for park/weight cells */}
+      <instancedMesh ref={treeRef} args={[undefined, undefined, count]} castShadow>
+        <coneGeometry args={[0.28, 0.55, 6]} />
+        <meshStandardMaterial
+          color="#2d8a4e"
+          roughness={0.8}
+          metalness={0.05}
+          emissive="#1a5a2a"
+          emissiveIntensity={0.1}
+        />
+      </instancedMesh>
+    </group>
   );
 }
