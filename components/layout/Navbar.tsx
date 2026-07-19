@@ -22,7 +22,7 @@ export const Navbar = () => {
       <nav className="glass-navbar" aria-label="Primary navigation">
         <div className="flex-1 flex items-center justify-start">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00d4ff]/20 to-[#8b5cf6]/20 border border-white/10 flex items-center justify-center group-hover:scale-105 transition-transform overflow-hidden relative">
+            <div className="w-10 h-10 group-hover:scale-105 transition-transform overflow-hidden relative rounded-md border border-white/10 shadow-[0_0_15px_rgba(0,212,255,0.1)]">
               <Image src="/logo.jpg" alt="Logo" fill sizes="40px" className="object-cover" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-[#f0f0f5] to-[#8888aa] bg-clip-text text-transparent ml-2 font-outfit tracking-wide">
