@@ -22,11 +22,14 @@ export function Footer() {
         <div className="flex items-center gap-3">
           <Image src="/logo.jpg" alt="Logo" width={18} height={18} className="rounded-sm" />
           <span className="font-semibold tracking-wide text-[11px] text-white/90">Pathfinder</span>
-          <span className="text-[10px] text-[#555577] hidden sm:inline">© {new Date().getFullYear()} Lovejeet Singh</span>
+          <span className="text-[10px] text-[#555577] hidden sm:inline">© {new Date().getFullYear()}</span>
         </div>
 
-        {/* Center — Empty Space */}
+        {/* Center — Team */}
         <div className="flex items-center justify-center flex-1">
+          <span className="text-[10px] text-[#555577] hidden md:inline tracking-wide text-center">
+            Built by Lovejeet Singh, Sachit Babbar, Mohammad Asim, Shubham Kumar & Vineetosh Kumar
+          </span>
         </div>
 
         {/* Right — GitHub */}
