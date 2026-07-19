@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState, memo } from 'react';
 import { AlgorithmResult, GridNode } from '@/lib/grid/types';
 import { NODE_COLORS } from '@/lib/constants';
 
@@ -17,15 +17,17 @@ interface CompareGridProps {
 }
 
 type CellState = 'empty' | 'wall' | 'start' | 'end' | 'weight' | 'visited' | 'path';
-type AnimatedCellState = Extract<CellState, 'visited' | 'path'>;
+type AnimatedCellState = Extract<CellState, 'visited' | 'path'> | 'current';
 
 interface AnimationState {
   sourceGrid: GridNode[][];
   sourceResult: AlgorithmResult | null;
   cells: Record<string, AnimatedCellState>;
+  visitedCount: number;
+  isCompleted: boolean;
 }
 
-const CELL_COLORS: Record<CellState, string> = {
+const CELL_COLORS: Record<CellState | 'current', string> = {
   empty: NODE_COLORS.empty.css,
   wall: '#2a2a3e',
   start: NODE_COLORS.start.css,
@@ -33,9 +35,10 @@ const CELL_COLORS: Record<CellState, string> = {
   weight: NODE_COLORS.weight.css,
   visited: NODE_COLORS.visited.css,
   path: NODE_COLORS.path.css,
+  current: '#fcd34d', // Amber 300 for pulse
 };
 
-const CELL_LABELS: Record<CellState, string> = {
+const CELL_LABELS: Record<CellState | 'current', string> = {
   empty: 'empty',
   wall: 'wall',
   start: 'start position',
@@ -43,6 +46,7 @@ const CELL_LABELS: Record<CellState, string> = {
   weight: 'weighted cell',
   visited: 'visited cell',
   path: 'path cell',
+  current: 'currently exploring',
 };
 
 const getCellKey = (row: number, col: number) => `${row}:${col}`;
@@ -52,7 +56,7 @@ const getCellKey = (row: number, col: number) => `${row}:${col}`;
  * Animates visited and path nodes while keeping the underlying grid as the
  * source of truth, so an old animation cannot survive a new comparison.
  */
-export default function CompareGrid({
+function CompareGridComponent({
   grid,
   rows,
   cols,
@@ -67,6 +71,8 @@ export default function CompareGrid({
     sourceGrid: grid,
     sourceResult: null,
     cells: {},
+    visitedCount: 0,
+    isCompleted: false,
   }));
   const animationTimer = useRef<number | null>(null);
 
@@ -90,26 +96,44 @@ export default function CompareGrid({
       }, timeout);
     };
 
-    const updateCell = (node: GridNode, state: AnimatedCellState) => {
+    const updateCell = (node: GridNode, state: AnimatedCellState, isComplete = false) => {
       const cellKey = getCellKey(node.row, node.col);
       setAnimationState((current) => {
         if (current.sourceGrid !== grid || current.sourceResult !== result) {
           return current;
         }
 
+        const newCells = { ...current.cells, [cellKey]: state };
+        
+        // Remove 'current' state from previous node if we are transitioning to path
+        if (state === 'path') {
+          for (const key in newCells) {
+            if (newCells[key] === 'current') {
+               newCells[key] = 'visited';
+            }
+          }
+        }
+
         return {
           ...current,
-          cells: { ...current.cells, [cellKey]: state },
+          cells: newCells,
+          visitedCount: state === 'visited' || state === 'current' ? visitedIndex + 1 : current.visitedCount,
+          isCompleted: isComplete,
         };
       });
     };
 
     const animatePath = (pathIndex = 0) => {
-      if (pathIndex >= result.shortestPath.length) return;
+      if (pathIndex >= result.shortestPath.length) {
+        setAnimationState(s => ({ ...s, isCompleted: true }));
+        return;
+      }
 
       const node = result.shortestPath[pathIndex];
       if (node.type !== 'start' && node.type !== 'end') {
-        updateCell(node, 'path');
+        updateCell(node, 'path', pathIndex === result.shortestPath.length - 1);
+      } else if (pathIndex === result.shortestPath.length - 1) {
+         setAnimationState(s => ({ ...s, isCompleted: true }));
       }
 
       schedule(() => animatePath(pathIndex + 1), Math.max(20, delay * 2));
@@ -121,9 +145,25 @@ export default function CompareGrid({
         return;
       }
 
+      // Mark previous 'current' as 'visited' implicitly by updating the new one to 'current'
       const node = result.visitedNodesInOrder[visitedIndex];
       if (node.type !== 'start' && node.type !== 'end') {
-        updateCell(node, 'visited');
+        // Find previous current and mark it visited
+        setAnimationState((current) => {
+           if (current.sourceGrid !== grid || current.sourceResult !== result) return current;
+           const newCells = { ...current.cells };
+           for (const key in newCells) {
+             if (newCells[key] === 'current') {
+               newCells[key] = 'visited';
+             }
+           }
+           newCells[getCellKey(node.row, node.col)] = 'current';
+           return {
+             ...current,
+             cells: newCells,
+             visitedCount: visitedIndex + 1
+           };
+        });
       }
 
       visitedIndex += 1;
@@ -131,7 +171,7 @@ export default function CompareGrid({
     };
 
     schedule(() => {
-      setAnimationState({ sourceGrid: grid, sourceResult: result, cells: {} });
+      setAnimationState({ sourceGrid: grid, sourceResult: result, cells: {}, visitedCount: 0, isCompleted: false });
       animateVisited();
     }, 100);
 
@@ -154,25 +194,44 @@ export default function CompareGrid({
     animationState.sourceGrid === grid &&
     animationState.sourceResult === result;
 
+  const displayVisited = isCurrentAnimation ? animationState.visitedCount : 0;
+  const totalVisited = result ? result.visitedNodesInOrder.length : 0;
+
   return (
-    <div className="glass-elevated rounded-2xl p-4 flex flex-col gap-3">
-      {/* Label */}
-      <div className="flex items-center gap-2">
-        <div
-          className="w-3 h-3 rounded-full"
-          style={{ backgroundColor: accentColor }}
-          aria-hidden="true"
-        />
-        <span className="text-sm font-bold text-white font-outfit">{label}</span>
+    <div 
+      className={`glass-elevated rounded-2xl p-4 flex flex-col gap-3 transition-colors duration-500 relative overflow-hidden ${
+        animationState.isCompleted ? 'grid-flash' : ''
+      }`}
+      style={{
+        borderTop: `3px solid ${accentColor}`,
+        '--flash-color': accentColor
+      } as React.CSSProperties}
+    >
+      {/* Label and Live Counter */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div
+            className="w-3 h-3 rounded-full"
+            style={{ backgroundColor: accentColor }}
+            aria-hidden="true"
+          />
+          <span className="text-sm font-bold text-white font-outfit">{label}</span>
+        </div>
+        {result && (
+           <span className="text-xs text-[#555577] font-mono tabular-nums bg-white/5 px-2 py-0.5 rounded">
+             {displayVisited} / {totalVisited} visited
+           </span>
+        )}
       </div>
 
       {/* Grid */}
       <div
-        className="grid gap-[1px] mx-auto"
+        className="grid gap-[1px] mx-auto w-full"
         role="group"
         aria-label={`${label} editable grid`}
         style={{
           gridTemplateColumns: `repeat(${cols}, 1fr)`,
+          gridTemplateRows: `repeat(${rows}, 1fr)`,
           maxWidth: '100%',
           aspectRatio: `${cols} / ${rows}`,
         }}
@@ -200,7 +259,7 @@ export default function CompareGrid({
                 disabled={!isEditable}
                 aria-pressed={baseState === 'wall'}
                 aria-label={`Row ${rowIndex + 1}, column ${colIndex + 1}: ${CELL_LABELS[visualState]}. ${action}`}
-                className="appearance-none min-w-0 min-h-0 border-0 p-0 rounded-[1px] transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#f0f0f5] disabled:cursor-not-allowed disabled:opacity-100"
+                className="w-full h-full appearance-none min-w-0 min-h-0 border-0 p-0 rounded-[1px] transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#f0f0f5] disabled:cursor-not-allowed disabled:opacity-100"
                 style={{
                   backgroundColor: CELL_COLORS[visualState],
                   boxShadow:
@@ -208,9 +267,12 @@ export default function CompareGrid({
                       ? `0 0 6px ${CELL_COLORS.path}`
                       : visualState === 'visited'
                         ? `0 0 3px ${CELL_COLORS.visited}40`
-                        : 'none',
+                        : visualState === 'current'
+                          ? `0 0 8px ${CELL_COLORS.current}`
+                          : 'none',
                   cursor: isEditable ? 'pointer' : 'not-allowed',
-                  transform: visualState === 'path' ? 'scale(1.1)' : 'scale(1)',
+                  transform: (visualState === 'path' || visualState === 'current') ? 'scale(1.1)' : 'scale(1)',
+                  zIndex: (visualState === 'path' || visualState === 'current') ? 10 : 1
                 }}
               />
             );
@@ -220,3 +282,5 @@ export default function CompareGrid({
     </div>
   );
 }
+
+export default memo(CompareGridComponent);
