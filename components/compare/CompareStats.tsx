@@ -3,6 +3,8 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { ALGORITHM_INFO } from '@/lib/constants';
+import { Trophy, AlertCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 import type { CompareStats } from '@/store/useCompareStore';
 import type { AlgorithmType } from '@/lib/grid/types';
 
@@ -15,7 +17,7 @@ interface CompareStatsProps {
 
 /**
  * CompareStats — Side-by-side stat comparison with Recharts bar chart
- * and auto-generated insight text.
+ * and auto-generated insight text and winner badges.
  */
 export default function CompareStatsPanel({ stats1, stats2, algo1, algo2 }: CompareStatsProps) {
   if (!stats1 || !stats2) return null;
@@ -37,12 +39,16 @@ export default function CompareStatsPanel({ stats1, stats2, algo1, algo2 }: Comp
       [series2]: stats2.pathLength,
     },
     {
-      metric: 'Time (ms)',
-      [series1]: stats1.executionTime,
-      [series2]: stats2.executionTime,
+      metric: 'Path Cost',
+      [series1]: stats1.pathCost,
+      [series2]: stats2.pathCost,
     },
   ];
 
+  // Logic for Winners
+  const visitedWinner = stats1.nodesVisited < stats2.nodesVisited ? 1 : stats2.nodesVisited < stats1.nodesVisited ? 2 : 0;
+  const pathWinner = stats1.pathLength < stats2.pathLength ? 1 : stats2.pathLength < stats1.pathLength ? 2 : 0;
+  
   // Generate insight
   const fewerNodes = stats1.nodesVisited < stats2.nodesVisited ? name1 : name2;
   const moreNodes = stats1.nodesVisited < stats2.nodesVisited ? name2 : name1;
@@ -54,60 +60,58 @@ export default function CompareStatsPanel({ stats1, stats2, algo1, algo2 }: Comp
 
   let insight = '';
   if (pctDiff > 0 && samePath) {
-    insight = `${fewerNodes} visited ${pctDiff}% fewer nodes than ${moreNodes} while finding the same path length of ${stats1.pathLength}.`;
+    insight = `${fewerNodes} is more efficient here, visiting ${pctDiff}% fewer nodes than ${moreNodes} while finding the same path length of ${stats1.pathLength}.`;
   } else if (pctDiff > 0) {
     insight = `${fewerNodes} visited ${pctDiff}% fewer nodes than ${moreNodes}. Path lengths differ: ${name1} = ${stats1.pathLength}, ${name2} = ${stats2.pathLength}.`;
   } else {
-    insight = `Both algorithms visited the same number of nodes (${stats1.nodesVisited}).`;
+    insight = `Both algorithms performed equally well, visiting ${stats1.nodesVisited} nodes.`;
   }
 
   if (!stats1.found || !stats2.found) {
     const notFound = !stats1.found ? name1 : name2;
-    insight += ` ⚠️ ${notFound} did not find a path.`;
+    insight += ` However, ${notFound} did not find a path.`;
   }
 
   return (
-    <div className="glass-elevated rounded-2xl p-6 flex flex-col gap-6">
+    <div className="glass-elevated rounded-2xl p-6 flex flex-col gap-6 relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-[#00d4ff] via-transparent to-[#a855f7] opacity-50" />
+      
       <h3 className="text-lg font-bold text-white font-outfit">Comparison Results</h3>
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-4">
-        <StatCard name={name1} stats={stats1} color="#00d4ff" />
-        <StatCard name={name2} stats={stats2} color="#a855f7" />
+        <StatCard name={name1} stats={stats1} color="#00d4ff" isWinner={visitedWinner === 1} />
+        <StatCard name={name2} stats={stats2} color="#a855f7" isWinner={visitedWinner === 2} />
       </div>
 
       {/* Bar chart */}
       <div className="h-52">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} barGap={4}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+          <BarChart data={chartData} barGap={6}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
             <XAxis
               dataKey="metric"
               tick={{ fill: '#8888aa', fontSize: 12 }}
               axisLine={{ stroke: 'rgba(255,255,255,0.05)' }}
+              tickLine={false}
             />
             <YAxis
               tick={{ fill: '#8888aa', fontSize: 11 }}
               axisLine={{ stroke: 'rgba(255,255,255,0.05)' }}
+              tickLine={false}
             />
             <Tooltip
-              contentStyle={{
-                background: 'rgba(10,10,15,0.95)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: '12px',
-                backdropFilter: 'blur(20px)',
-                color: '#f0f0f5',
-                fontSize: '13px',
-              }}
+              cursor={{ fill: 'rgba(255,255,255,0.02)' }}
+              content={<CustomTooltip />}
             />
             <Bar dataKey={series1} name={name1} radius={[4, 4, 0, 0]}>
               {chartData.map((_, index) => (
-                <Cell key={`cell-1-${index}`} fill="#00d4ff" fillOpacity={0.7} />
+                <Cell key={`cell-1-${index}`} fill="#00d4ff" fillOpacity={0.8} />
               ))}
             </Bar>
             <Bar dataKey={series2} name={name2} radius={[4, 4, 0, 0]}>
               {chartData.map((_, index) => (
-                <Cell key={`cell-2-${index}`} fill="#a855f7" fillOpacity={0.7} />
+                <Cell key={`cell-2-${index}`} fill="#a855f7" fillOpacity={0.8} />
               ))}
             </Bar>
           </BarChart>
@@ -115,9 +119,16 @@ export default function CompareStatsPanel({ stats1, stats2, algo1, algo2 }: Comp
       </div>
 
       {/* Insight text */}
-      <p className="text-sm text-[#aaaacc] leading-relaxed bg-white/[0.02] p-4 rounded-xl border border-white/5">
-        💡 {insight}
-      </p>
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex gap-3 text-sm text-[#aaaacc] leading-relaxed bg-white/[0.02] p-4 rounded-xl border border-white/5"
+      >
+        <div className="text-[#00d4ff] mt-0.5">
+          <AlertCircle size={18} />
+        </div>
+        <p>{insight}</p>
+      </motion.div>
     </div>
   );
 }
@@ -126,31 +137,69 @@ function StatCard({
   name,
   stats,
   color,
+  isWinner
 }: {
   name: string;
   stats: CompareStats;
   color: string;
+  isWinner: boolean;
 }) {
   return (
-    <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4 flex flex-col gap-2">
+    <div className={`rounded-xl bg-white/[0.02] border p-4 flex flex-col gap-2 relative overflow-hidden transition-colors duration-300 ${isWinner ? 'border-yellow-500/30' : 'border-white/5'}`}>
+      
+      {isWinner && (
+        <div className="absolute top-2 right-2 text-yellow-500/70" title="Most Efficient (Fewer Nodes)">
+          <Trophy size={16} />
+        </div>
+      )}
+
       <div className="flex items-center gap-2 mb-1">
-        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
-        <span className="text-sm font-semibold text-white">{name}</span>
+        <div className="w-2.5 h-2.5 rounded-full shadow-sm" style={{ backgroundColor: color, boxShadow: `0 0 8px ${color}` }} />
+        <span className="text-sm font-semibold text-white pr-6 truncate">{name}</span>
       </div>
-      <div className="grid grid-cols-2 gap-y-1 text-xs">
+      <div className="grid grid-cols-2 gap-y-1.5 text-xs">
         <span className="text-[#8888aa]">Visited:</span>
-        <span className="text-white font-mono tabular-nums">{stats.nodesVisited}</span>
+        <span className={`font-mono tabular-nums font-medium ${isWinner ? 'text-yellow-400' : 'text-white'}`}>{stats.nodesVisited}</span>
+        
         <span className="text-[#8888aa]">Path:</span>
         <span className="text-white font-mono tabular-nums">{stats.pathLength}</span>
+        
         <span className="text-[#8888aa]">Cost:</span>
         <span className="text-white font-mono tabular-nums">{stats.pathCost}</span>
-        <span className="text-[#8888aa]">Time:</span>
-        <span className="text-white font-mono tabular-nums">{stats.executionTime}ms</span>
+        
         <span className="text-[#8888aa]">Found:</span>
-        <span className={stats.found ? 'text-emerald-400' : 'text-red-400'}>
+        <span className={stats.found ? 'text-emerald-400 font-medium' : 'text-red-400 font-medium'}>
           {stats.found ? '✅ Yes' : '❌ No'}
         </span>
       </div>
     </div>
   );
 }
+
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="glass-elevated rounded-xl p-4 border border-white/10 shadow-2xl backdrop-blur-xl min-w-[200px]">
+        <p className="text-white font-bold mb-3 pb-2 border-b border-white/10">{label}</p>
+        <div className="flex flex-col gap-2.5">
+          {payload.map((entry: any, index: number) => (
+            <div key={index} className="flex items-center justify-between gap-4 text-sm">
+              <div className="flex items-center gap-2">
+                <div 
+                  className="w-2 h-2 rounded-full" 
+                  style={{ 
+                    backgroundColor: entry.color || entry.fill || '#fff',
+                    boxShadow: `0 0 6px ${entry.color || entry.fill || '#fff'}`
+                  }} 
+                />
+                <span className="text-[#aaaacc]">{entry.name}</span>
+              </div>
+              <span className="text-white font-mono font-medium">{entry.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
