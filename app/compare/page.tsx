@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { GitCompareArrows } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useCompareStore } from '@/store/useCompareStore';
 import { ALGORITHM_INFO } from '@/lib/constants';
 import CompareControls from '@/components/compare/CompareControls';
@@ -34,8 +35,25 @@ export default function ComparePage() {
 
   return (
     <div className="flex-1 w-full max-w-7xl mx-auto px-6 py-8 flex flex-col gap-6">
+      
+      {/* Global Progress Bar (Top) */}
+      {isRunning && (
+        <motion.div 
+          initial={{ opacity: 0, scaleX: 0 }}
+          animate={{ opacity: 1, scaleX: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5, ease: "linear" }}
+          className="fixed top-0 left-0 w-full h-1 z-50 origin-left bg-gradient-to-r from-[#00d4ff] via-[#8b5cf6] to-[#a855f7]"
+        />
+      )}
+
       {/* Header */}
-      <div className="flex items-center gap-3">
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 24, delay: 0.1 }}
+        className="flex items-center gap-3"
+      >
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00d4ff]/20 to-[#a855f7]/20 flex items-center justify-center border border-white/5">
           <GitCompareArrows size={20} className="text-[#00d4ff]" />
         </div>
@@ -44,16 +62,27 @@ export default function ComparePage() {
             Algorithm Comparison
           </h1>
           <p className="text-sm text-[#8888aa]">
-            Run two algorithms on the same grid to compare performance
+            Race two pathfinding algorithms side-by-side to compare efficiency and behavior.
           </p>
         </div>
-      </div>
+      </motion.div>
 
       {/* Controls */}
-      <CompareControls />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 24, delay: 0.2 }}
+      >
+        <CompareControls />
+      </motion.div>
 
       {/* Grids */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 24, delay: 0.3 }}
+        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+      >
         <CompareGrid
           grid={grid}
           rows={rows}
@@ -76,15 +105,21 @@ export default function ComparePage() {
           isRunning={isRunning}
           onToggleWall={toggleWall}
         />
-      </div>
+      </motion.div>
 
       {/* Stats */}
-      <CompareStatsPanel
-        stats1={stats1}
-        stats2={stats2}
-        algo1={algo1}
-        algo2={algo2}
-      />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 24, delay: 0.4 }}
+      >
+        <CompareStatsPanel
+          stats1={stats1}
+          stats2={stats2}
+          algo1={algo1}
+          algo2={algo2}
+        />
+      </motion.div>
     </div>
   );
 }
