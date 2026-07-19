@@ -86,8 +86,7 @@ export default function FeatureCards() {
                 y: -8,
                 transition: { type: 'spring', stiffness: 300, damping: 20 },
               }}
-              className="glass-elevated p-6 rounded-2xl cursor-default group transition-all duration-300 hover:border-white/15"
-              style={{ borderColor: 'rgba(255,255,255,0.08)' }}
+              className="glass-elevated p-6 rounded-2xl cursor-default group transition-all duration-300"
             >
               <div
                 className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110"
