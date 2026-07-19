@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
@@ -22,7 +21,7 @@ export function Footer() {
         {/* Left — Brand & Copyright */}
         <div className="flex items-center gap-3">
           <Image src="/logo.jpg" alt="Logo" width={18} height={18} className="rounded-sm" />
-          <span className="font-semibold tracking-wide text-[11px] text-white/90">Pathfinding Visualizer</span>
+          <span className="font-semibold tracking-wide text-[11px] text-white/90">Pathfinder</span>
           <span className="text-[10px] text-[#555577] hidden sm:inline">© {new Date().getFullYear()} Lovejeet Singh</span>
         </div>
 

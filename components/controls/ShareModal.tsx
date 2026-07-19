@@ -34,7 +34,7 @@ export function ShareModal({ isOpen, onClose, onShare }: ShareModalProps) {
       } else if (result.url) {
         setShareUrl(result.url);
       }
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred while sharing.');
     } finally {
       setIsLoading(false);
@@ -49,18 +49,16 @@ export function ShareModal({ isOpen, onClose, onShare }: ShareModalProps) {
     }
   };
 
-  // Reset state when opening/closing
-  React.useEffect(() => {
-    if (isOpen) {
-      setTitle('Shared Grid');
-      setError(null);
-      setShareUrl(null);
-      setCopied(false);
-    }
-  }, [isOpen]);
+  const handleClose = () => {
+    setTitle('Shared Grid');
+    setError(null);
+    setShareUrl(null);
+    setCopied(false);
+    onClose();
+  };
 
   return (
-    <GlassModal isOpen={isOpen} onClose={onClose} title="Share Grid">
+    <GlassModal isOpen={isOpen} onClose={handleClose} title="Share Grid">
       <div className="flex flex-col gap-4">
         {!shareUrl ? (
           <form onSubmit={handleShareSubmit} className="flex flex-col gap-4">
@@ -80,7 +78,7 @@ export function ShareModal({ isOpen, onClose, onShare }: ShareModalProps) {
             )}
             
             <div className="flex justify-end gap-2 mt-2">
-              <GlassButton type="button" variant="ghost" onClick={onClose} disabled={isLoading}>
+              <GlassButton type="button" variant="ghost" onClick={handleClose} disabled={isLoading}>
                 Cancel
               </GlassButton>
               <GlassButton type="submit" variant="primary" disabled={isLoading || !title.trim()} icon={isLoading ? Loader2 : Share2}>
@@ -94,7 +92,7 @@ export function ShareModal({ isOpen, onClose, onShare }: ShareModalProps) {
               {shareUrl}
             </div>
             <div className="flex justify-end gap-2">
-              <GlassButton type="button" variant="ghost" onClick={onClose}>
+              <GlassButton type="button" variant="ghost" onClick={handleClose}>
                 Close
               </GlassButton>
               <GlassButton type="button" variant="primary" onClick={handleCopy} icon={copied ? Check : Copy}>

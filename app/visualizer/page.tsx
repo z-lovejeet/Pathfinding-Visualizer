@@ -13,10 +13,10 @@ import ShareLoader from '@/components/controls/ShareLoader';
 const Scene = dynamic(() => import('@/components/three/Scene'), {
   ssr: false,
   loading: () => (
-    <div className="absolute inset-0 flex items-center justify-center bg-[#050508]">
+    <div className="absolute inset-0 flex items-center justify-center bg-[#101827]">
       <div className="flex flex-col items-center gap-4">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#00d4ff]/20 to-[#8b5cf6]/20 border border-white/10 flex items-center justify-center animate-pulse">
-          <div className="w-6 h-6 rounded-md bg-[#00d4ff]/30" />
+        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#14b8a6]/20 to-[#f43f5e]/20 border border-white/10 flex items-center justify-center animate-pulse">
+          <div className="w-6 h-6 rounded-md bg-[#14b8a6]/30" />
         </div>
         <p className="text-sm text-[#8888aa] font-medium">Loading 3D Scene...</p>
       </div>
@@ -33,7 +33,7 @@ export default function VisualizerPage() {
   useKeyboardShortcuts();
 
   return (
-    <div className="flex-1 relative bg-[#050508] overflow-hidden">
+    <div className="flex-1 relative bg-[#101827] overflow-hidden">
       {/* 3D Canvas — fills entire viewport below navbar */}
       <Scene />
 

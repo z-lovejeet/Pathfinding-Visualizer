@@ -62,9 +62,9 @@ const StatsPanel = React.memo(function StatsPanel() {
   }, [visualizationStartTime, updateTimer]);
 
   const stats = [
-    { label: 'Nodes Visited', value: nodesVisited, icon: Activity, color: '#8b5cf6' },
-    { label: 'Path Length', value: pathLength, icon: Route, color: '#fbbf24' },
-    { label: 'Path Cost', value: pathCost, icon: Scale, color: '#22d3ee' },
+    { label: 'Nodes Visited', value: nodesVisited, icon: Activity, color: '#7c3aed' },
+    { label: 'Path Length', value: pathLength, icon: Route, color: '#f59e0b' },
+    { label: 'Path Cost', value: pathCost, icon: Scale, color: '#2563eb' },
     { label: 'Time', value: executionTime, icon: Timer, color: '#f59e0b', suffix: 'ms', isTime: true },
   ];
 
@@ -80,8 +80,8 @@ const StatsPanel = React.memo(function StatsPanel() {
         <div
           className="w-2 h-2 rounded-full transition-all duration-300"
           style={{
-            backgroundColor: isVisualizing ? '#22d3ee' : isComplete ? '#22c55e' : '#8888aa',
-            boxShadow: isVisualizing ? '0 0 8px rgba(34, 211, 238, 0.6)' : 'none',
+            backgroundColor: isVisualizing ? '#2563eb' : isComplete ? '#22c55e' : '#8888aa',
+            boxShadow: isVisualizing ? '0 0 8px rgba(37, 99, 235, 0.6)' : 'none',
           }}
         />
         <span className="text-xs font-semibold text-[#f0f0f5] tracking-wide">
@@ -101,10 +101,10 @@ const StatsPanel = React.memo(function StatsPanel() {
 
       {/* Live elapsed timer */}
       {isVisualizing && (
-        <div className="flex items-center gap-2 mb-3 px-2 py-1.5 rounded-lg bg-[#00d4ff]/5 border border-[#00d4ff]/10">
-          <div className="w-1.5 h-1.5 rounded-full bg-[#00d4ff] timer-live" />
+        <div className="flex items-center gap-2 mb-3 px-2 py-1.5 rounded-lg bg-[#2563eb]/5 border border-[#2563eb]/10">
+          <div className="w-1.5 h-1.5 rounded-full bg-[#2563eb] timer-live" />
           <span className="text-[10px] text-[#8888aa] font-medium">Elapsed</span>
-          <span className="text-xs font-mono tabular-nums text-[#00d4ff] ml-auto">
+          <span className="text-xs font-mono tabular-nums text-[#2563eb] ml-auto">
             {(liveElapsed / 1000).toFixed(2)}s
           </span>
         </div>
@@ -186,7 +186,7 @@ const StatsPanel = React.memo(function StatsPanel() {
               <span className="text-[9px] text-[#8888aa] w-12 shrink-0">Visited</span>
               <div className="flex-1 h-1 rounded-full bg-white/5 overflow-hidden">
                 <motion.div
-                  className="h-full rounded-full bg-[#8b5cf6]"
+                  className="h-full rounded-full bg-[#7c3aed]"
                   initial={{ width: 0 }}
                   animate={{ width: `${Math.min((nodesVisited / totalNodes) * 100, 100)}%` }}
                   transition={{ type: 'spring' as const, stiffness: 100, damping: 15, delay: 0.1 }}
@@ -203,7 +203,7 @@ const StatsPanel = React.memo(function StatsPanel() {
                 <span className="text-[9px] text-[#8888aa] w-12 shrink-0">Path</span>
                 <div className="flex-1 h-1 rounded-full bg-white/5 overflow-hidden">
                   <motion.div
-                    className="h-full rounded-full bg-[#fbbf24]"
+                  className="h-full rounded-full bg-[#f59e0b]"
                     initial={{ width: 0 }}
                     animate={{ width: `${Math.min((pathLength / nodesVisited) * 100, 100)}%` }}
                     transition={{ type: 'spring' as const, stiffness: 100, damping: 15, delay: 0.2 }}

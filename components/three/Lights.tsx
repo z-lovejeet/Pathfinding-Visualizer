@@ -30,13 +30,13 @@ export default function Lights() {
   return (
     <>
       {/* Warm ambient fill — city glow */}
-      <ambientLight intensity={0.25} color="#cbd5e1" />
+      <ambientLight intensity={0.25} color="#dbeafe" />
 
       {/* Key directional light with shadows */}
       <directionalLight
         position={[10, 15, 10]}
         intensity={0.7}
-        color="#ffffff"
+        color="#f8fafc"
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
@@ -54,29 +54,29 @@ export default function Lights() {
         color="#94a3b8"
       />
 
-      {/* Blue point light tracking Person A */}
+      {/* Cyan point light tracking Person A */}
       <pointLight
         position={[startX, 2, startZ]}
         intensity={4}
-        color="#3b82f6"
+        color="#14b8a6"
         distance={12}
         decay={2}
       />
 
-      {/* Pink point light tracking Person B */}
+      {/* Purple point light tracking Person B */}
       <pointLight
         position={[endX, 2, endZ]}
         intensity={4}
-        color="#ec4899"
+        color="#f43f5e"
         distance={12}
         decay={2}
       />
 
-      {/* Street lamp corner lights — clean glow */}
-      <pointLight position={[-hw, 3, -hh]} intensity={1.0} color="#e2e8f0" distance={18} decay={2} />
-      <pointLight position={[hw, 3, -hh]} intensity={1.0} color="#e2e8f0" distance={18} decay={2} />
-      <pointLight position={[-hw, 3, hh]} intensity={1.0} color="#e2e8f0" distance={18} decay={2} />
-      <pointLight position={[hw, 3, hh]} intensity={1.0} color="#e2e8f0" distance={18} decay={2} />
+      {/* Street lamp corner lights — warm glow */}
+      <pointLight position={[-hw, 3, -hh]} intensity={1.2} color="#cbd5e1" distance={18} decay={2} />
+      <pointLight position={[hw, 3, -hh]} intensity={1.2} color="#cbd5e1" distance={18} decay={2} />
+      <pointLight position={[-hw, 3, hh]} intensity={1.2} color="#cbd5e1" distance={18} decay={2} />
+      <pointLight position={[hw, 3, hh]} intensity={1.2} color="#cbd5e1" distance={18} decay={2} />
     </>
   );
 }

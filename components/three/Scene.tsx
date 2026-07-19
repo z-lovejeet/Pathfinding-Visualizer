@@ -30,11 +30,11 @@ export default function Scene() {
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.2,
         }}
-        style={{ background: '#0f172a' }}
+        style={{ background: '#101827' }}
       >
         <Suspense fallback={null}>
           {/* Fog for depth — city atmosphere */}
-          <fog attach="fog" args={['#0f172a', 30, 65]} />
+          <fog attach="fog" args={['#101827', 30, 65]} />
 
           {/* Camera controls */}
           <CameraController />
@@ -61,4 +61,3 @@ export default function Scene() {
     </div>
   );
 }
-

@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useVisualizerStore } from '@/store/useVisualizerStore';
+import { isAlgorithmType, isSharedGridData } from '@/lib/share/validation';
 
 export default function ShareLoader() {
   const searchParams = useSearchParams();
@@ -10,16 +11,36 @@ export default function ShareLoader() {
   const loadGrid = useVisualizerStore((s) => s.loadGrid);
 
   useEffect(() => {
-    if (shareId) {
-      fetch(`/api/share/${shareId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data && data.gridData && data.algorithm) {
-            loadGrid(data.gridData, data.algorithm);
+    if (!shareId) return;
+
+    const controller = new AbortController();
+
+    fetch(`/api/share/${encodeURIComponent(shareId)}`, {
+      cache: 'no-store',
+      signal: controller.signal,
+    })
+      .then(async (response) => {
+        if (!response.ok) return null;
+        return response.json() as Promise<unknown>;
+      })
+      .then((data) => {
+        if (data && typeof data === 'object') {
+          const sharedGrid = data as Record<string, unknown>;
+
+          if (
+            isSharedGridData(sharedGrid.gridData) &&
+            isAlgorithmType(sharedGrid.algorithm)
+          ) {
+            loadGrid(sharedGrid.gridData, sharedGrid.algorithm);
           }
-        })
-        .catch((err) => console.error('Error loading shared grid:', err));
-    }
+        }
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+        console.error('Unable to load a shared grid.', error);
+      });
+
+    return () => controller.abort();
   }, [shareId, loadGrid]);
 
   return null;

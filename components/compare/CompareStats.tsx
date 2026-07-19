@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import type { TooltipContentProps } from 'recharts';
 import { ALGORITHM_INFO } from '@/lib/constants';
 import { Trophy, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -47,8 +48,6 @@ export default function CompareStatsPanel({ stats1, stats2, algo1, algo2 }: Comp
 
   // Logic for Winners
   const visitedWinner = stats1.nodesVisited < stats2.nodesVisited ? 1 : stats2.nodesVisited < stats1.nodesVisited ? 2 : 0;
-  const pathWinner = stats1.pathLength < stats2.pathLength ? 1 : stats2.pathLength < stats1.pathLength ? 2 : 0;
-  
   // Generate insight
   const fewerNodes = stats1.nodesVisited < stats2.nodesVisited ? name1 : name2;
   const moreNodes = stats1.nodesVisited < stats2.nodesVisited ? name2 : name1;
@@ -102,7 +101,7 @@ export default function CompareStatsPanel({ stats1, stats2, algo1, algo2 }: Comp
             />
             <Tooltip
               cursor={{ fill: 'rgba(255,255,255,0.02)' }}
-              content={<CustomTooltip />}
+              content={CustomTooltip}
             />
             <Bar dataKey={series1} name={name1} radius={[4, 4, 0, 0]}>
               {chartData.map((_, index) => (
@@ -176,13 +175,13 @@ function StatCard({
   );
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const CustomTooltip = ({ active, payload, label }: TooltipContentProps) => {
   if (active && payload && payload.length) {
     return (
       <div className="glass-elevated rounded-xl p-4 border border-white/10 shadow-2xl backdrop-blur-xl min-w-[200px]">
         <p className="text-white font-bold mb-3 pb-2 border-b border-white/10">{label}</p>
         <div className="flex flex-col gap-2.5">
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry, index) => (
             <div key={index} className="flex items-center justify-between gap-4 text-sm">
               <div className="flex items-center gap-2">
                 <div 

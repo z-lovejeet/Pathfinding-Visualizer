@@ -16,7 +16,7 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Interactive 3D Pathfinding Visualizer",
+  title: "Pathfinder",
   description: "Visualize and learn pathfinding algorithms in 3D.",
 };
 

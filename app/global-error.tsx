@@ -16,7 +16,7 @@ export default function GlobalError({
   return (
     <html lang="en">
       <head>
-        <title>Application error | Pathfinding Visualizer</title>
+        <title>Application error | Pathfinder</title>
       </head>
       <body
         style={{

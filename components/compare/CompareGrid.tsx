@@ -29,13 +29,13 @@ interface AnimationState {
 
 const CELL_COLORS: Record<CellState | 'current', string> = {
   empty: NODE_COLORS.empty.css,
-  wall: '#2a2a3e',
+  wall: '#334155',
   start: NODE_COLORS.start.css,
   end: NODE_COLORS.end.css,
   weight: NODE_COLORS.weight.css,
   visited: NODE_COLORS.visited.css,
   path: NODE_COLORS.path.css,
-  current: '#fcd34d', // Amber 300 for pulse
+  current: '#2563eb', // Cobalt blue for pulse
 };
 
 const CELL_LABELS: Record<CellState | 'current', string> = {

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
-import { Box, Code2, Network, BookOpen, Menu, X } from 'lucide-react';
+import { Code2, Network, BookOpen, Menu, X } from 'lucide-react';
 
 export const Navbar = () => {
   const pathname = usePathname();
@@ -26,7 +26,7 @@ export const Navbar = () => {
               <Image src="/logo.jpg" alt="Logo" fill sizes="40px" className="object-cover" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-[#f0f0f5] to-[#8888aa] bg-clip-text text-transparent ml-2 font-outfit tracking-wide">
-              DSA Visualizer
+              Pathfinder
             </span>
           </Link>
         </div>
