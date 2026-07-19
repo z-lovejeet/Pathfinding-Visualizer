@@ -72,8 +72,8 @@ export default function Beacons() {
           <capsuleGeometry args={[0.09, 0.18, 4, 8]} />
           <meshStandardMaterial
             color="#00d4ff"
-            emissive="#00d4ff"
-            emissiveIntensity={1.2}
+            emissive="#000000"
+            emissiveIntensity={0}
             roughness={0.3}
             metalness={0.4}
           />
@@ -83,9 +83,9 @@ export default function Beacons() {
         <mesh position={[0, 0.42, 0]} castShadow>
           <sphereGeometry args={[0.08, 8, 8]} />
           <meshStandardMaterial
-            color="#e0f8ff"
-            emissive="#00d4ff"
-            emissiveIntensity={0.6}
+            color="#00d4ff"
+            emissive="#000000"
+            emissiveIntensity={0}
             roughness={0.4}
           />
         </mesh>
@@ -124,8 +124,8 @@ export default function Beacons() {
           <capsuleGeometry args={[0.09, 0.18, 4, 8]} />
           <meshStandardMaterial
             color="#a78bfa"
-            emissive="#a78bfa"
-            emissiveIntensity={1.2}
+            emissive="#000000"
+            emissiveIntensity={0}
             roughness={0.3}
             metalness={0.4}
           />
@@ -135,9 +135,9 @@ export default function Beacons() {
         <mesh position={[0, 0.42, 0]} castShadow>
           <sphereGeometry args={[0.08, 8, 8]} />
           <meshStandardMaterial
-            color="#f0e8ff"
-            emissive="#a78bfa"
-            emissiveIntensity={0.6}
+            color="#a78bfa"
+            emissive="#000000"
+            emissiveIntensity={0}
             roughness={0.4}
           />
         </mesh>

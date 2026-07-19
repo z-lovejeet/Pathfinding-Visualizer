@@ -21,13 +21,13 @@ export const getDelayFromSpeed = (speed: number) => {
 
 // 3D Node colors — City-at-night palette
 export const NODE_COLORS = {
-  empty:   { css: '#1a1a24', hex: 0x1a1a24, emissive: 0x000000, intensity: 0,   height: 0.08 },
-  wall:    { css: '#2d2445', hex: 0x2d2445, emissive: 0xff8c42, intensity: 0.15, height: 0.9  },
+  empty:   { css: '#0a0a0c', hex: 0x0a0a0c, emissive: 0x000000, intensity: 0,   height: 0.08 },
+  wall:    { css: '#1c1c24', hex: 0x1c1c24, emissive: 0x000000, intensity: 0.0, height: 0.9  },
   start:   { css: '#00d4ff', hex: 0x00d4ff, emissive: 0x00d4ff, intensity: 1.0,  height: 0.08 },
   end:     { css: '#a78bfa', hex: 0xa78bfa, emissive: 0xa78bfa, intensity: 1.0,  height: 0.08 },
-  weight:  { css: '#2d8a4e', hex: 0x1a3a1a, emissive: 0x1a5a2a, intensity: 0.1,  height: 0.12 },
-  visited: { css: '#7c5cf2', hex: 0x7c5cf2, emissive: 0x7c5cf2, intensity: 1.8,  height: 0.13 },
-  path:    { css: '#fbbf24', hex: 0xfbbf24, emissive: 0xfbbf24, intensity: 3.0,  height: 0.22 },
+  weight:  { css: '#232330', hex: 0x232330, emissive: 0x232330, intensity: 0.1,  height: 0.12 },
+  visited: { css: '#4c1d95', hex: 0x4c1d95, emissive: 0x4c1d95, intensity: 1.8,  height: 0.13 },
+  path:    { css: '#00d4ff', hex: 0x00d4ff, emissive: 0x00d4ff, intensity: 3.0,  height: 0.22 },
   current: { css: '#22d3ee', hex: 0x22d3ee, emissive: 0x22d3ee, intensity: 2.5,  height: 0.18 },
 };
 

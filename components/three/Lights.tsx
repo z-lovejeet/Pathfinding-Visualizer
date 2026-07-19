@@ -29,14 +29,14 @@ export default function Lights() {
 
   return (
     <>
-      {/* Warm ambient fill — city glow */}
-      <ambientLight intensity={0.25} color="#ffe8cc" />
+      {/* Clean neutral ambient fill */}
+      <ambientLight intensity={0.4} color="#ffffff" />
 
       {/* Key directional light with shadows */}
       <directionalLight
-        position={[10, 15, 10]}
-        intensity={0.7}
-        color="#fff5e6"
+        position={[10, 20, 10]}
+        intensity={0.6}
+        color="#ffffff"
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
@@ -47,36 +47,30 @@ export default function Lights() {
         shadow-camera-bottom={-30}
       />
 
-      {/* Cool fill light from opposite side */}
+      {/* Soft fill light from opposite side */}
       <directionalLight
-        position={[-8, 10, -8]}
-        intensity={0.25}
-        color="#6366f1"
+        position={[-10, 10, -10]}
+        intensity={0.2}
+        color="#ffffff"
       />
 
       {/* Cyan point light tracking Person A */}
       <pointLight
         position={[startX, 2, startZ]}
-        intensity={4}
+        intensity={3}
         color="#00d4ff"
-        distance={12}
+        distance={10}
         decay={2}
       />
 
       {/* Purple point light tracking Person B */}
       <pointLight
         position={[endX, 2, endZ]}
-        intensity={4}
+        intensity={3}
         color="#a78bfa"
-        distance={12}
+        distance={10}
         decay={2}
       />
-
-      {/* Street lamp corner lights — warm glow */}
-      <pointLight position={[-hw, 3, -hh]} intensity={1.2} color="#ffcc88" distance={18} decay={2} />
-      <pointLight position={[hw, 3, -hh]} intensity={1.2} color="#ffcc88" distance={18} decay={2} />
-      <pointLight position={[-hw, 3, hh]} intensity={1.2} color="#ffcc88" distance={18} decay={2} />
-      <pointLight position={[hw, 3, hh]} intensity={1.2} color="#ffcc88" distance={18} decay={2} />
     </>
   );
 }

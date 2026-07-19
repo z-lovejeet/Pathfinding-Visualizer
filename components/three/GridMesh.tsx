@@ -25,10 +25,10 @@ const getBuildingHeight = (row: number, col: number) =>
   BUILDING_HEIGHTS[(row * 31 + col * 17) % BUILDING_HEIGHTS.length];
 
 // Road phase colors
-const ROAD_BASE = 0x1a1a24;
-const ROAD_WEIGHT = 0x1a3a1a;
-const ROAD_VISITED = 0x7c5cf2;
-const ROAD_PATH = 0xfbbf24;
+const ROAD_BASE = 0x0a0a0c;
+const ROAD_WEIGHT = 0x232330;
+const ROAD_VISITED = 0x4c1d95;
+const ROAD_PATH = 0x00d4ff;
 const ROAD_CURRENT = 0x22d3ee;
 
 export default function CityMesh() {
@@ -239,8 +239,8 @@ export default function CityMesh() {
           vertexColors
           roughness={0.85}
           metalness={0.05}
-          emissive="#7c5cf2"
-          emissiveIntensity={0.2}
+          emissive="#000000"
+          emissiveIntensity={0}
           toneMapped={false}
         />
       </instancedMesh>
@@ -249,11 +249,11 @@ export default function CityMesh() {
       <instancedMesh ref={buildingRef} args={[undefined, undefined, count]} castShadow receiveShadow>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial
-          color="#2d2445"
+          color="#1c1c24"
           roughness={0.6}
           metalness={0.2}
-          emissive="#ff8c42"
-          emissiveIntensity={0.15}
+          emissive="#000000"
+          emissiveIntensity={0}
         />
       </instancedMesh>
 
@@ -261,11 +261,11 @@ export default function CityMesh() {
       <instancedMesh ref={treeRef} args={[undefined, undefined, count]} castShadow>
         <coneGeometry args={[0.28, 0.55, 6]} />
         <meshStandardMaterial
-          color="#2d8a4e"
+          color="#232330"
           roughness={0.8}
           metalness={0.05}
-          emissive="#1a5a2a"
-          emissiveIntensity={0.1}
+          emissive="#000000"
+          emissiveIntensity={0}
         />
       </instancedMesh>
     </group>
