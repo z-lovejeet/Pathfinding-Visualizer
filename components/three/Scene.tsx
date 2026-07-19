@@ -12,16 +12,16 @@ import PostProcessing from './PostProcessing';
 import Beacons from './Beacons';
 
 /**
- * Scene — Root R3F Canvas wrapper.
+ * Scene — Root R3F Canvas for the miniature city visualizer.
  *
- * Sets up the Three.js scene with camera, lighting, grid, interaction,
- * and post-processing. Wrapped in Suspense with a loading fallback.
+ * Sets up Three.js scene with city lighting, ground plane, buildings/roads/trees,
+ * person markers, mouse interaction, and post-processing.
  */
 export default function Scene() {
   return (
     <div className="absolute inset-0">
       <Canvas
-        camera={{ position: [0, 18, 22], fov: 50 }}
+        camera={{ position: [0, 20, 24], fov: 50 }}
         dpr={[1, 1.5]}
         shadows
         gl={{
@@ -33,31 +33,32 @@ export default function Scene() {
         style={{ background: '#050508' }}
       >
         <Suspense fallback={null}>
-          {/* Fog for depth */}
+          {/* Fog for depth — city atmosphere */}
           <fog attach="fog" args={['#050508', 30, 65]} />
 
           {/* Camera controls */}
           <CameraController />
 
-          {/* Lighting rig */}
+          {/* City lighting rig */}
           <Lights />
 
-          {/* Ground plane with grid lines */}
+          {/* Dark ground plane */}
           <GridPlane />
 
-          {/* Floating Start/End Beacons */}
+          {/* Person markers for Start/End */}
           <Beacons />
 
-          {/* The main InstancedMesh grid */}
+          {/* Miniature city: roads, buildings, trees */}
           <GridMesh />
 
           {/* Invisible raycast plane for mouse interaction */}
           <RaycastHandler />
 
-          {/* Post-processing effects */}
+          {/* Post-processing: bloom + vignette */}
           <PostProcessing />
         </Suspense>
       </Canvas>
     </div>
   );
 }
+
