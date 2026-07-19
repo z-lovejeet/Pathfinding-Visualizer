@@ -4,6 +4,8 @@
 
 It is built as a polished, browser-first experience: a React Three Fiber scene for the primary visualizer, a glassmorphism interface, live run statistics, an educational Learn area, and an optional share-link workflow backed by Neon PostgreSQL.
 
+**Live demo:** [pathfinding-visualizer-flax-one.vercel.app](https://pathfinding-visualizer-flax-one.vercel.app/)
+
 ## Highlights
 
 - **Interactive 3D visualizer** — a `25 × 50` board rendered with React Three Fiber, Three.js, instanced geometry, bloom, vignette, and orbit controls.
