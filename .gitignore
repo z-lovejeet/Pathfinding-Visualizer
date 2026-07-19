@@ -40,5 +40,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-report/Pathfinder_Project_Report_LPU.docx
-report/Pathfinder_Project_Report_LPU.pdf
