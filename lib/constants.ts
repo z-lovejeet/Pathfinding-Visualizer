@@ -19,16 +19,16 @@ export const getDelayFromSpeed = (speed: number) => {
   return Math.max(5, Math.floor(200 * Math.pow(0.95, speed)));
 };
 
-// 3D Node colors (CSS + Three.js hex + emissive)
+// 3D Node colors — City theme
 export const NODE_COLORS = {
-  empty: { css: '#1a1a2e', hex: 0x1a1a2e, emissive: 0x000000, intensity: 0, height: 0.1 },
-  wall: { css: '#1e1e2e', hex: 0x1e1e2e, emissive: 0x000000, intensity: 0, height: 0.8 },
-  start: { css: '#00d4ff', hex: 0x00d4ff, emissive: 0x00d4ff, intensity: 2.0, height: 0.3 },
-  end: { css: '#ff4757', hex: 0xff4757, emissive: 0xff4757, intensity: 2.0, height: 0.3 },
-  weight: { css: '#a78bfa', hex: 0xa78bfa, emissive: 0xa78bfa, intensity: 0.5, height: 0.3 },
-  visited: { css: '#8b5cf6', hex: 0x8b5cf6, emissive: 0x8b5cf6, intensity: 1.5, height: 0.4 },
-  path: { css: '#fbbf24', hex: 0xfbbf24, emissive: 0xfbbf24, intensity: 3.0, height: 0.6 },
-  current: { css: '#22d3ee', hex: 0x22d3ee, emissive: 0x22d3ee, intensity: 2.5, height: 0.5 },
+  empty: { css: '#2a2a35', hex: 0x2a2a35, emissive: 0x000000, intensity: 0, height: 0.08 },
+  wall: { css: '#1a1a2e', hex: 0x1a1a2e, emissive: 0xffaa44, intensity: 0.12, height: 0.9 },
+  start: { css: '#00d4ff', hex: 0x00d4ff, emissive: 0x00d4ff, intensity: 1.0, height: 0.08 },
+  end: { css: '#a78bfa', hex: 0xa78bfa, emissive: 0xa78bfa, intensity: 1.0, height: 0.08 },
+  weight: { css: '#2d8a4e', hex: 0x1a3a1a, emissive: 0x1a5a2a, intensity: 0.1, height: 0.12 },
+  visited: { css: '#e8a849', hex: 0xe8a849, emissive: 0xe8a849, intensity: 1.5, height: 0.13 },
+  path: { css: '#00d4ff', hex: 0x00d4ff, emissive: 0x00d4ff, intensity: 3.0, height: 0.22 },
+  current: { css: '#22d3ee', hex: 0x22d3ee, emissive: 0x22d3ee, intensity: 2.5, height: 0.18 },
 };
 
 // Algorithm metadata
