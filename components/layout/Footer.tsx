@@ -3,12 +3,18 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Terminal } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 /**
  * Footer — Ultra-minimal, single-row glass footer.
  */
 export function Footer() {
+  const pathname = usePathname();
+
+  if (pathname === '/visualizer') {
+    return null;
+  }
+
   return (
     <footer className="relative z-10 w-full border-t border-white/5 bg-black/30 backdrop-blur-xl h-[58px] flex items-center">
       <div className="w-full max-w-7xl mx-auto px-6 flex items-center justify-between gap-4">
@@ -20,11 +26,8 @@ export function Footer() {
           <span className="text-[10px] text-[#555577] hidden sm:inline">© {new Date().getFullYear()} Lovejeet Singh</span>
         </div>
 
-        {/* Center — Premium Tagline */}
+        {/* Center — Empty Space */}
         <div className="flex items-center justify-center flex-1">
-          <span className="text-[11px] font-medium text-[#777799] tracking-[0.2em] uppercase">
-            Visualizing complexity with elegance
-          </span>
         </div>
 
         {/* Right — GitHub */}
