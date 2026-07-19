@@ -1,6 +1,6 @@
-# Pathfinder
+# Pathfinding Visualizer
 
-**Pathfinder** is an interactive 3D pathfinding visualizer for exploring algorithms, maze generation, and the trade-offs behind every route. Build a board, place obstacles or weighted terrain, generate a maze, and watch the selected algorithm explore the world in real time.
+**Pathfinding Visualizer** is an interactive 3D pathfinding visualizer for exploring algorithms, maze generation, and the trade-offs behind every route. Build a board, place obstacles or weighted terrain, generate a maze, and watch the selected algorithm explore the world in real time.
 
 It is built as a polished, browser-first experience: a React Three Fiber scene for the primary visualizer, a glassmorphism interface, live run statistics, an educational Learn area, and an optional share-link workflow backed by Neon PostgreSQL.
 
