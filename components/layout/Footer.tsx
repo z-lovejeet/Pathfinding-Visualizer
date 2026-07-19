@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Terminal } from 'lucide-react';
 
 /**
@@ -14,7 +15,7 @@ export function Footer() {
         
         {/* Left — Brand & Copyright */}
         <div className="flex items-center gap-3">
-          <Terminal size={14} className="text-[#00d4ff]" />
+          <Image src="/logo.jpg" alt="Logo" width={16} height={16} className="rounded-sm" />
           <span className="font-semibold tracking-wide text-[11px] text-white/90">Pathfinding Visualizer</span>
           <span className="text-[10px] text-[#555577] hidden sm:inline">© {new Date().getFullYear()} Lovejeet Singh</span>
         </div>
