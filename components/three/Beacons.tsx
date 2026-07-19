@@ -52,14 +52,14 @@ export default function Beacons() {
 
   return (
     <>
-      {/* ─── Person A (Start) — Cyan ─── */}
+      {/* ─── Person A (Start) — Blue ─── */}
       <group ref={startRef}>
         {/* Ground glow disc */}
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
           <circleGeometry args={[0.35, 16]} />
           <meshStandardMaterial
-            color="#00d4ff"
-            emissive="#00d4ff"
+            color="#3b82f6"
+            emissive="#3b82f6"
             emissiveIntensity={2}
             transparent
             opacity={0.25}
@@ -71,9 +71,9 @@ export default function Beacons() {
         <mesh position={[0, 0.22, 0]} castShadow>
           <capsuleGeometry args={[0.09, 0.18, 4, 8]} />
           <meshStandardMaterial
-            color="#00d4ff"
-            emissive="#000000"
-            emissiveIntensity={0}
+            color="#3b82f6"
+            emissive="#3b82f6"
+            emissiveIntensity={1.2}
             roughness={0.3}
             metalness={0.4}
           />
@@ -83,9 +83,9 @@ export default function Beacons() {
         <mesh position={[0, 0.42, 0]} castShadow>
           <sphereGeometry args={[0.08, 8, 8]} />
           <meshStandardMaterial
-            color="#00d4ff"
-            emissive="#000000"
-            emissiveIntensity={0}
+            color="#eff6ff"
+            emissive="#3b82f6"
+            emissiveIntensity={0.6}
             roughness={0.4}
           />
         </mesh>
@@ -94,8 +94,8 @@ export default function Beacons() {
         <mesh ref={startMarkerRef} position={[0, 0.75, 0]}>
           <octahedronGeometry args={[0.1, 0]} />
           <meshStandardMaterial
-            color="#00d4ff"
-            emissive="#00d4ff"
+            color="#3b82f6"
+            emissive="#3b82f6"
             emissiveIntensity={3}
             roughness={0.2}
             metalness={0.8}
@@ -104,14 +104,14 @@ export default function Beacons() {
         </mesh>
       </group>
 
-      {/* ─── Person B (End) — Purple ─── */}
+      {/* ─── Person B (End) — Pink ─── */}
       <group ref={endRef}>
         {/* Ground glow disc */}
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
           <circleGeometry args={[0.35, 16]} />
           <meshStandardMaterial
-            color="#a78bfa"
-            emissive="#a78bfa"
+            color="#ec4899"
+            emissive="#ec4899"
             emissiveIntensity={2}
             transparent
             opacity={0.25}
@@ -123,9 +123,9 @@ export default function Beacons() {
         <mesh position={[0, 0.22, 0]} castShadow>
           <capsuleGeometry args={[0.09, 0.18, 4, 8]} />
           <meshStandardMaterial
-            color="#a78bfa"
-            emissive="#000000"
-            emissiveIntensity={0}
+            color="#ec4899"
+            emissive="#ec4899"
+            emissiveIntensity={1.2}
             roughness={0.3}
             metalness={0.4}
           />
@@ -135,9 +135,9 @@ export default function Beacons() {
         <mesh position={[0, 0.42, 0]} castShadow>
           <sphereGeometry args={[0.08, 8, 8]} />
           <meshStandardMaterial
-            color="#a78bfa"
-            emissive="#000000"
-            emissiveIntensity={0}
+            color="#fdf2f8"
+            emissive="#ec4899"
+            emissiveIntensity={0.6}
             roughness={0.4}
           />
         </mesh>
@@ -146,8 +146,8 @@ export default function Beacons() {
         <mesh ref={endMarkerRef} position={[0, 0.75, 0]}>
           <octahedronGeometry args={[0.1, 0]} />
           <meshStandardMaterial
-            color="#a78bfa"
-            emissive="#a78bfa"
+            color="#ec4899"
+            emissive="#ec4899"
             emissiveIntensity={3}
             roughness={0.2}
             metalness={0.8}
