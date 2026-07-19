@@ -4,67 +4,157 @@ import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useVisualizerStore } from '@/store/useVisualizerStore';
-import { NODE_COLORS } from '@/lib/constants';
 
 /**
- * Beacons — Distinct floating 3D objects for Start and End points.
- * 
- * Renders two octahedrons that smoothly bob up and down and rotate.
- * Positions update reactively when the user moves start/end via the store.
+ * Beacons — Miniature 3D person models for Start and End points.
+ *
+ * Each person is a group with: ground glow disc, capsule body,
+ * sphere head, and floating diamond marker above.
+ * Positions track startPos/endPos reactively from the store.
  */
 export default function Beacons() {
   const startPos = useVisualizerStore((s) => s.startPos);
   const endPos = useVisualizerStore((s) => s.endPos);
   const rows = useVisualizerStore((s) => s.rows);
   const cols = useVisualizerStore((s) => s.cols);
-  
-  const startRef = useRef<THREE.Mesh>(null);
-  const endRef = useRef<THREE.Mesh>(null);
+
+  const startRef = useRef<THREE.Group>(null);
+  const endRef = useRef<THREE.Group>(null);
+  const startMarkerRef = useRef<THREE.Mesh>(null);
+  const endMarkerRef = useRef<THREE.Mesh>(null);
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
 
-    // Recompute world positions every frame so they track dragged start/end
     const sx = startPos.col - cols / 2 + 0.5;
     const sz = startPos.row - rows / 2 + 0.5;
     const ex = endPos.col - cols / 2 + 0.5;
     const ez = endPos.row - rows / 2 + 0.5;
 
+    // Position person groups on top of road tiles
     if (startRef.current) {
-      startRef.current.position.set(sx, 0.8 + Math.sin(time * 3) * 0.15, sz);
-      startRef.current.rotation.y += 0.02;
+      startRef.current.position.set(sx, 0.08, sz);
     }
     if (endRef.current) {
-      endRef.current.position.set(ex, 0.8 + Math.sin(time * 3 + Math.PI) * 0.15, ez);
-      endRef.current.rotation.y -= 0.02;
+      endRef.current.position.set(ex, 0.08, ez);
+    }
+
+    // Animate floating markers (bob + rotate)
+    if (startMarkerRef.current) {
+      startMarkerRef.current.position.y = 0.75 + Math.sin(time * 3) * 0.08;
+      startMarkerRef.current.rotation.y += 0.025;
+    }
+    if (endMarkerRef.current) {
+      endMarkerRef.current.position.y = 0.75 + Math.sin(time * 3 + Math.PI) * 0.08;
+      endMarkerRef.current.rotation.y -= 0.025;
     }
   });
 
   return (
     <>
-      {/* Start Beacon — Floating cyan octahedron */}
-      <mesh ref={startRef} position={[0, 0.8, 0]} castShadow>
-        <octahedronGeometry args={[0.35, 0]} />
-        <meshStandardMaterial 
-          color={NODE_COLORS.start.css} 
-          emissive={NODE_COLORS.start.css} 
-          emissiveIntensity={2.5} 
-          roughness={0.2} 
-          metalness={0.8} 
-        />
-      </mesh>
-      
-      {/* End Beacon — Floating red octahedron */}
-      <mesh ref={endRef} position={[0, 0.8, 0]} castShadow>
-        <octahedronGeometry args={[0.35, 0]} />
-        <meshStandardMaterial 
-          color={NODE_COLORS.end.css} 
-          emissive={NODE_COLORS.end.css} 
-          emissiveIntensity={2.5} 
-          roughness={0.2} 
-          metalness={0.8} 
-        />
-      </mesh>
+      {/* ─── Person A (Start) — Cyan ─── */}
+      <group ref={startRef}>
+        {/* Ground glow disc */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
+          <circleGeometry args={[0.35, 16]} />
+          <meshStandardMaterial
+            color="#00d4ff"
+            emissive="#00d4ff"
+            emissiveIntensity={2}
+            transparent
+            opacity={0.25}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+
+        {/* Body */}
+        <mesh position={[0, 0.22, 0]} castShadow>
+          <capsuleGeometry args={[0.09, 0.18, 4, 8]} />
+          <meshStandardMaterial
+            color="#00d4ff"
+            emissive="#00d4ff"
+            emissiveIntensity={1.2}
+            roughness={0.3}
+            metalness={0.4}
+          />
+        </mesh>
+
+        {/* Head */}
+        <mesh position={[0, 0.42, 0]} castShadow>
+          <sphereGeometry args={[0.08, 8, 8]} />
+          <meshStandardMaterial
+            color="#e0f8ff"
+            emissive="#00d4ff"
+            emissiveIntensity={0.6}
+            roughness={0.4}
+          />
+        </mesh>
+
+        {/* Floating marker diamond */}
+        <mesh ref={startMarkerRef} position={[0, 0.75, 0]}>
+          <octahedronGeometry args={[0.1, 0]} />
+          <meshStandardMaterial
+            color="#00d4ff"
+            emissive="#00d4ff"
+            emissiveIntensity={3}
+            roughness={0.2}
+            metalness={0.8}
+            toneMapped={false}
+          />
+        </mesh>
+      </group>
+
+      {/* ─── Person B (End) — Purple ─── */}
+      <group ref={endRef}>
+        {/* Ground glow disc */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, 0]}>
+          <circleGeometry args={[0.35, 16]} />
+          <meshStandardMaterial
+            color="#a78bfa"
+            emissive="#a78bfa"
+            emissiveIntensity={2}
+            transparent
+            opacity={0.25}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
+
+        {/* Body */}
+        <mesh position={[0, 0.22, 0]} castShadow>
+          <capsuleGeometry args={[0.09, 0.18, 4, 8]} />
+          <meshStandardMaterial
+            color="#a78bfa"
+            emissive="#a78bfa"
+            emissiveIntensity={1.2}
+            roughness={0.3}
+            metalness={0.4}
+          />
+        </mesh>
+
+        {/* Head */}
+        <mesh position={[0, 0.42, 0]} castShadow>
+          <sphereGeometry args={[0.08, 8, 8]} />
+          <meshStandardMaterial
+            color="#f0e8ff"
+            emissive="#a78bfa"
+            emissiveIntensity={0.6}
+            roughness={0.4}
+          />
+        </mesh>
+
+        {/* Floating marker diamond */}
+        <mesh ref={endMarkerRef} position={[0, 0.75, 0]}>
+          <octahedronGeometry args={[0.1, 0]} />
+          <meshStandardMaterial
+            color="#a78bfa"
+            emissive="#a78bfa"
+            emissiveIntensity={3}
+            roughness={0.2}
+            metalness={0.8}
+            toneMapped={false}
+          />
+        </mesh>
+      </group>
     </>
   );
 }
