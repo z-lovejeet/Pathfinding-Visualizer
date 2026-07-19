@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { AlgorithmResult, AlgorithmType, GridNode, InteractionMode, MazeType, NodeType, Position, Stats, VisualState } from '../lib/grid/types';
 import { ANIMATION_CONFIG, DEFAULT_COLS, DEFAULT_END, DEFAULT_ROWS, DEFAULT_START, NODE_COLORS } from '../lib/constants';
-import { createEmptyGrid } from '../lib/grid/gridUtils';
+import { createEmptyGrid, deserializeGrid } from '../lib/grid/gridUtils';
 import { getAlgorithm, getPathCost, resetAlgorithmState } from '../lib/algorithms';
 import { AnimationController } from '../lib/animation/animationController';
 import { AnimationEngine } from '../lib/animation/AnimationEngine';
@@ -79,6 +79,7 @@ interface VisualizerState {
   stopAlgorithm: () => void;
   generateMaze: () => Promise<void>;
   updateGridNodes: (updater: (grid: GridNode[][]) => GridNode[][]) => void;
+  loadGrid: (data: unknown, algo: AlgorithmType) => void;
 }
 
 const initialStats: Stats = {
@@ -349,6 +350,38 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
 
   updateGridNodes: (updater) => {
     set((state) => ({ grid: updater(state.grid) }));
+  },
+
+  loadGrid: (data: unknown, algo: AlgorithmType) => {
+    set((state) => {
+      // Stop running animations
+      if (state.animationEngine) {
+        state.animationEngine.stop();
+      }
+      if (state.animationController) {
+        state.animationController.stop();
+      }
+
+      const grid = deserializeGrid(
+        data,
+        state.rows,
+        state.cols,
+        state.startPos,
+        state.endPos
+      );
+
+      return {
+        grid,
+        algorithm: algo,
+        isVisualizing: false,
+        isPaused: false,
+        isComplete: false,
+        runId: state.runId + 1,
+        animationEngine: null,
+        animationController: null,
+      };
+    });
+    get().resetStats();
   },
 
   // ═══════════════ CORE ALGORITHM ACTIONS ═══════════════
