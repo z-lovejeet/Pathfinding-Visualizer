@@ -1,12 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import ControlPanel from '@/components/controls/ControlPanel';
 import StatsPanel from '@/components/stats/StatsPanel';
 import Legend from '@/components/legend/Legend';
 import { NoPathModal } from '@/components/ui/NoPathModal';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import ShareLoader from '@/components/controls/ShareLoader';
 
 // Dynamic import to prevent Three.js SSR — R3F requires browser APIs
 const Scene = dynamic(() => import('@/components/three/Scene'), {
@@ -43,6 +44,10 @@ export default function VisualizerPage() {
 
       {/* No path found modal */}
       <NoPathModal />
+
+      <Suspense fallback={null}>
+        <ShareLoader />
+      </Suspense>
     </div>
   );
 }
