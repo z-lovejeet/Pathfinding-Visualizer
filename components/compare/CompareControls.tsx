@@ -30,11 +30,12 @@ export default function CompareControls() {
     <div className="glass-elevated rounded-2xl p-5 flex flex-wrap items-end gap-4">
       {/* Algorithm 1 */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-medium text-[#8888aa] uppercase tracking-wider flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-[#00d4ff]" />
+        <label htmlFor="compare-algorithm-1" className="text-xs font-medium text-[#8888aa] uppercase tracking-wider flex items-center gap-1.5">
+          <div className="w-2 h-2 rounded-full bg-[#00d4ff]" aria-hidden="true" />
           Algorithm 1
         </label>
         <select
+          id="compare-algorithm-1"
           value={algo1}
           onChange={(e) => setAlgo1(e.target.value as AlgorithmType)}
           disabled={isRunning}
@@ -51,11 +52,12 @@ export default function CompareControls() {
 
       {/* Algorithm 2 */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-medium text-[#8888aa] uppercase tracking-wider flex items-center gap-1.5">
-          <div className="w-2 h-2 rounded-full bg-[#a855f7]" />
+        <label htmlFor="compare-algorithm-2" className="text-xs font-medium text-[#8888aa] uppercase tracking-wider flex items-center gap-1.5">
+          <div className="w-2 h-2 rounded-full bg-[#a855f7]" aria-hidden="true" />
           Algorithm 2
         </label>
         <select
+          id="compare-algorithm-2"
           value={algo2}
           onChange={(e) => setAlgo2(e.target.value as AlgorithmType)}
           disabled={isRunning}
@@ -69,9 +71,10 @@ export default function CompareControls() {
 
       {/* Maze */}
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-medium text-[#8888aa] uppercase tracking-wider">Maze</label>
+        <label htmlFor="compare-maze" className="text-xs font-medium text-[#8888aa] uppercase tracking-wider">Maze</label>
         <div className="flex gap-1.5">
           <select
+            id="compare-maze"
             value={selectedMaze}
             onChange={(e) => setSelectedMaze(e.target.value as MazeType)}
             disabled={isRunning}
@@ -82,12 +85,14 @@ export default function CompareControls() {
             ))}
           </select>
           <button
+            type="button"
             onClick={() => generateMaze(selectedMaze)}
             disabled={isRunning}
             className="glass-button flex items-center gap-1 text-sm py-2 px-3"
             title="Generate maze on both grids"
+            aria-label="Generate maze on both comparison grids"
           >
-            <Shuffle size={14} />
+            <Shuffle size={14} aria-hidden="true" />
           </button>
         </div>
       </div>
@@ -98,6 +103,7 @@ export default function CompareControls() {
       {/* Action buttons */}
       <div className="flex gap-2">
         <button
+          type="button"
           onClick={clearResults}
           disabled={isRunning}
           className="glass-button flex items-center gap-1.5 text-sm py-2 px-4"
@@ -107,6 +113,7 @@ export default function CompareControls() {
         </button>
 
         <button
+          type="button"
           onClick={runComparison}
           disabled={isRunning}
           className={`glass-button-primary flex items-center gap-1.5 text-sm py-2 px-5 font-semibold ${

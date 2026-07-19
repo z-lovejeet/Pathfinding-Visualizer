@@ -1,4 +1,5 @@
 import gsap from 'gsap';
+import { getPathCost } from '../algorithms';
 import { AlgorithmResult } from '../grid/types';
 import { getDelayFromSpeed } from '../constants';
 
@@ -32,27 +33,33 @@ export interface AnimationBuffers {
   targetEmissives: Float32Array;
   /** Node animation phase: 0=idle, 1=current, 2=visited, 3=path */
   nodePhase: Uint8Array;
+  /** Whether this engine currently owns the instance's animation values. */
+  activeNodes: Uint8Array;
 }
+
+export type AnimationRunStatus = 'completed' | 'cancelled';
 
 export class AnimationEngine {
   // --- Shared buffers (GridMesh reads these every frame) ---
   public targetHeights: Float32Array;
   public targetEmissives: Float32Array;
   public nodePhase: Uint8Array;
+  public activeNodes: Uint8Array;
 
   private timeline: gsap.core.Timeline | null = null;
   private rows: number;
   private cols: number;
   private cancelled = false;
-  private resolvePromise: (() => void) | null = null;
+  private resolvePromise: ((status: AnimationRunStatus) => void) | null = null;
 
   constructor(rows: number, cols: number) {
     this.rows = rows;
     this.cols = cols;
     const count = rows * cols;
-    this.targetHeights = new Float32Array(count).fill(0.1);
+    this.targetHeights = new Float32Array(count);
     this.targetEmissives = new Float32Array(count).fill(0);
     this.nodePhase = new Uint8Array(count);
+    this.activeNodes = new Uint8Array(count);
   }
 
   /**
@@ -63,6 +70,7 @@ export class AnimationEngine {
       targetHeights: this.targetHeights,
       targetEmissives: this.targetEmissives,
       nodePhase: this.nodePhase,
+      activeNodes: this.activeNodes,
     };
   }
 
@@ -71,12 +79,13 @@ export class AnimationEngine {
    * Phase 1: Visited nodes — "current" flash → "visited" rise
    * Phase 2: Path nodes — golden elastic wave
    */
-  async run(
+  run(
     result: AlgorithmResult,
     getSpeed: () => number,
     onVisitedStep: (count: number) => void,
     onPathStep: (count: number, cost: number) => void
-  ): Promise<void> {
+  ): Promise<AnimationRunStatus> {
+    this.cancel();
     this.cancelled = false;
 
     // Calculate delay per step from current speed
@@ -87,14 +96,15 @@ export class AnimationEngine {
     // Current flash duration (80ms)
     const flashDuration = 0.08;
 
+    const completion = new Promise<AnimationRunStatus>((resolve) => {
+      this.resolvePromise = resolve;
+    });
+
     // Build GSAP timeline
     const tl = gsap.timeline({
       paused: true,
       onComplete: () => {
-        if (this.resolvePromise) {
-          this.resolvePromise();
-          this.resolvePromise = null;
-        }
+        if (!this.cancelled) this.finish('completed');
       },
     });
     this.timeline = tl;
@@ -106,7 +116,9 @@ export class AnimationEngine {
       // Skip start and end nodes
       if (node.type === 'start' || node.type === 'end') {
         const capturedI = i;
-        tl.call(() => { onVisitedStep(capturedI + 1); }, [], i * delayS);
+        tl.call(() => {
+          if (!this.cancelled) onVisitedStep(capturedI + 1);
+        }, [], i * delayS);
         continue;
       }
 
@@ -118,6 +130,7 @@ export class AnimationEngine {
       const capturedIA = i;
       tl.call(() => {
         if (this.cancelled) return;
+        this.activeNodes[capturedIdxA] = 1;
         this.nodePhase[capturedIdxA] = NODE_PHASE.CURRENT;
         this.targetHeights[capturedIdxA] = 0.5;
         this.targetEmissives[capturedIdxA] = 2.5;
@@ -128,6 +141,7 @@ export class AnimationEngine {
       const capturedIdxB = idx;
       tl.call(() => {
         if (this.cancelled) return;
+        this.activeNodes[capturedIdxB] = 1;
         this.nodePhase[capturedIdxB] = NODE_PHASE.VISITED;
         this.targetHeights[capturedIdxB] = 0.4;
         this.targetEmissives[capturedIdxB] = 1.5;
@@ -139,25 +153,25 @@ export class AnimationEngine {
       const path = result.shortestPath;
       const pathStartTime = visited.length * delayS + 0.2; // Small gap after visited
       const pathStagger = 0.05; // 50ms between path nodes
-      let runningCost = 0;
 
       for (let i = 0; i < path.length; i++) {
         const node = path[i];
+        const capturedI = i;
+        const capturedCost = getPathCost(path.slice(0, i + 1));
+
         if (node.type === 'start' || node.type === 'end') {
-          const capturedI = i;
-          const capturedCost = runningCost;
-          tl.call(() => { onPathStep(capturedI + 1, capturedCost); }, [], pathStartTime + i * pathStagger);
+          tl.call(() => {
+            if (!this.cancelled) onPathStep(capturedI + 1, capturedCost);
+          }, [], pathStartTime + i * pathStagger);
           continue;
         }
 
         const idx = node.row * this.cols + node.col;
-        runningCost += node.weight;
 
         const capturedIdx = idx;
-        const capturedI = i;
-        const capturedCost = runningCost;
         tl.call(() => {
           if (this.cancelled) return;
+          this.activeNodes[capturedIdx] = 1;
           this.nodePhase[capturedIdx] = NODE_PHASE.PATH;
           this.targetHeights[capturedIdx] = 0.7;
           this.targetEmissives[capturedIdx] = 3.0;
@@ -169,12 +183,11 @@ export class AnimationEngine {
     // Set initial timeScale based on speed
     tl.timeScale(this.calcTimeScale(speed));
 
-    // Play and wait for completion
+    // The resolver is registered before playback in case a zero-length timeline
+    // completes in the same tick.
     tl.play();
 
-    return new Promise<void>((resolve) => {
-      this.resolvePromise = resolve;
-    });
+    return completion;
   }
 
   /**
@@ -201,10 +214,11 @@ export class AnimationEngine {
       this.timeline.kill();
       this.timeline = null;
     }
-    if (this.resolvePromise) {
-      this.resolvePromise();
-      this.resolvePromise = null;
-    }
+    this.activeNodes.fill(0);
+    this.nodePhase.fill(NODE_PHASE.IDLE);
+    this.targetHeights.fill(0);
+    this.targetEmissives.fill(0);
+    this.finish('cancelled');
   }
 
   get isPaused(): boolean {
@@ -220,5 +234,12 @@ export class AnimationEngine {
   private calcTimeScale(speed: number): number {
     // Exponential curve: slow speeds are more differentiated, fast speeds compress
     return 0.15 + Math.pow(speed / 100, 1.5) * 5.85;
+  }
+
+  private finish(status: AnimationRunStatus): void {
+    const resolve = this.resolvePromise;
+    this.resolvePromise = null;
+    if (status === 'completed') this.timeline = null;
+    resolve?.(status);
   }
 }

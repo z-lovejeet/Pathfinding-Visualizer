@@ -36,6 +36,7 @@ export default function Legend() {
     return (
       <div
         key={label}
+        role="listitem"
         className={`flex items-center gap-1.5 transition-all duration-200 ${
           isDimmed ? 'opacity-40' : 'opacity-100'
         }`}
@@ -52,6 +53,7 @@ export default function Legend() {
             scale: hoveredItem === label ? 1.3 : 1,
           }}
           transition={{ type: 'spring' as const, stiffness: 400, damping: 20 }}
+          aria-hidden="true"
         />
         <span
           className={`text-[11px] font-medium transition-colors duration-200 ${
@@ -73,6 +75,8 @@ export default function Legend() {
       {/* Desktop legend — horizontal bar */}
       <motion.div
         className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 glass p-3 px-5 rounded-2xl items-center gap-4 hidden md:flex"
+        role="list"
+        aria-label="Grid legend"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: 'spring' as const, stiffness: 200, damping: 20, delay: 0.2 }}
@@ -83,15 +87,22 @@ export default function Legend() {
       {/* Mobile legend — collapsible icon */}
       <div className="md:hidden absolute top-4 right-4 z-10">
         <button
+          type="button"
           onClick={() => setMobileOpen(!mobileOpen)}
           className="glass-elevated p-2.5 rounded-xl text-[#8888aa] hover:text-[#f0f0f5] transition-colors duration-200"
+          aria-label={mobileOpen ? 'Hide grid legend' : 'Show grid legend'}
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-grid-legend"
         >
-          <Palette size={18} />
+          <Palette size={18} aria-hidden="true" />
         </button>
 
         <AnimatePresence>
           {mobileOpen && (
             <motion.div
+              id="mobile-grid-legend"
+              role="list"
+              aria-label="Grid legend"
               className="absolute top-12 right-0 glass-elevated p-3 rounded-xl flex flex-col gap-2.5 min-w-[120px]"
               initial={{ opacity: 0, scale: 0.95, y: -5 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}

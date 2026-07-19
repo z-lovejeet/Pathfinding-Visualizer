@@ -1,4 +1,5 @@
 import { Position, MazeStep } from '../grid/types';
+import { ensureReachableMaze } from './helpers';
 
 /**
  * Recursive Backtracker (DFS Maze Generator)
@@ -27,6 +28,10 @@ export function recursiveBacktracker(
     for (let c = 0; c < cols; c++) {
       steps.push({ row: r, col: c, type: 'wall' });
     }
+  }
+
+  if (rows < 3 || cols < 3) {
+    return ensureReachableMaze(steps, rows, cols, startPos, endPos);
   }
 
   // Helper: get unvisited neighbors 2 cells away
@@ -76,13 +81,5 @@ export function recursiveBacktracker(
     }
   }
 
-  // Ensure start and end positions are passages
-  if (!isPassage[startPos.row][startPos.col]) {
-    steps.push({ row: startPos.row, col: startPos.col, type: 'passage' });
-  }
-  if (!isPassage[endPos.row][endPos.col]) {
-    steps.push({ row: endPos.row, col: endPos.col, type: 'passage' });
-  }
-
-  return steps;
+  return ensureReachableMaze(steps, rows, cols, startPos, endPos);
 }

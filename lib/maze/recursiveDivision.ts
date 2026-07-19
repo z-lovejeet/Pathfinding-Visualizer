@@ -1,4 +1,5 @@
 import { Position, MazeStep } from '../grid/types';
+import { ensureReachableMaze } from './helpers';
 
 /**
  * Recursive Division Maze Generator
@@ -113,5 +114,5 @@ export function recursiveDivision(
   const innerOrientation = chooseOrientation(rows - 2, cols - 2);
   divide(1, rows - 2, 1, cols - 2, innerOrientation);
 
-  return steps;
+  return ensureReachableMaze(steps, rows, cols, startPos, endPos);
 }

@@ -22,8 +22,8 @@ export function bfs(
   startNode.isVisited = true;
   startNode.distance = 0;
 
-  while (queue.length > 0) {
-    const current = queue.shift()!;
+  for (let queueIndex = 0; queueIndex < queue.length; queueIndex++) {
+    const current = queue[queueIndex];
     visitedNodesInOrder.push(current);
 
     if (current === endNode) {

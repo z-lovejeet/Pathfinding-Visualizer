@@ -35,20 +35,23 @@ export default function CTASection() {
             Jump into the 3D canvas and start exploring pathfinding algorithms with full interactivity.
           </p>
 
-          <Link href="/visualizer">
-            <motion.button
+          <motion.div
+            className="relative z-10 inline-flex"
+            whileHover={{ scale: 1.05, y: -3 }}
+            whileTap={{ scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+          >
+            <Link
+              href="/visualizer"
               className="group relative z-10 inline-flex items-center gap-2 px-10 py-4 rounded-xl bg-gradient-to-r from-[#00d4ff]/15 to-[#8b5cf6]/15 border border-[#00d4ff]/25 text-[#f0f0f5] font-semibold tracking-wide transition-all duration-300 hover:border-[#00d4ff]/50 hover:shadow-[0_0_40px_rgba(0,212,255,0.2)]"
-              whileHover={{ scale: 1.05, y: -3 }}
-              whileTap={{ scale: 0.97 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
             >
               Open Canvas
               <ArrowRight
                 size={18}
                 className="group-hover:translate-x-1 transition-transform"
               />
-            </motion.button>
-          </Link>
+            </Link>
+          </motion.div>
         </div>
       </motion.div>
     </section>

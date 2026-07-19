@@ -22,13 +22,16 @@ export function dijkstra(
   const visitedNodesInOrder: GridNode[] = [];
   startNode.distance = 0;
 
-  const pq = new MinHeap<GridNode>((a, b) => a.distance - b.distance);
-  pq.push(startNode);
+  // Store immutable distances so a later relaxation cannot change the
+  // priority of an entry that is already inside the heap.
+  const pq = new MinHeap<QueueEntry>((a, b) => a.distance - b.distance);
+  pq.push({ node: startNode, distance: 0 });
 
   while (pq.size > 0) {
-    const current = pq.pop()!;
+    const entry = pq.pop()!;
+    const current = entry.node;
 
-    if (current.isVisited) continue;
+    if (entry.distance !== current.distance || current.isVisited) continue;
     if (current.type === 'wall') continue;
     if (current.distance === Infinity) break; // Unreachable
 
@@ -49,11 +52,16 @@ export function dijkstra(
         if (newDist < neighbor.distance) {
           neighbor.distance = newDist;
           neighbor.previousNode = current;
-          pq.push(neighbor);
+          pq.push({ node: neighbor, distance: newDist });
         }
       }
     }
   }
 
   return { visitedNodesInOrder, shortestPath: [], found: false };
+}
+
+interface QueueEntry {
+  node: GridNode;
+  distance: number;
 }

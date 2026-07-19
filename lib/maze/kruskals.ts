@@ -1,5 +1,6 @@
 import { Position, MazeStep } from '../grid/types';
 import { UnionFind } from '../data-structures/UnionFind';
+import { ensureReachableMaze } from './helpers';
 
 /**
  * Randomized Kruskal's Maze Generator
@@ -97,9 +98,5 @@ export function kruskalsMaze(
     }
   }
 
-  // Ensure start and end are passages
-  steps.push({ row: startPos.row, col: startPos.col, type: 'passage' });
-  steps.push({ row: endPos.row, col: endPos.col, type: 'passage' });
-
-  return steps;
+  return ensureReachableMaze(steps, rows, cols, startPos, endPos);
 }

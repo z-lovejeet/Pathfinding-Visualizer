@@ -67,7 +67,7 @@ export function serializeGrid(
  * Restores walls and weights onto a fresh grid.
  */
 export function deserializeGrid(
-  data: { row: number; col: number; type: 'wall' | 'weight'; weight?: number }[],
+  data: unknown,
   rows: number,
   cols: number,
   startPos: Position,
@@ -75,21 +75,49 @@ export function deserializeGrid(
 ): GridNode[][] {
   const grid = createEmptyGrid(rows, cols, startPos, endPos);
 
+  if (!Array.isArray(data)) return grid;
+
   for (const cell of data) {
-    if (cell.row < rows && cell.col < cols) {
-      const node = grid[cell.row][cell.col];
-      if (node.type !== 'start' && node.type !== 'end') {
-        node.type = cell.type;
-        if (cell.type === 'wall') {
-          node.height = 0.8;
-        } else if (cell.type === 'weight') {
-          node.weight = cell.weight ?? 5;
-          node.height = 0.3;
-          node.emissiveIntensity = 0.5;
-        }
-      }
+    if (!isSerializedCell(cell) || !isInGrid(cell.row, cell.col, rows, cols)) continue;
+
+    const node = grid[cell.row][cell.col];
+    if (node.type === 'start' || node.type === 'end') continue;
+
+    node.type = cell.type;
+    if (cell.type === 'wall') {
+      node.height = 0.8;
+    } else {
+      node.weight = isValidWeight(cell.weight) ? cell.weight : 5;
+      node.height = 0.3;
+      node.emissiveIntensity = 0.5;
     }
   }
 
   return grid;
+}
+
+interface SerializedCell {
+  row: number;
+  col: number;
+  type: 'wall' | 'weight';
+  weight?: unknown;
+}
+
+function isSerializedCell(value: unknown): value is SerializedCell {
+  if (!value || typeof value !== 'object') return false;
+
+  const cell = value as Record<string, unknown>;
+  return (
+    Number.isInteger(cell.row) &&
+    Number.isInteger(cell.col) &&
+    (cell.type === 'wall' || cell.type === 'weight')
+  );
+}
+
+function isInGrid(row: number, col: number, rows: number, cols: number): boolean {
+  return row >= 0 && row < rows && col >= 0 && col < cols;
+}
+
+function isValidWeight(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0;
 }

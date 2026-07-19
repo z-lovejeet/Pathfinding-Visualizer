@@ -28,11 +28,12 @@ export function greedy(
   startNode.heuristic = manhattanDistance(startNode, endNode);
   startNode.distance = 0;
 
-  const openSet = new MinHeap<GridNode>((a, b) => a.heuristic - b.heuristic);
-  openSet.push(startNode);
+  const openSet = new MinHeap<QueueEntry>((a, b) => a.priority - b.priority);
+  const discovered = new Set<GridNode>([startNode]);
+  openSet.push({ node: startNode, priority: startNode.heuristic });
 
   while (openSet.size > 0) {
-    const current = openSet.pop()!;
+    const current = openSet.pop()!.node;
 
     if (current.isVisited) continue;
     if (current.type === 'wall') continue;
@@ -49,13 +50,23 @@ export function greedy(
     }
 
     for (const neighbor of getNeighbors(current, grid)) {
-      if (!neighbor.isVisited && neighbor.type !== 'wall') {
+      if (!neighbor.isVisited && !discovered.has(neighbor) && neighbor.type !== 'wall') {
+        discovered.add(neighbor);
+        // Greedy Best-First deliberately ignores node weights; distance here
+        // records hops only and is not used to prioritize the frontier.
+        neighbor.distance = current.distance + 1;
         neighbor.heuristic = manhattanDistance(neighbor, endNode);
+        neighbor.totalCost = neighbor.heuristic;
         neighbor.previousNode = current;
-        openSet.push(neighbor);
+        openSet.push({ node: neighbor, priority: neighbor.heuristic });
       }
     }
   }
 
   return { visitedNodesInOrder, shortestPath: [], found: false };
+}
+
+interface QueueEntry {
+  node: GridNode;
+  priority: number;
 }

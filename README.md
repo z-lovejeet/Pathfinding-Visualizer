@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DSA Visualizer
 
-## Getting Started
+An interactive 3D pathfinding visualizer built with Next.js, React, Three.js, and Zustand. Build a grid, place walls or weighted cells, generate a maze, and watch the selected algorithm explore the board.
 
-First, run the development server:
+## What it includes
+
+- Breadth-first search, depth-first search, Dijkstra, A*, greedy best-first search, and bidirectional BFS.
+- Weighted pathfinding for Dijkstra and A*; displayed path cost is the sum of entered cells, excluding the start cell.
+- Recursive Division, Recursive Backtracker, Randomized Prim's, Randomized Kruskal's, and Random Scatter maze generators.
+- A comparison view for running two algorithms on the same grid.
+- Keyboard-accessible controls, reduced-motion support, route-level loading/error/404 states, and security response headers.
+
+Structured maze generators produce a connected route between the default start and end positions. Random Scatter intentionally remains a random wall layout and can be unsolvable.
+
+## Requirements
+
+- Node.js `24.11.1` (see [`.nvmrc`](./.nvmrc)); the supported range is Node `>=20.9.0 <25`.
+- npm `11.6.2` or later within the supported npm 11 range.
+
+## Run locally
 
 ```bash
+nvm use
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). The primary routes are:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `/` — landing page
+- `/visualizer` — interactive 3D grid
+- `/compare` — side-by-side algorithm comparison
+- `/learn` — algorithm and maze explanations
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Controls
 
-## Learn More
+Choose an edit mode to place walls, weighted cells, the start, or the end. Use **Run** to animate the selected algorithm, **Stop** to cancel the active run, and **Generate** to build the selected maze. The comparison view uses the same cell meanings and resets old results when either selected algorithm changes.
 
-To learn more about Next.js, take a look at the following resources:
+## Commands
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run dev          # Start the development server
+npm run build        # Create a production build
+npm run start        # Serve a production build
+npm run typecheck    # Run TypeScript without emitting files
+npm run lint         # Run ESLint
+npm run verify       # Type-check and lint
+npm run audit:prod   # Audit production dependencies
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Use `npm ci`, `npm run verify`, and `npm run audit:prod` before deployment.
 
-## Deploy on Vercel
+## Database and sharing status
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The visualizer does not require a database for normal use. The database client is intentionally strict: any server-side feature that initializes it must provide `DATABASE_URL`; it will not fall back to a local unauthenticated database.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+For a future database-backed server feature, add this server-only value to `.env.local` (never prefix it with `NEXT_PUBLIC_`):
+
+```bash
+DATABASE_URL=postgresql://USER:PASSWORD@HOST/DATABASE?sslmode=require
+```
+
+Public share links are not currently available. The UI action is hidden and the `/api/share` endpoint returns `501 Not Implemented` rather than accepting or logging arbitrary grid data. Before enabling sharing, add durable storage, schema migrations, bounded server-side input validation, and an explicit access/rate-limit policy.
+
+## Security and deployment
+
+`next.config.ts` sets a Content Security Policy plus framing, MIME-sniffing, referrer, permissions, and cross-origin isolation headers. The policy allows Next.js development tooling only in development; validate it again if you introduce third-party scripts, remote images, analytics, or embedded content.
+
+Keep secrets in `.env.local` (ignored by Git) and restrict the file to its owner:
+
+```bash
+chmod 600 .env.local
+```
+
+Use immutable installs (`npm ci`) in deployment. The lockfile includes targeted dependency overrides for the current PostCSS and esbuild advisories; retain the clean audit check when updating dependencies.
+
+## Project layout
+
+```text
+app/                 App Router pages, route handlers, and route fallbacks
+components/          3D scene, controls, comparison UI, and shared interface pieces
+lib/algorithms/      Pathfinding implementations and shared helpers
+lib/maze/            Maze generators and connectivity repair
+lib/animation/       Animation engine and render-state buffers
+lib/grid/            Grid types, serialization, and mutation helpers
+store/               Zustand visualizer and comparison state
+```

@@ -76,28 +76,32 @@ export default function HeroContent() {
         variants={itemVariants}
         className="flex flex-col sm:flex-row items-center gap-4"
       >
-        <Link href="/visualizer">
-          <motion.button
+        <motion.div
+          whileHover={{ scale: 1.03, y: -2 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+        >
+          <Link
+            href="/visualizer"
             className="group flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-[#00d4ff]/15 to-[#8b5cf6]/15 border border-[#00d4ff]/20 text-[#f0f0f5] font-semibold text-sm tracking-wide transition-all duration-300 hover:border-[#00d4ff]/40 hover:shadow-[0_0_30px_rgba(0,212,255,0.15)]"
-            whileHover={{ scale: 1.03, y: -2 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
           >
             Open Canvas
             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-          </motion.button>
-        </Link>
+          </Link>
+        </motion.div>
 
-        <Link href="/learn">
-          <motion.button
+        <motion.div
+          whileHover={{ scale: 1.03, y: -2 }}
+          whileTap={{ scale: 0.98 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+        >
+          <Link
+            href="/learn"
             className="flex items-center gap-2 px-8 py-3.5 rounded-xl bg-white/5 border border-white/10 text-[#8888aa] font-medium text-sm tracking-wide transition-all duration-300 hover:text-[#f0f0f5] hover:bg-white/8 hover:border-white/15"
-            whileHover={{ scale: 1.03, y: -2 }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
           >
             Learn Algorithms
-          </motion.button>
-        </Link>
+          </Link>
+        </motion.div>
       </motion.div>
     </motion.div>
   );

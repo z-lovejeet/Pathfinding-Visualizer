@@ -46,6 +46,15 @@ export function manhattanDistance(a: GridNode, b: GridNode): number {
 }
 
 /**
+ * Calculate the cost of a path using the same edge-cost model as the weighted
+ * algorithms: moving into a node costs that node's weight. The start node is
+ * already occupied, so it is not charged.
+ */
+export function getPathCost(path: readonly GridNode[]): number {
+  return path.slice(1).reduce((cost, node) => cost + node.weight, 0);
+}
+
+/**
  * Reset algorithm-specific state on all nodes.
  * Preserves walls, weights, start, end, and type.
  */

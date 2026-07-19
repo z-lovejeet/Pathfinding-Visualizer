@@ -22,22 +22,24 @@ export default function CompareStatsPanel({ stats1, stats2, algo1, algo2 }: Comp
 
   const name1 = ALGORITHM_INFO[algo1].name;
   const name2 = ALGORITHM_INFO[algo2].name;
+  const series1 = 'algorithm1';
+  const series2 = 'algorithm2';
 
   const chartData = [
     {
       metric: 'Nodes Visited',
-      [name1]: stats1.nodesVisited,
-      [name2]: stats2.nodesVisited,
+      [series1]: stats1.nodesVisited,
+      [series2]: stats2.nodesVisited,
     },
     {
       metric: 'Path Length',
-      [name1]: stats1.pathLength,
-      [name2]: stats2.pathLength,
+      [series1]: stats1.pathLength,
+      [series2]: stats2.pathLength,
     },
     {
       metric: 'Time (ms)',
-      [name1]: stats1.executionTime,
-      [name2]: stats2.executionTime,
+      [series1]: stats1.executionTime,
+      [series2]: stats2.executionTime,
     },
   ];
 
@@ -52,7 +54,7 @@ export default function CompareStatsPanel({ stats1, stats2, algo1, algo2 }: Comp
 
   let insight = '';
   if (pctDiff > 0 && samePath) {
-    insight = `${fewerNodes} visited ${pctDiff}% fewer nodes than ${moreNodes} while finding the same optimal path length of ${stats1.pathLength}.`;
+    insight = `${fewerNodes} visited ${pctDiff}% fewer nodes than ${moreNodes} while finding the same path length of ${stats1.pathLength}.`;
   } else if (pctDiff > 0) {
     insight = `${fewerNodes} visited ${pctDiff}% fewer nodes than ${moreNodes}. Path lengths differ: ${name1} = ${stats1.pathLength}, ${name2} = ${stats2.pathLength}.`;
   } else {
@@ -98,12 +100,12 @@ export default function CompareStatsPanel({ stats1, stats2, algo1, algo2 }: Comp
                 fontSize: '13px',
               }}
             />
-            <Bar dataKey={name1} radius={[4, 4, 0, 0]}>
+            <Bar dataKey={series1} name={name1} radius={[4, 4, 0, 0]}>
               {chartData.map((_, index) => (
                 <Cell key={`cell-1-${index}`} fill="#00d4ff" fillOpacity={0.7} />
               ))}
             </Bar>
-            <Bar dataKey={name2} radius={[4, 4, 0, 0]}>
+            <Bar dataKey={series2} name={name2} radius={[4, 4, 0, 0]}>
               {chartData.map((_, index) => (
                 <Cell key={`cell-2-${index}`} fill="#a855f7" fillOpacity={0.7} />
               ))}

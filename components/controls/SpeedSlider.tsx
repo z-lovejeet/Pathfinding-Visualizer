@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useId } from 'react';
 import { useVisualizerStore } from '@/store/useVisualizerStore';
 
 const speedLevels = [
@@ -18,6 +18,7 @@ const speedLevels = [
 export default function SpeedSlider() {
   const speed = useVisualizerStore((s) => s.speed);
   const setSpeed = useVisualizerStore((s) => s.setSpeed);
+  const speedInputId = useId();
 
   const currentLevel = speedLevels.find((l) => speed <= l.max) || speedLevels[4];
   const fillPercent = ((speed - 1) / 99) * 100;
@@ -26,7 +27,7 @@ export default function SpeedSlider() {
     <div className="flex flex-col gap-1.5">
       {/* Header row */}
       <div className="flex items-center justify-between">
-        <label className="text-xs font-medium text-[#8888aa] uppercase tracking-wider">
+        <label htmlFor={speedInputId} className="text-xs font-medium text-[#8888aa] uppercase tracking-wider">
           Speed
         </label>
         <div className="flex items-center gap-1.5">
@@ -52,12 +53,14 @@ export default function SpeedSlider() {
 
         {/* Native range input */}
         <input
+          id={speedInputId}
           type="range"
           className="glass-slider relative z-10"
           min={1}
           max={100}
           value={speed}
           onChange={(e) => setSpeed(Number(e.target.value))}
+          aria-valuetext={`${currentLevel.label} speed, ${speed} of 100`}
         />
       </div>
 

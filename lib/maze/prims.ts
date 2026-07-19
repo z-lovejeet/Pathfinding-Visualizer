@@ -1,4 +1,5 @@
 import { Position, MazeStep } from '../grid/types';
+import { ensureReachableMaze } from './helpers';
 
 /**
  * Randomized Prim's Maze Generator
@@ -29,8 +30,13 @@ export function primsMaze(
     }
   }
 
+  if (rows < 3 || cols < 3) {
+    return ensureReachableMaze(steps, rows, cols, startPos, endPos);
+  }
+
   // Frontier: walls adjacent to passages
   const frontier: [number, number][] = [];
+  const frontierSet = new Set<number>();
 
   function addFrontier(r: number, c: number): void {
     const dirs: [number, number][] = [[-2, 0], [2, 0], [0, -2], [0, 2]];
@@ -38,8 +44,9 @@ export function primsMaze(
       const nr = r + dr;
       const nc = c + dc;
       if (nr >= 1 && nr < rows - 1 && nc >= 1 && nc < cols - 1 && !isPassage[nr][nc]) {
-        // Check if not already in frontier (simple approach: mark and check)
-        if (!frontier.some(([fr, fc]) => fr === nr && fc === nc)) {
+        const frontierKey = nr * cols + nc;
+        if (!frontierSet.has(frontierKey)) {
+          frontierSet.add(frontierKey);
           frontier.push([nr, nc]);
         }
       }
@@ -58,7 +65,11 @@ export function primsMaze(
     // Pick random frontier cell
     const randomIdx = Math.floor(Math.random() * frontier.length);
     const [fr, fc] = frontier[randomIdx];
-    frontier.splice(randomIdx, 1);
+    const last = frontier.pop()!;
+    if (randomIdx < frontier.length) {
+      frontier[randomIdx] = last;
+    }
+    frontierSet.delete(fr * cols + fc);
 
     if (isPassage[fr][fc]) continue;
 
@@ -90,13 +101,5 @@ export function primsMaze(
     }
   }
 
-  // Ensure start and end are passages
-  if (!isPassage[startPos.row][startPos.col]) {
-    steps.push({ row: startPos.row, col: startPos.col, type: 'passage' });
-  }
-  if (!isPassage[endPos.row][endPos.col]) {
-    steps.push({ row: endPos.row, col: endPos.col, type: 'passage' });
-  }
-
-  return steps;
+  return ensureReachableMaze(steps, rows, cols, startPos, endPos);
 }

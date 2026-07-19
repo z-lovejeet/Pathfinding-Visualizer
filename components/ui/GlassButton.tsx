@@ -14,7 +14,7 @@ interface GlassButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>
 }
 
 export const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>(
-  ({ variant = 'default', size = 'md', icon: Icon, loading, className = '', children, disabled, ...props }, ref) => {
+  ({ variant = 'default', size = 'md', icon: Icon, loading, className = '', children, disabled, type = 'button', ...props }, ref) => {
     
     let variantClass = 'glass-button';
     if (variant === 'primary') variantClass += ' glass-button-primary';
@@ -29,6 +29,7 @@ export const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>
       <button
         ref={ref}
         className={`${variantClass} ${sizeClass} ${className}`}
+        type={type}
         disabled={disabled || loading}
         {...props}
       >

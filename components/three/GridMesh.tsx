@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useRef, useMemo, useEffect } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useVisualizerStore } from '@/store/useVisualizerStore';
-import { getNodeColor } from '@/lib/animation/colorUtils';
+import { getEmissiveColor, getNodeColor } from '@/lib/animation/colorUtils';
 import { NODE_PHASE } from '@/lib/animation/AnimationEngine';
 import { NODE_COLORS } from '@/lib/constants';
 
@@ -39,16 +39,26 @@ export default function GridMesh() {
     colors: THREE.Color[];
     emissives: Float32Array;
   } | null>(null);
+  const needsRenderRef = useRef(true);
 
-  // Initialize/reinitialize state arrays when count changes
-  if (!stateRef.current || stateRef.current.heights.length !== count) {
+  // Keep imperative spring state outside React's render state. Reinitialize it
+  // after a grid resize, before the next visible animation frame.
+  useEffect(() => {
     stateRef.current = {
       heights: new Float32Array(count).fill(0.1),
       velocities: new Float32Array(count), // spring velocity
       colors: Array.from({ length: count }, () => new THREE.Color(0x1a1a2e)),
       emissives: new Float32Array(count),
     };
-  }
+    needsRenderRef.current = true;
+  }, [count]);
+
+  // Once the spring state has settled, there is no need to rewrite all 1,250
+  // instance matrices every frame. An engine remains polled while it is active
+  // because it can update its buffers independently of React.
+  useEffect(() => {
+    needsRenderRef.current = true;
+  }, [animationEngine, grid]);
 
   // Get emissive color for a node phase
   const getPhaseEmissiveColor = (phase: number): number => {
@@ -61,9 +71,12 @@ export default function GridMesh() {
   };
 
   useFrame((_, delta) => {
-    if (!meshRef.current || !grid || grid.length === 0 || !stateRef.current) return;
+    const animationState = stateRef.current;
+    if (!meshRef.current || !grid || grid.length === 0 || !animationState) return;
+    if (!animationEngine && !needsRenderRef.current) return;
+    const forceUpload = needsRenderRef.current;
 
-    const { heights, velocities, colors, emissives } = stateRef.current;
+    const { heights, velocities, colors, emissives } = animationState;
     const buffers = animationEngine?.getBuffers();
 
     // Clamp delta to prevent huge jumps on tab-switch
@@ -80,18 +93,21 @@ export default function GridMesh() {
         // ─── TARGET HEIGHT ───
         // If animation engine has buffers, use those; otherwise fall back to node data
         let targetHeight = node.height || 0.1;
-        if (node.type === 'start' || node.type === 'end') {
-          targetHeight = 0.1;
-        }
+        const activeBuffers =
+          buffers?.activeNodes[index] === 1 ? buffers : null;
+        const isAnimated = activeBuffers !== null;
 
-        if (buffers && buffers.targetHeights[index] > 0) {
-          // Animation engine is driving this node
-          targetHeight = buffers.targetHeights[index];
+        // Engine buffers only own cells it has explicitly animated. Preserve
+        // semantic wall and weight heights even when a weighted node is visited.
+        if (activeBuffers && node.type !== 'wall' && node.type !== 'weight') {
+          targetHeight = activeBuffers.targetHeights[index];
         }
 
         // ─── SPRING PHYSICS INTERPOLATION ───
         // Critical damping spring: feels organic with overshoot
-        const phase = buffers ? buffers.nodePhase[index] : 0;
+        const phase = activeBuffers
+          ? activeBuffers.nodePhase[index]
+          : NODE_PHASE.IDLE;
         let stiffness: number;
         let damping: number;
 
@@ -126,13 +142,9 @@ export default function GridMesh() {
         }
 
         // ─── EMISSIVE INTENSITY ───
-        let targetEmissive = 0;
-        if (buffers && buffers.targetEmissives[index] > 0) {
-          targetEmissive = buffers.targetEmissives[index];
-        } else if (node.type === 'start' || node.type === 'end') {
-          targetEmissive = 2.0;
-        } else if (node.type === 'weight') {
-          targetEmissive = 0.5;
+        let targetEmissive = node.emissiveIntensity;
+        if (activeBuffers) {
+          targetEmissive = activeBuffers.targetEmissives[index];
         }
 
         // Smooth lerp for emissive
@@ -149,7 +161,7 @@ export default function GridMesh() {
         let targetHex = getNodeColor(node);
 
         // Override with phase-based color when animation engine is active
-        if (buffers && phase > 0) {
+        if (isAnimated && phase > NODE_PHASE.IDLE) {
           switch (phase) {
             case NODE_PHASE.CURRENT:
               targetHex = NODE_COLORS.current.hex;
@@ -167,7 +179,10 @@ export default function GridMesh() {
 
         // Blend emissive glow into the display color for per-instance bloom effect
         if (emissives[index] > 0.1) {
-          const emissiveHex = getPhaseEmissiveColor(phase);
+          const emissiveHex =
+            phase > NODE_PHASE.IDLE
+              ? getPhaseEmissiveColor(phase)
+              : getEmissiveColor(node);
           tempEmissiveColor.set(emissiveHex);
           // Additive blend: mix base color with emissive based on intensity
           const blendFactor = Math.min(emissives[index] * 0.15, 0.6);
@@ -200,12 +215,14 @@ export default function GridMesh() {
       }
     }
 
-    if (needsUpdate) {
+    if (needsUpdate || forceUpload) {
       meshRef.current.instanceMatrix.needsUpdate = true;
       if (meshRef.current.instanceColor) {
         meshRef.current.instanceColor.needsUpdate = true;
       }
     }
+
+    if (!animationEngine) needsRenderRef.current = needsUpdate;
   });
 
   return (

@@ -27,3 +27,4 @@ export function getMazeGenerator(type: MazeType): MazeFunction {
 }
 
 export { recursiveDivision, recursiveBacktracker, primsMaze, kruskalsMaze, randomMaze };
+export { ensureReachableMaze } from './helpers';

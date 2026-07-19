@@ -1,25 +1,24 @@
-import { NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 
-export async function POST(request: Request) {
-  try {
-    const data = await request.json();
-    // Placeholder for saving to Neon DB
-    console.log('Saving share data:', data);
-    
-    return NextResponse.json({ id: 'placeholder-uuid-1234' });
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to create share' }, { status: 500 });
-  }
+const sharingUnavailable = () =>
+  Response.json(
+    {
+      error: 'Grid sharing is not available because persistence has not been configured.',
+    },
+    {
+      status: 501,
+      headers: {
+        'Cache-Control': 'no-store',
+      },
+    }
+  );
+
+// Do not parse, log, or retain untrusted grid data until durable storage and
+// a validated share contract are available.
+export function POST() {
+  return sharingUnavailable();
 }
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const id = searchParams.get('id');
-  
-  if (!id) {
-    return NextResponse.json({ error: 'Missing id' }, { status: 400 });
-  }
-  
-  // Placeholder for fetching from Neon DB
-  return NextResponse.json({ id, data: 'placeholder' });
+export function GET() {
+  return sharingUnavailable();
 }

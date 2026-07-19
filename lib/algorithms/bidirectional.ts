@@ -22,16 +22,19 @@ export function bidirectional(
   const visitedNodesInOrder: GridNode[] = [];
 
   // Forward BFS state
-  const queueForward: GridNode[] = [startNode];
+  const queueForward: GridQueue = { nodes: [startNode], head: 0 };
   const visitedForward = new Set<GridNode>([startNode]);
   const parentForward = new Map<GridNode, GridNode>();
 
   // Backward BFS state
-  const queueBackward: GridNode[] = [endNode];
+  const queueBackward: GridQueue = { nodes: [endNode], head: 0 };
   const visitedBackward = new Set<GridNode>([endNode]);
   const parentBackward = new Map<GridNode, GridNode>();
 
-  while (queueForward.length > 0 && queueBackward.length > 0) {
+  while (
+    queueForward.head < queueForward.nodes.length &&
+    queueBackward.head < queueBackward.nodes.length
+  ) {
     // ── Forward step ──
     const meetingNodeForward = expandLevel(
       queueForward,
@@ -77,17 +80,17 @@ export function bidirectional(
  * Returns the meeting node if the two frontiers collide, or null.
  */
 function expandLevel(
-  queue: GridNode[],
+  queue: GridQueue,
   visitedOwn: Set<GridNode>,
   visitedOther: Set<GridNode>,
   parentMap: Map<GridNode, GridNode>,
   grid: GridNode[][],
   visitedNodesInOrder: GridNode[]
 ): GridNode | null {
-  const levelSize = queue.length;
+  const levelEnd = queue.nodes.length;
 
-  for (let i = 0; i < levelSize; i++) {
-    const current = queue.shift()!;
+  while (queue.head < levelEnd) {
+    const current = queue.nodes[queue.head++];
     visitedNodesInOrder.push(current);
 
     // Check if we've met the other search
@@ -99,7 +102,7 @@ function expandLevel(
       if (!visitedOwn.has(neighbor) && neighbor.type !== 'wall') {
         visitedOwn.add(neighbor);
         parentMap.set(neighbor, current);
-        queue.push(neighbor);
+        queue.nodes.push(neighbor);
 
         // Immediate collision check
         if (visitedOther.has(neighbor)) {
@@ -111,6 +114,11 @@ function expandLevel(
   }
 
   return null;
+}
+
+interface GridQueue {
+  nodes: GridNode[];
+  head: number;
 }
 
 /**

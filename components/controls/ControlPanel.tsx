@@ -54,12 +54,14 @@ export default function ControlPanel() {
         <label className="text-xs font-medium text-[#8888aa] uppercase tracking-wider">
           Tool
         </label>
-        <div className="flex gap-1">
+        <div className="flex gap-1" role="group" aria-label="Grid editing tool">
           {modes.map(({ mode, label, icon: Icon }) => (
             <button
               key={mode}
+              type="button"
               onClick={() => setInteractionMode(mode)}
               disabled={isVisualizing}
+              aria-pressed={interactionMode === mode}
               className={`flex-1 flex flex-col items-center gap-1 py-2 px-1 rounded-lg transition-all duration-200 text-xs
                 ${
                   interactionMode === mode
@@ -70,7 +72,7 @@ export default function ControlPanel() {
               `}
               title={label}
             >
-              <Icon size={16} />
+              <Icon size={16} aria-hidden="true" />
               <span className="font-medium leading-none">{label}</span>
             </button>
           ))}
@@ -104,13 +106,17 @@ export default function ControlPanel() {
         <div className="border-t border-white/5 p-3 flex flex-col gap-2 shrink-0">
           {/* Collapsible Algorithm Info section */}
           <button
+            type="button"
             onClick={() => setInfoExpanded(!infoExpanded)}
             className="flex items-center gap-1.5 text-[#8888aa] hover:text-[#f0f0f5] transition-colors duration-200 w-full"
+            aria-expanded={infoExpanded}
+            aria-controls="algorithm-information"
           >
-            <Info size={12} />
+            <Info size={12} aria-hidden="true" />
             <span className="text-xs font-medium uppercase tracking-wider">Info</span>
             <ChevronDown
               size={12}
+              aria-hidden="true"
               className={`ml-auto transition-transform duration-200 ${infoExpanded ? 'rotate-180' : ''}`}
             />
           </button>
@@ -118,6 +124,7 @@ export default function ControlPanel() {
           <AnimatePresence>
             {infoExpanded && (
               <motion.div
+                id="algorithm-information"
                 className="overflow-hidden"
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
@@ -167,15 +174,19 @@ export default function ControlPanel() {
       <div className="md:hidden fixed bottom-4 left-4 right-4 z-20">
         {/* Toggle button (always visible) */}
         <button
+          type="button"
           onClick={() => setMobileExpanded(!mobileExpanded)}
           className="w-full glass-elevated p-3 rounded-2xl flex items-center justify-between"
+          aria-expanded={mobileExpanded}
+          aria-controls="mobile-visualizer-controls"
         >
           <div className="flex items-center gap-2">
-            <Settings2 size={16} className="text-[#00d4ff]" />
+            <Settings2 size={16} className="text-[#00d4ff]" aria-hidden="true" />
             <span className="text-sm font-medium text-[#f0f0f5]">Controls</span>
           </div>
           <ChevronUp
             size={16}
+            aria-hidden="true"
             className={`text-[#8888aa] transition-transform duration-300 ${mobileExpanded ? 'rotate-180' : ''}`}
           />
         </button>
@@ -184,6 +195,7 @@ export default function ControlPanel() {
         <AnimatePresence>
           {mobileExpanded && (
             <motion.div
+              id="mobile-visualizer-controls"
               className="glass-elevated p-4 rounded-2xl mt-2 flex flex-col gap-4 max-h-[60vh] overflow-y-auto"
               initial={{ opacity: 0, y: 20, height: 0 }}
               animate={{ opacity: 1, y: 0, height: 'auto' }}

@@ -74,8 +74,8 @@ export const ALGORITHM_INFO: Record<AlgorithmType, {
   },
   greedy: {
     name: 'Greedy Best-First',
-    description: 'Relies solely on heuristic. Weighted, does NOT guarantee shortest path but is very fast.',
-    isWeighted: true,
+    description: 'Relies solely on a heuristic and ignores weights. Does NOT guarantee the shortest path but is very fast.',
+    isWeighted: false,
     isShortest: false,
     dataStructure: 'Min-Heap',
     timeComplexity: 'O((V+E) log V)',

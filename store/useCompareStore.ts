@@ -8,7 +8,7 @@ import {
   VisualState,
 } from '../lib/grid/types';
 import { createEmptyGrid } from '../lib/grid/gridUtils';
-import { getAlgorithm, resetAlgorithmState } from '../lib/algorithms';
+import { getAlgorithm, getPathCost, resetAlgorithmState } from '../lib/algorithms';
 import { getMazeGenerator } from '../lib/maze';
 import { DEFAULT_ROWS, DEFAULT_COLS, DEFAULT_START, DEFAULT_END } from '../lib/constants';
 
@@ -83,12 +83,39 @@ export const useCompareStore = create<CompareState>((set, get) => ({
     });
   },
 
-  setAlgo1: (a) => set({ algo1: a }),
-  setAlgo2: (a) => set({ algo2: a }),
+  setAlgo1: (algo1) => {
+    const state = get();
+    if (state.isRunning || state.algo1 === algo1) return;
+
+    set({
+      algo1,
+      result1: null,
+      result2: null,
+      stats1: null,
+      stats2: null,
+      isComplete: false,
+    });
+  },
+  setAlgo2: (algo2) => {
+    const state = get();
+    if (state.isRunning || state.algo2 === algo2) return;
+
+    set({
+      algo2,
+      result1: null,
+      result2: null,
+      stats1: null,
+      stats2: null,
+      isComplete: false,
+    });
+  },
   setSpeed: (s) => set({ speed: s }),
 
   runComparison: () => {
-    const { grid, algo1, algo2, startPos, endPos } = get();
+    const currentState = get();
+    if (currentState.isRunning) return;
+
+    const { grid, algo1, algo2, startPos, endPos } = currentState;
     set({ isRunning: true, isComplete: false, result1: null, result2: null, stats1: null, stats2: null });
 
     // Deep copy grid for each algorithm run
@@ -131,14 +158,14 @@ export const useCompareStore = create<CompareState>((set, get) => ({
       stats1: {
         nodesVisited: r1.visitedNodesInOrder.length,
         pathLength: r1.shortestPath.length,
-        pathCost: r1.found ? r1.shortestPath.reduce((sum, n) => sum + n.weight, 0) : 0,
+        pathCost: r1.found ? getPathCost(r1.shortestPath) : 0,
         executionTime: Math.round((t1End - t1Start) * 100) / 100,
         found: r1.found,
       },
       stats2: {
         nodesVisited: r2.visitedNodesInOrder.length,
         pathLength: r2.shortestPath.length,
-        pathCost: r2.found ? r2.shortestPath.reduce((sum, n) => sum + n.weight, 0) : 0,
+        pathCost: r2.found ? getPathCost(r2.shortestPath) : 0,
         executionTime: Math.round((t2End - t2Start) * 100) / 100,
         found: r2.found,
       },

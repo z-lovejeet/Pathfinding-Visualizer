@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useId } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, CheckCircle } from 'lucide-react';
 import { useVisualizerStore } from '@/store/useVisualizerStore';
@@ -19,6 +19,9 @@ export default function AlgorithmSelector() {
   const isVisualizing = useVisualizerStore((s) => s.isVisualizing);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const labelId = useId();
+  const menuId = useId();
+  const selectedAlgorithmId = useId();
 
   const currentAlgo = ALGORITHM_INFO[algorithm];
 
@@ -30,8 +33,17 @@ export default function AlgorithmSelector() {
         setIsOpen(false);
       }
     };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+      }
+    };
     document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, [isOpen]);
 
   const handleSelect = (key: AlgorithmType) => {
@@ -41,22 +53,28 @@ export default function AlgorithmSelector() {
 
   return (
     <div className="flex flex-col gap-1.5 relative" ref={dropdownRef}>
-      <label className="text-xs font-medium text-[#8888aa] uppercase tracking-wider">
+      <label id={labelId} className="text-xs font-medium text-[#8888aa] uppercase tracking-wider">
         Algorithm
       </label>
 
       {/* Trigger button */}
       <button
+        type="button"
         onClick={() => !isVisualizing && setIsOpen(!isOpen)}
         disabled={isVisualizing}
+        aria-labelledby={`${labelId} ${selectedAlgorithmId}`}
+        aria-expanded={isOpen}
+        aria-controls={menuId}
+        aria-haspopup="listbox"
         className={`w-full flex items-center justify-between gap-2 glass-select text-sm py-2 px-3 text-left
           ${isVisualizing ? 'opacity-40 pointer-events-none' : 'cursor-pointer'}
         `}
       >
-        <span className="text-[#f0f0f5] font-medium truncate">{currentAlgo.name}</span>
+        <span id={selectedAlgorithmId} className="text-[#f0f0f5] font-medium truncate">{currentAlgo.name}</span>
         <ChevronDown
           size={14}
           className={`text-[#8888aa] shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          aria-hidden="true"
         />
       </button>
 
@@ -64,6 +82,9 @@ export default function AlgorithmSelector() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            id={menuId}
+            role="listbox"
+            aria-labelledby={labelId}
             className="absolute top-full left-0 right-0 mt-1.5 z-50 glass-dropdown p-1.5 max-h-[320px] overflow-y-auto"
             initial={{ opacity: 0, y: -8, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -75,7 +96,10 @@ export default function AlgorithmSelector() {
               return (
                 <button
                   key={key}
+                  type="button"
                   onClick={() => handleSelect(key)}
+                  role="option"
+                  aria-selected={isSelected}
                   className={`w-full text-left px-3 py-2.5 rounded-lg transition-all duration-150 group
                     ${isSelected
                       ? 'bg-[#00d4ff]/10 border-l-2 border-[#00d4ff]'
@@ -88,7 +112,7 @@ export default function AlgorithmSelector() {
                     <span className={`text-sm font-semibold ${isSelected ? 'text-[#00d4ff]' : 'text-[#f0f0f5]'}`}>
                       {info.name}
                     </span>
-                    {isSelected && <CheckCircle size={12} className="text-[#00d4ff] ml-auto shrink-0" />}
+                    {isSelected && <CheckCircle size={12} className="text-[#00d4ff] ml-auto shrink-0" aria-hidden="true" />}
                   </div>
 
                   {/* Description */}

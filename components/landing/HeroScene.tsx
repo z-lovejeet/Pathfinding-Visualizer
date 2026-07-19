@@ -4,6 +4,7 @@ import React, { useRef, useMemo, useEffect, useCallback } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { EffectComposer, Bloom } from '@react-three/postprocessing';
+import { useReducedMotion } from 'framer-motion';
 import * as THREE from 'three';
 import { aStar } from '@/lib/algorithms/astar';
 import { Position } from '@/lib/grid/types';
@@ -16,7 +17,7 @@ const HERO_COLS = 30;
  * Self-contained mini grid that runs a looping pathfinding demo.
  * Uses local state only — does NOT import useVisualizerStore.
  */
-function HeroGrid() {
+function HeroGrid({ shouldAnimate }: { shouldAnimate: boolean }) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const count = HERO_ROWS * HERO_COLS;
 
@@ -30,7 +31,9 @@ function HeroGrid() {
     emissives: new Float32Array(count),
     colors: Array.from({ length: count }, () => new THREE.Color(0x1a1a2e)),
     isAnimating: false,
+    isDisposed: false,
     timeoutId: null as ReturnType<typeof setTimeout> | null,
+    timeoutResolve: null as (() => void) | null,
   });
 
   const tempObject = useMemo(() => new THREE.Object3D(), []);
@@ -45,8 +48,6 @@ function HeroGrid() {
       }
     }
     // Keep start/end area clear
-    const startIdx = 7 * HERO_COLS + 3;
-    const endIdx = 7 * HERO_COLS + 26;
     for (let dr = -1; dr <= 1; dr++) {
       for (let dc = -1; dc <= 1; dc++) {
         walls.delete((7 + dr) * HERO_COLS + (3 + dc));
@@ -56,10 +57,27 @@ function HeroGrid() {
     return walls;
   }, [count]);
 
+  const waitFor = useCallback((delay: number): Promise<boolean> => {
+    const state = stateRef.current;
+
+    if (state.isDisposed) return Promise.resolve(false);
+
+    return new Promise((resolve) => {
+      const complete = () => {
+        state.timeoutId = null;
+        state.timeoutResolve = null;
+        resolve(!state.isDisposed);
+      };
+
+      state.timeoutResolve = complete;
+      state.timeoutId = setTimeout(complete, delay);
+    });
+  }, []);
+
   // Run one demo cycle
   const runDemoCycle = useCallback(async () => {
     const s = stateRef.current;
-    if (s.isAnimating) return;
+    if (s.isAnimating || s.isDisposed) return;
     s.isAnimating = true;
 
     // Reset
@@ -75,9 +93,10 @@ function HeroGrid() {
     });
 
     // Wait for walls to rise
-    await new Promise<void>((r) => {
-      s.timeoutId = setTimeout(r, 600);
-    });
+    if (!(await waitFor(600))) {
+      s.isAnimating = false;
+      return;
+    }
 
     // Create a grid for algorithm
     const start: Position = { row: 7, col: 3 };
@@ -109,9 +128,10 @@ function HeroGrid() {
       s.targetHeights[idx] = 0.35;
       s.targetEmissives[idx] = 1.5;
 
-      await new Promise<void>((r) => {
-        s.timeoutId = setTimeout(r, 12);
-      });
+      if (!(await waitFor(12))) {
+        s.isAnimating = false;
+        return;
+      }
 
       // Visited
       s.nodePhases[idx] = 2;
@@ -121,9 +141,10 @@ function HeroGrid() {
 
     // Animate path
     if (result.found) {
-      await new Promise<void>((r) => {
-        s.timeoutId = setTimeout(r, 200);
-      });
+      if (!(await waitFor(200))) {
+        s.isAnimating = false;
+        return;
+      }
 
       for (let i = 0; i < result.shortestPath.length; i++) {
         const node = result.shortestPath[i];
@@ -134,38 +155,45 @@ function HeroGrid() {
         s.targetHeights[idx] = 0.45;
         s.targetEmissives[idx] = 1.8;
 
-        await new Promise<void>((r) => {
-          s.timeoutId = setTimeout(r, 40);
-        });
+        if (!(await waitFor(40))) {
+          s.isAnimating = false;
+          return;
+        }
       }
     }
 
     // Hold result visible
-    await new Promise<void>((r) => {
-      s.timeoutId = setTimeout(r, 3000);
-    });
+    if (!(await waitFor(3000))) {
+      s.isAnimating = false;
+      return;
+    }
 
     // Fade out
     s.nodePhases.fill(0);
     s.targetHeights.fill(0.08);
     s.targetEmissives.fill(0);
 
-    await new Promise<void>((r) => {
-      s.timeoutId = setTimeout(r, 1500);
-    });
+    if (!(await waitFor(1500))) {
+      s.isAnimating = false;
+      return;
+    }
 
     s.isAnimating = false;
-  }, [generateWalls]);
+  }, [generateWalls, waitFor]);
 
   // Start the loop
   useEffect(() => {
+    if (!shouldAnimate) return;
+
     let cancelled = false;
+    const state = stateRef.current;
+    state.isDisposed = false;
 
     const loop = async () => {
       while (!cancelled) {
         try {
           await runDemoCycle();
-          await new Promise<void>((r) => setTimeout(r, 500));
+          if (!cancelled) await waitFor(500);
         } catch {
           break;
         }
@@ -176,10 +204,14 @@ function HeroGrid() {
 
     return () => {
       cancelled = true;
-      const s = stateRef.current;
-      if (s.timeoutId) clearTimeout(s.timeoutId);
+      state.isDisposed = true;
+      if (state.timeoutId !== null) clearTimeout(state.timeoutId);
+      state.timeoutId = null;
+      state.timeoutResolve?.();
+      state.timeoutResolve = null;
+      state.isAnimating = false;
     };
-  }, [runDemoCycle]);
+  }, [runDemoCycle, shouldAnimate, waitFor]);
 
   // Colors for phases (reduced intensity for background effect)
   const phaseColors = useMemo(() => ({
@@ -299,8 +331,10 @@ function HeroGrid() {
  * Non-interactive, purely cinematic.
  */
 export default function HeroScene() {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
-    <div className="absolute inset-0 z-0">
+    <div className="absolute inset-0 z-0" aria-hidden="true">
       <Canvas
         dpr={[1, 1.5]}
         camera={{ position: [0, 16, 20], fov: 45, near: 0.1, far: 100 }}
@@ -309,13 +343,13 @@ export default function HeroScene() {
         <ambientLight intensity={0.4} />
         <directionalLight position={[10, 15, 5]} intensity={0.6} />
 
-        <HeroGrid />
+        <HeroGrid shouldAnimate={!prefersReducedMotion} />
 
         <OrbitControls
           enableZoom={false}
           enablePan={false}
           enableRotate={false}
-          autoRotate
+          autoRotate={!prefersReducedMotion}
           autoRotateSpeed={0.3}
         />
 

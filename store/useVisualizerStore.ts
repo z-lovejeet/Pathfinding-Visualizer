@@ -1,8 +1,8 @@
 import { create } from 'zustand';
-import { AlgorithmType, GridNode, InteractionMode, MazeType, Position, Stats, VisualState } from '../lib/grid/types';
-import { DEFAULT_COLS, DEFAULT_END, DEFAULT_ROWS, DEFAULT_START } from '../lib/constants';
+import { AlgorithmResult, AlgorithmType, GridNode, InteractionMode, MazeType, NodeType, Position, Stats, VisualState } from '../lib/grid/types';
+import { ANIMATION_CONFIG, DEFAULT_COLS, DEFAULT_END, DEFAULT_ROWS, DEFAULT_START, NODE_COLORS } from '../lib/constants';
 import { createEmptyGrid } from '../lib/grid/gridUtils';
-import { getAlgorithm, resetAlgorithmState } from '../lib/algorithms';
+import { getAlgorithm, getPathCost, resetAlgorithmState } from '../lib/algorithms';
 import { AnimationController } from '../lib/animation/animationController';
 import { AnimationEngine } from '../lib/animation/AnimationEngine';
 import { getMazeGenerator } from '../lib/maze';
@@ -24,6 +24,8 @@ interface VisualizerState {
   isVisualizing: boolean;
   isPaused: boolean;
   isComplete: boolean;
+  /** Monotonically increases whenever an animation is started or invalidated. */
+  runId: number;
 
   // Interaction
   interactionMode: InteractionMode;
@@ -57,6 +59,7 @@ interface VisualizerState {
   setMouseDown: (isDown: boolean) => void;
   toggleWall: (row: number, col: number) => void;
   setWeight: (row: number, col: number, weight: number) => void;
+  clearCell: (row: number, col: number) => void;
   setStart: (row: number, col: number) => void;
   setEnd: (row: number, col: number) => void;
   clearPath: () => void;
@@ -85,6 +88,83 @@ const initialStats: Stats = {
   executionTime: 0,
 };
 
+const resetNodeState = (
+  node: GridNode,
+  type: NodeType = node.type,
+  weight = type === 'weight' ? node.weight : 1
+): GridNode => {
+  const appearance = NODE_COLORS[type];
+
+  return {
+    ...node,
+    type,
+    weight,
+    visualState: 'unvisited',
+    isVisited: false,
+    distance: Infinity,
+    heuristic: 0,
+    totalCost: Infinity,
+    previousNode: null,
+    height: appearance.height,
+    scaleY: 1,
+    emissiveIntensity: appearance.intensity,
+  };
+};
+
+const nodeKey = (row: number, col: number) => `${row}:${col}`;
+
+/**
+ * Persist the terminal animation frame on the grid, then release the engine.
+ * Keeping the result in the grid prevents an old engine buffer from masking
+ * walls or weights after the user begins editing again.
+ */
+const applyCompletedVisualization = (
+  grid: GridNode[][],
+  result: AlgorithmResult
+): GridNode[][] => {
+  const visited = new Set(
+    result.visitedNodesInOrder.map((node) => nodeKey(node.row, node.col))
+  );
+  const path = new Set(
+    result.shortestPath.map((node) => nodeKey(node.row, node.col))
+  );
+
+  return grid.map((row) =>
+    row.map((node) => {
+      const resetNode = resetNodeState(node);
+
+      // Endpoints and walls always retain their semantic geometry and color.
+      if (
+        resetNode.type === 'start' ||
+        resetNode.type === 'end' ||
+        resetNode.type === 'wall'
+      ) {
+        return resetNode;
+      }
+
+      const key = nodeKey(node.row, node.col);
+      const visualState: VisualState = path.has(key)
+        ? 'path'
+        : visited.has(key)
+          ? 'visited'
+          : 'unvisited';
+
+      if (visualState === 'unvisited') return resetNode;
+
+      const animation =
+        visualState === 'path' ? ANIMATION_CONFIG.path : ANIMATION_CONFIG.visited;
+
+      return {
+        ...resetNode,
+        visualState,
+        // Weighted cells remain visibly raised throughout and after a run.
+        height: resetNode.type === 'weight' ? resetNode.height : animation.targetHeight,
+        emissiveIntensity: animation.targetEmissive,
+      };
+    })
+  );
+};
+
 export const useVisualizerStore = create<VisualizerState>((set, get) => ({
   grid: createEmptyGrid(DEFAULT_ROWS, DEFAULT_COLS, DEFAULT_START, DEFAULT_END),
   rows: DEFAULT_ROWS,
@@ -99,6 +179,7 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
   isVisualizing: false,
   isPaused: false,
   isComplete: false,
+  runId: 0,
 
   interactionMode: 'wall',
   isMouseDown: false,
@@ -115,9 +196,9 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
 
   initGrid: (rows = DEFAULT_ROWS, cols = DEFAULT_COLS) => {
     const { startPos, endPos, animationController, animationEngine } = get();
-    // Cancel any running animation
     if (animationController) animationController.cancel();
     if (animationEngine) animationEngine.cancel();
+
     set({
       rows,
       cols,
@@ -128,6 +209,8 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
       animationController: null,
       animationEngine: null,
       showNoPathModal: false,
+      visualizationStartTime: null,
+      runId: get().runId + 1,
       ...initialStats,
     });
   },
@@ -149,18 +232,14 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
 
   toggleWall: (row, col) => {
     set((state) => {
-      if (state.isVisualizing) return state; // Block during visualization
+      if (state.isVisualizing) return state;
       const newGrid = state.grid.map((r) => [...r]);
       const node = newGrid[row][col];
       if (node.type !== 'start' && node.type !== 'end') {
-        const isWall = node.type === 'wall';
-        newGrid[row][col] = {
-          ...node,
-          type: isWall ? 'empty' : 'wall',
-          height: isWall ? 0.1 : 0.8,
-          weight: 1,
-          emissiveIntensity: 0,
-        };
+        newGrid[row][col] = resetNodeState(
+          node,
+          node.type === 'wall' ? 'empty' : 'wall'
+        );
       }
       return { grid: newGrid };
     });
@@ -172,14 +251,20 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
       const newGrid = state.grid.map((r) => [...r]);
       const node = newGrid[row][col];
       if (node.type !== 'start' && node.type !== 'end' && node.type !== 'wall') {
-        newGrid[row][col] = {
-          ...node,
-          type: 'weight',
-          weight,
-          height: 0.3,
-          emissiveIntensity: 0.5,
-        };
+        newGrid[row][col] = resetNodeState(node, 'weight', weight);
       }
+      return { grid: newGrid };
+    });
+  },
+
+  clearCell: (row, col) => {
+    set((state) => {
+      if (state.isVisualizing) return state;
+      const newGrid = state.grid.map((r) => [...r]);
+      const node = newGrid[row]?.[col];
+      if (!node || node.type === 'start' || node.type === 'end') return state;
+
+      newGrid[row][col] = resetNodeState(node, 'empty');
       return { grid: newGrid };
     });
   },
@@ -190,24 +275,15 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
       const newGrid = state.grid.map((r) => [...r]);
       const oldStart = state.startPos;
 
-      // Clear old start
       if (newGrid[oldStart.row]?.[oldStart.col]) {
-        newGrid[oldStart.row][oldStart.col] = {
-          ...newGrid[oldStart.row][oldStart.col],
-          type: 'empty',
-          height: 0.1,
-          emissiveIntensity: 0,
-        };
+        newGrid[oldStart.row][oldStart.col] = resetNodeState(
+          newGrid[oldStart.row][oldStart.col],
+          'empty'
+        );
       }
 
-      // Set new start
       if (newGrid[row]?.[col]) {
-        newGrid[row][col] = {
-          ...newGrid[row][col],
-          type: 'start',
-          height: 0.3,
-          emissiveIntensity: 2.0,
-        };
+        newGrid[row][col] = resetNodeState(newGrid[row][col], 'start');
       }
 
       return { grid: newGrid, startPos: { row, col } };
@@ -221,21 +297,14 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
       const oldEnd = state.endPos;
 
       if (newGrid[oldEnd.row]?.[oldEnd.col]) {
-        newGrid[oldEnd.row][oldEnd.col] = {
-          ...newGrid[oldEnd.row][oldEnd.col],
-          type: 'empty',
-          height: 0.1,
-          emissiveIntensity: 0,
-        };
+        newGrid[oldEnd.row][oldEnd.col] = resetNodeState(
+          newGrid[oldEnd.row][oldEnd.col],
+          'empty'
+        );
       }
 
       if (newGrid[row]?.[col]) {
-        newGrid[row][col] = {
-          ...newGrid[row][col],
-          type: 'end',
-          height: 0.3,
-          emissiveIntensity: 2.0,
-        };
+        newGrid[row][col] = resetNodeState(newGrid[row][col], 'end');
       }
 
       return { grid: newGrid, endPos: { row, col } };
@@ -248,26 +317,7 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
     if (animationEngine) animationEngine.cancel();
 
     set((state) => {
-      const newGrid = state.grid.map((row) =>
-        row.map((node) => ({
-          ...node,
-          visualState: 'unvisited' as VisualState,
-          isVisited: false,
-          distance: Infinity,
-          heuristic: 0,
-          totalCost: Infinity,
-          previousNode: null,
-          height:
-            node.type === 'start' || node.type === 'end' || node.type === 'weight'
-              ? 0.3
-              : node.type === 'wall'
-                ? 0.8
-                : 0.1,
-          scaleY: 1,
-          emissiveIntensity:
-            node.type === 'start' || node.type === 'end' ? 2.0 : node.type === 'weight' ? 0.5 : 0,
-        }))
-      );
+      const newGrid = state.grid.map((row) => row.map((node) => resetNodeState(node)));
 
       return {
         grid: newGrid,
@@ -277,6 +327,8 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
         animationController: null,
         animationEngine: null,
         showNoPathModal: false,
+        visualizationStartTime: null,
+        runId: state.runId + 1,
         ...initialStats,
       };
     });
@@ -302,24 +354,30 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
   // ═══════════════ CORE ALGORITHM ACTIONS ═══════════════
 
   runAlgorithm: async () => {
-    const state = get();
-    if (state.isVisualizing) return;
+    if (get().isVisualizing) return;
 
-    // 1. Clear any previous visualization
+    // This invalidates completed buffers as well as any prior asynchronous run.
     get().clearPath();
 
-    // Small delay to let clearPath settle
-    await new Promise((r) => setTimeout(r, 50));
+    const state = get();
+    const runId = state.runId + 1;
+    const { grid, algorithm, startPos, endPos, rows, cols } = state;
 
-    const { grid, algorithm, speed, startPos, endPos, rows, cols } = get();
-
-    // 2. Reset algorithm state on all nodes
     resetAlgorithmState(grid);
 
-    // 3. Mark as visualizing
-    set({ isVisualizing: true, isComplete: false, showNoPathModal: false, visualizationStartTime: performance.now(), ...initialStats });
+    // Mark synchronously, before any asynchronous animation work can begin.
+    set({
+      runId,
+      isVisualizing: true,
+      isPaused: false,
+      isComplete: false,
+      showNoPathModal: false,
+      visualizationStartTime: performance.now(),
+      animationController: null,
+      animationEngine: null,
+      ...initialStats,
+    });
 
-    // 4. Run algorithm (synchronous — computes result instantly)
     const startTime = performance.now();
     const algorithmFn = getAlgorithm(algorithm);
     const startNode = grid[startPos.row][startPos.col];
@@ -327,40 +385,50 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
     const result = algorithmFn(grid, startNode, endNode);
     const executionTime = performance.now() - startTime;
 
-    // 5. Create GSAP AnimationEngine and animate
     const engine = new AnimationEngine(rows, cols);
     set({ animationEngine: engine });
 
-    try {
-      await engine.run(
-        result,
-        () => get().speed, // Live speed getter — re-reads slider every step
-        (visitedCount) => set({ nodesVisited: visitedCount }),
-        (pathCount, pathCost) => set({ pathLength: pathCount, pathCost })
-      );
+    const isActiveRun = () => {
+      const current = get();
+      return current.runId === runId && current.animationEngine === engine;
+    };
 
-      // 6. Update final stats
-      set({
+    const status = await engine.run(
+      result,
+      () => get().speed,
+      (visitedCount) => {
+        if (isActiveRun()) set({ nodesVisited: visitedCount });
+      },
+      (pathCount, pathCost) => {
+        if (isActiveRun()) set({ pathLength: pathCount, pathCost });
+      }
+    );
+
+    if (status !== 'completed' || !isActiveRun()) return;
+
+    set((current) => {
+      if (current.runId !== runId || current.animationEngine !== engine) return current;
+
+      return {
+        grid: applyCompletedVisualization(current.grid, result),
         isVisualizing: false,
+        isPaused: false,
         isComplete: true,
         visualizationStartTime: null,
+        animationEngine: null,
         nodesVisited: result.visitedNodesInOrder.length,
         pathLength: result.shortestPath.length,
-        pathCost: result.found
-          ? result.shortestPath.reduce((sum, n) => sum + n.weight, 0)
-          : 0,
+        pathCost: result.found ? getPathCost(result.shortestPath) : 0,
         executionTime: Math.round(executionTime * 100) / 100,
         showNoPathModal: !result.found,
-        // Keep engine alive so GridMesh can read final buffer state
-      });
-    } catch {
-      // Animation was cancelled
-      set({ isVisualizing: false, visualizationStartTime: null, animationEngine: null });
-    }
+      };
+    });
   },
 
   pauseAlgorithm: () => {
-    const { animationController, animationEngine } = get();
+    const { animationController, animationEngine, isVisualizing } = get();
+    if (!isVisualizing) return;
+
     if (animationEngine) {
       animationEngine.pause();
       set({ isPaused: true });
@@ -371,7 +439,9 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
   },
 
   resumeAlgorithm: () => {
-    const { animationController, animationEngine } = get();
+    const { animationController, animationEngine, isVisualizing } = get();
+    if (!isVisualizing) return;
+
     if (animationEngine) {
       animationEngine.resume();
       set({ isPaused: false });
@@ -382,52 +452,66 @@ export const useVisualizerStore = create<VisualizerState>((set, get) => ({
   },
 
   stopAlgorithm: () => {
-    const { animationController, animationEngine } = get();
-    if (animationController) animationController.cancel();
-    if (animationEngine) animationEngine.cancel();
-    set({
-      isVisualizing: false,
-      isPaused: false,
-      animationController: null,
-      animationEngine: null,
-    });
+    get().clearPath();
   },
 
   generateMaze: async () => {
-    const state = get();
-    if (state.isVisualizing) return;
+    if (get().isVisualizing) return;
 
-    // Clear board first
     get().clearBoard();
-    await new Promise((r) => setTimeout(r, 50));
 
-    const { mazeType, speed, rows, cols, startPos, endPos } = get();
+    const state = get();
+    const runId = state.runId + 1;
+    const { mazeType, speed, rows, cols, startPos, endPos } = state;
 
-    // Generate maze steps
+    // Set the running state synchronously so two quick clicks cannot overlap.
+    set({
+      runId,
+      isVisualizing: true,
+      isPaused: false,
+      isComplete: false,
+      showNoPathModal: false,
+      visualizationStartTime: null,
+      animationController: null,
+      animationEngine: null,
+      ...initialStats,
+    });
+
     const generator = getMazeGenerator(mazeType);
     const steps = generator(rows, cols, startPos, endPos);
 
-    // Mark as visualizing
-    set({ isVisualizing: true, isComplete: false });
-
-    // Maze generation still uses AnimationController (setTimeout-based, works well for walls)
     const controller = new AnimationController();
     set({ animationController: controller });
+
+    const isActiveRun = () => {
+      const current = get();
+      return current.runId === runId && current.animationController === controller;
+    };
 
     try {
       await controller.animateMaze(
         steps,
         speed,
-        get().updateGridNodes,
-        () => {} // No stats callback needed for maze gen
+        (updater) => {
+          if (isActiveRun()) get().updateGridNodes(updater);
+        },
+        () => {}
       );
 
-      set({
-        isVisualizing: false,
-        animationController: null,
+      if (!isActiveRun()) return;
+
+      set((current) => {
+        if (current.runId !== runId || current.animationController !== controller) return current;
+
+        return {
+          isVisualizing: false,
+          isPaused: false,
+          animationController: null,
+        };
       });
     } catch {
-      set({ isVisualizing: false, animationController: null });
+      if (!isActiveRun()) return;
+      set({ isVisualizing: false, isPaused: false, animationController: null });
     }
   },
 }));

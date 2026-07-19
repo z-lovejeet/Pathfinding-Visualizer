@@ -28,18 +28,28 @@ export function aStar(
   endNode: GridNode
 ): AlgorithmResult {
   const visitedNodesInOrder: GridNode[] = [];
+  const minimumTraversalCost = getMinimumTraversalCost(grid);
+  const heuristicFor = (node: GridNode) =>
+    manhattanDistance(node, endNode) * minimumTraversalCost;
 
   startNode.distance = 0;
-  startNode.heuristic = manhattanDistance(startNode, endNode);
+  startNode.heuristic = heuristicFor(startNode);
   startNode.totalCost = startNode.heuristic;
 
-  const openSet = new MinHeap<GridNode>((a, b) => a.totalCost - b.totalCost);
-  openSet.push(startNode);
+  // Heap entries must keep their priority immutable. Nodes are updated when a
+  // better route is found, and comparing mutable node fields can corrupt heap
+  // ordering before the updated entry is popped.
+  const openSet = new MinHeap<QueueEntry>((a, b) =>
+    a.priority - b.priority || a.distance - b.distance
+  );
+  openSet.push({ node: startNode, distance: 0, priority: startNode.totalCost });
 
   while (openSet.size > 0) {
-    const current = openSet.pop()!;
+    const entry = openSet.pop()!;
+    const current = entry.node;
 
-    if (current.isVisited) continue;
+    // Ignore stale entries left behind when a node's distance improved.
+    if (entry.distance !== current.distance || current.isVisited) continue;
     if (current.type === 'wall') continue;
 
     current.isVisited = true;
@@ -58,14 +68,42 @@ export function aStar(
         const tentativeG = current.distance + neighbor.weight;
         if (tentativeG < neighbor.distance) {
           neighbor.distance = tentativeG;
-          neighbor.heuristic = manhattanDistance(neighbor, endNode);
+          neighbor.heuristic = heuristicFor(neighbor);
           neighbor.totalCost = neighbor.distance + neighbor.heuristic;
           neighbor.previousNode = current;
-          openSet.push(neighbor);
+          openSet.push({
+            node: neighbor,
+            distance: tentativeG,
+            priority: neighbor.totalCost,
+          });
         }
       }
     }
   }
 
   return { visitedNodesInOrder, shortestPath: [], found: false };
+}
+
+interface QueueEntry {
+  node: GridNode;
+  distance: number;
+  priority: number;
+}
+
+/**
+ * Scale Manhattan distance by the cheapest traversable cell. This keeps the
+ * heuristic admissible even when a restored grid contains weights below one.
+ */
+function getMinimumTraversalCost(grid: GridNode[][]): number {
+  let minimum = Infinity;
+
+  for (const row of grid) {
+    for (const node of row) {
+      if (node.type !== 'wall' && Number.isFinite(node.weight) && node.weight >= 0) {
+        minimum = Math.min(minimum, node.weight);
+      }
+    }
+  }
+
+  return minimum === Infinity ? 0 : minimum;
 }

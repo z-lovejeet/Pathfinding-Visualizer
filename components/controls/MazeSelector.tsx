@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useId, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shuffle } from 'lucide-react';
 import { useVisualizerStore } from '@/store/useVisualizerStore';
@@ -19,6 +19,7 @@ export default function MazeSelector() {
   const generateMaze = useVisualizerStore((s) => s.generateMaze);
   const isVisualizing = useVisualizerStore((s) => s.isVisualizing);
   const [isGenerating, setIsGenerating] = useState(false);
+  const mazeSelectId = useId();
 
   const currentMaze = MAZE_INFO[mazeType];
 
@@ -31,13 +32,14 @@ export default function MazeSelector() {
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-medium text-[#8888aa] uppercase tracking-wider">
+      <label htmlFor={mazeSelectId} className="text-xs font-medium text-[#8888aa] uppercase tracking-wider">
         Maze
       </label>
 
       <div className="flex gap-2">
         {/* Maze type dropdown */}
         <select
+          id={mazeSelectId}
           value={mazeType}
           onChange={(e) => setMazeType(e.target.value as MazeType)}
           disabled={isVisualizing}
@@ -52,12 +54,14 @@ export default function MazeSelector() {
 
         {/* Generate button with spinning icon */}
         <motion.button
+          type="button"
           onClick={handleGenerate}
           disabled={isVisualizing}
           className={`glass-button shrink-0 flex items-center gap-1.5 text-xs py-2 px-3 whitespace-nowrap
             ${isVisualizing ? 'opacity-40 pointer-events-none' : ''}
           `}
           title="Generate maze"
+          aria-label={`Generate ${currentMaze.name} maze`}
           whileTap={{ scale: 0.95 }}
           whileHover={{ scale: 1.02 }}
         >
@@ -65,7 +69,7 @@ export default function MazeSelector() {
             animate={isGenerating ? { rotate: 360 } : { rotate: 0 }}
             transition={{ duration: 0.4, ease: 'easeInOut' }}
           >
-            <Shuffle size={14} />
+            <Shuffle size={14} aria-hidden="true" />
           </motion.div>
           <span>Generate</span>
         </motion.button>
@@ -87,13 +91,14 @@ export default function MazeSelector() {
         </AnimatePresence>
 
         {/* Difficulty dots */}
-        <div className="flex items-center gap-0.5 mt-0.5 shrink-0" title={`Difficulty: ${currentMaze.difficulty}/3`}>
+        <div className="flex items-center gap-0.5 mt-0.5 shrink-0" aria-label={`Difficulty: ${currentMaze.difficulty} of 3`}>
           {[1, 2, 3].map((level) => (
             <div
               key={level}
               className={`difficulty-dot ${
                 level <= currentMaze.difficulty ? 'difficulty-dot--active' : 'difficulty-dot--inactive'
               }`}
+              aria-hidden="true"
             />
           ))}
         </div>

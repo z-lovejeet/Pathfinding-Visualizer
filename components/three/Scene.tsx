@@ -22,6 +22,7 @@ export default function Scene() {
     <div className="absolute inset-0">
       <Canvas
         camera={{ position: [0, 18, 22], fov: 50 }}
+        dpr={[1, 1.5]}
         shadows
         gl={{
           antialias: true,

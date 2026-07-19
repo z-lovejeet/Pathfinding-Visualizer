@@ -35,4 +35,11 @@ export { dijkstra } from './dijkstra';
 export { aStar } from './astar';
 export { greedy } from './greedy';
 export { bidirectional } from './bidirectional';
-export { getNeighbors, reconstructPath, manhattanDistance, resetAlgorithmState, cloneGrid } from './helpers';
+export {
+  getNeighbors,
+  reconstructPath,
+  manhattanDistance,
+  getPathCost,
+  resetAlgorithmState,
+  cloneGrid,
+} from './helpers';

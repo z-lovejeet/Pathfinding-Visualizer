@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useRef, useCallback } from 'react';
-import { useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { useVisualizerStore } from '@/store/useVisualizerStore';
 
@@ -19,6 +18,7 @@ export default function RaycastHandler() {
   const isVisualizing = useVisualizerStore((s) => s.isVisualizing);
   const toggleWall = useVisualizerStore((s) => s.toggleWall);
   const setWeight = useVisualizerStore((s) => s.setWeight);
+  const clearCell = useVisualizerStore((s) => s.clearCell);
   const setStart = useVisualizerStore((s) => s.setStart);
   const setEnd = useVisualizerStore((s) => s.setEnd);
   const setMouseDown = useVisualizerStore((s) => s.setMouseDown);
@@ -62,7 +62,7 @@ export default function RaycastHandler() {
           break;
         case 'erase':
           if (node.type === 'wall' || node.type === 'weight') {
-            toggleWall(cell.row, cell.col); // Will reset to empty if wall
+            clearCell(cell.row, cell.col);
           }
           break;
         case 'start':
@@ -73,7 +73,7 @@ export default function RaycastHandler() {
           break;
       }
     },
-    [interactionMode, isVisualizing, grid, toggleWall, setWeight, setStart, setEnd]
+    [interactionMode, isVisualizing, grid, toggleWall, setWeight, clearCell, setStart, setEnd]
   );
 
   const onPointerDown = useCallback(
