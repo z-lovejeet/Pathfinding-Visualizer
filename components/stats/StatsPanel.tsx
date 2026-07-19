@@ -70,9 +70,9 @@ const StatsPanel = React.memo(function StatsPanel() {
 
   return (
     <motion.div
-      className="absolute bottom-4 right-4 z-10 glass-elevated p-4 w-[240px] rounded-2xl hidden md:block"
-      initial={{ opacity: 0, x: 20, y: 20 }}
-      animate={{ opacity: 1, x: 0, y: 0 }}
+      className="absolute top-20 right-4 md:top-auto md:bottom-4 md:right-4 z-10 glass-elevated p-3 md:p-4 w-[200px] md:w-[240px] rounded-2xl origin-top-right md:origin-bottom-right"
+      initial={{ opacity: 0, scale: 0.9, x: 20 }}
+      animate={{ opacity: 1, scale: 1, x: 0 }}
       transition={{ type: 'spring' as const, stiffness: 200, damping: 20, delay: 0.15 }}
     >
       {/* Algorithm badge */}
