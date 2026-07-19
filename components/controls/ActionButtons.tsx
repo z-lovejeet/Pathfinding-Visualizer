@@ -2,9 +2,11 @@
 
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Pause, RotateCcw, Trash2, Square } from 'lucide-react';
+import { Play, Pause, RotateCcw, Trash2, Square, Share2 } from 'lucide-react';
 import { useVisualizerStore } from '@/store/useVisualizerStore';
+import { serializeGrid } from '@/lib/grid/gridUtils';
 import { GlassButton } from '../ui/GlassButton';
+import { ShareModal } from './ShareModal';
 
 /**
  * ActionButtons — Visualize, Pause/Resume, Clear Path, Clear Board.
@@ -12,6 +14,7 @@ import { GlassButton } from '../ui/GlassButton';
  * Features Framer Motion spring press states and AnimatePresence label morphing.
  */
 export default function ActionButtons() {
+  const [isShareModalOpen, setIsShareModalOpen] = React.useState(false);
   const isVisualizing = useVisualizerStore((s) => s.isVisualizing);
   const isPaused = useVisualizerStore((s) => s.isPaused);
   const runAlgorithm = useVisualizerStore((s) => s.runAlgorithm);
@@ -20,6 +23,28 @@ export default function ActionButtons() {
   const stopAlgorithm = useVisualizerStore((s) => s.stopAlgorithm);
   const clearPath = useVisualizerStore((s) => s.clearPath);
   const clearBoard = useVisualizerStore((s) => s.clearBoard);
+
+  const handleShare = async (title: string): Promise<{ url?: string; error?: string }> => {
+    try {
+      const { grid, algorithm } = useVisualizerStore.getState();
+      const gridData = serializeGrid(grid);
+      const res = await fetch('/api/share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, gridData, algorithm })
+      });
+      const data = await res.json();
+      if (res.ok && data.id) {
+        const url = `${window.location.origin}/visualizer?share=${data.id}`;
+        return { url };
+      } else {
+        return { error: data.error || 'Failed to share grid.' };
+      }
+    } catch (err) {
+      console.error(err);
+      return { error: 'An unexpected error occurred.' };
+    }
+  };
 
   return (
     <div className="flex flex-col gap-2">
@@ -109,6 +134,28 @@ export default function ActionButtons() {
           </GlassButton>
         </motion.div>
       </div>
+
+      {/* Tertiary action row */}
+      <div className="flex">
+        <motion.div whileTap={{ scale: 0.95 }} whileHover={{ scale: 1.02 }} className="flex-1">
+          <GlassButton
+            variant="ghost"
+            size="sm"
+            icon={Share2}
+            onClick={() => setIsShareModalOpen(true)}
+            disabled={isVisualizing}
+            className="w-full"
+          >
+            Share Grid
+          </GlassButton>
+        </motion.div>
+      </div>
+
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        onShare={handleShare}
+      />
     </div>
   );
 }
