@@ -25,10 +25,10 @@ const getBuildingHeight = (row: number, col: number) =>
   BUILDING_HEIGHTS[(row * 31 + col * 17) % BUILDING_HEIGHTS.length];
 
 // Road phase colors
-const ROAD_BASE = 0x2a2a35;
+const ROAD_BASE = 0x1a1a24;
 const ROAD_WEIGHT = 0x1a3a1a;
-const ROAD_VISITED = 0xe8a849;
-const ROAD_PATH = 0x00d4ff;
+const ROAD_VISITED = 0x7c5cf2;
+const ROAD_PATH = 0xfbbf24;
 const ROAD_CURRENT = 0x22d3ee;
 
 export default function CityMesh() {
@@ -239,7 +239,7 @@ export default function CityMesh() {
           vertexColors
           roughness={0.85}
           metalness={0.05}
-          emissive="#e8a849"
+          emissive="#7c5cf2"
           emissiveIntensity={0.2}
           toneMapped={false}
         />
@@ -249,11 +249,11 @@ export default function CityMesh() {
       <instancedMesh ref={buildingRef} args={[undefined, undefined, count]} castShadow receiveShadow>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial
-          color="#1a1a2e"
+          color="#2d2445"
           roughness={0.6}
           metalness={0.2}
-          emissive="#ffaa44"
-          emissiveIntensity={0.12}
+          emissive="#ff8c42"
+          emissiveIntensity={0.15}
         />
       </instancedMesh>
 
