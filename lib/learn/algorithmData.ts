@@ -18,8 +18,10 @@ export interface AlgorithmLearnData {
   handlesWeights: boolean;
   usesHeuristic: boolean;
   visualBehavior: string;
+  visualBehavior3D: string;
   keyInsight: string;
   steps: string[];
+  nodesExplored: string;
 }
 
 export const LEARN_DATA: AlgorithmLearnData[] = [
@@ -62,7 +64,9 @@ This makes BFS the go-to algorithm when all edges have equal weight. It's simple
     handlesWeights: false,
     usesHeuristic: false,
     visualBehavior: 'Expands outward as a concentric wave — nodes rise in circular rings from the start node.',
+    visualBehavior3D: 'Ripple wave',
     keyInsight: 'BFS guarantees the shortest path on unweighted graphs because it processes ALL nodes at distance d before any at distance d+1.',
+    nodesExplored: 'Many',
     steps: [
       'Initialize a queue with the start node and mark it as visited.',
       'Dequeue the front node — this is "current".',
@@ -111,7 +115,9 @@ Despite not finding optimal paths, DFS is fundamental to many algorithms (topolo
     handlesWeights: false,
     usesHeuristic: false,
     visualBehavior: 'Snakes through the grid as a long winding path — nodes rise in a single-file chain.',
+    visualBehavior3D: 'Snaking path',
     keyInsight: 'DFS explores one branch completely before trying another. This makes it fast for checking reachability but unreliable for finding shortest paths.',
+    nodesExplored: 'Variable',
     steps: [
       'Initialize a stack with the start node.',
       'Pop the top node from the stack — this is "current".',
@@ -164,7 +170,9 @@ On an unweighted graph, Dijkstra degenerates into BFS because all edges have equ
     handlesWeights: true,
     usesHeuristic: false,
     visualBehavior: 'Similar to BFS on unweighted grids. On weighted grids, the wave avoids heavy nodes — you see it flowing around weighted areas.',
+    visualBehavior3D: 'Expanding wave',
     keyInsight: 'Dijkstra always processes the globally closest unvisited node. This greedy choice is provably optimal because edge weights are non-negative.',
+    nodesExplored: 'Many',
     steps: [
       'Initialize all distances to ∞ except start (0). Insert start into min-heap.',
       'Extract the node with minimum distance from the heap — this is "current".',
@@ -224,7 +232,9 @@ The formula is f(n) = g(n) + h(n), where g(n) is the actual cost from start to n
     handlesWeights: true,
     usesHeuristic: true,
     visualBehavior: 'A directed beam shoots toward the target, expanding only in the direction of the goal. Far fewer nodes visited than BFS or Dijkstra.',
+    visualBehavior3D: 'Directed beam',
     keyInsight: 'A* is optimal because its heuristic (Manhattan distance) is admissible — it never overestimates. This means A* will never skip over the true shortest path.',
+    nodesExplored: 'Few ⭐',
     steps: [
       'Initialize g(start) = 0, f(start) = heuristic(start, end). Insert start into open set.',
       'Extract the node with minimum f value — this is "current".',
@@ -272,7 +282,9 @@ The key difference from A*: A* uses f(n) = g(n) + h(n) while Greedy uses f(n) = 
     handlesWeights: false,
     usesHeuristic: true,
     visualBehavior: 'A laser beam — even more directional than A*, but the resulting path may not be shortest.',
+    visualBehavior3D: 'Laser beam',
     keyInsight: 'Greedy BFS shows the tradeoff between speed and optimality. It\'s the fastest heuristic search but can be "tricked" by walls into long detours.',
+    nodesExplored: 'Fewest',
     steps: [
       'Initialize open set with start node, priority = heuristic(start, end).',
       'Extract the node with minimum heuristic value.',
@@ -318,7 +330,9 @@ The math: one circle of radius r has area πr². Two circles of radius r/2 have 
     handlesWeights: false,
     usesHeuristic: false,
     visualBehavior: 'Two expanding waves — one cyan from start, one red from end — colliding in the middle. The most visually spectacular animation.',
+    visualBehavior3D: 'Two colliding waves',
     keyInsight: 'Two small search circles cover less area than one large circle. Bidirectional BFS roughly halves the number of nodes explored.',
+    nodesExplored: '~Half of BFS',
     steps: [
       'Initialize two queues: one from start (forward), one from end (backward).',
       'Alternate: process one node from the forward queue, then one from the backward queue.',
@@ -362,7 +376,9 @@ This produces mazes with a distinctive "grid of rooms" appearance with long corr
     handlesWeights: false,
     usesHeuristic: false,
     visualBehavior: 'Walls appear as horizontal and vertical lines that progressively subdivide the grid into smaller chambers.',
+    visualBehavior3D: 'N/A',
     keyInsight: 'Orientation choice based on aspect ratio prevents long, narrow corridors and creates balanced mazes.',
+    nodesExplored: 'N/A',
     steps: [
       'Start with a completely open grid (no walls except borders).',
       'Choose orientation: horizontal if chamber is wider, vertical if taller.',
@@ -402,7 +418,9 @@ This produces mazes with long, winding corridors and relatively few dead ends �
     handlesWeights: false,
     usesHeuristic: false,
     visualBehavior: 'A single path snakes through the grid, carving corridors and backtracking from dead ends.',
+    visualBehavior3D: 'N/A',
     keyInsight: 'Moving 2 cells at a time ensures walls remain between passages, creating the classic "perfect maze" pattern.',
+    nodesExplored: 'N/A',
     steps: [
       'Fill the entire grid with walls.',
       'Pick a random starting cell and mark it as a passage.',
@@ -441,7 +459,9 @@ Unlike the Recursive Backtracker which creates long corridors, Prim's creates ma
     handlesWeights: false,
     usesHeuristic: false,
     visualBehavior: 'Passages radiate outward from a seed point, branching in all directions like a growing tree.',
+    visualBehavior3D: 'N/A',
     keyInsight: 'Random frontier selection creates organic-looking mazes. The more walls in the frontier, the more branching occurs.',
+    nodesExplored: 'N/A',
     steps: [
       'Fill the grid with walls. Pick a random cell and mark as passage.',
       'Add all wall-cells 2 steps away from the passage to the frontier list.',
@@ -477,7 +497,9 @@ This produces very uniform, unbiased mazes where every wall removal is equally l
     handlesWeights: false,
     usesHeuristic: false,
     visualBehavior: 'Walls disappear at random positions across the grid simultaneously, gradually connecting all regions.',
+    visualBehavior3D: 'N/A',
     keyInsight: 'Union-Find ensures no cycles: walls are only removed between disconnected regions. The result is a spanning tree of the grid graph.',
+    nodesExplored: 'N/A',
     steps: [
       'Fill the grid with walls. Create a Union-Find set for each cell.',
       'Build a list of all walls between adjacent cells.',
