@@ -7,13 +7,13 @@ import { useVisualizerStore } from '@/store/useVisualizerStore';
 import { NODE_COLORS } from '@/lib/constants';
 
 const LEGEND_ITEMS = [
-  { label: 'Empty', color: NODE_COLORS.empty.css, mode: null },
-  { label: 'Start', color: NODE_COLORS.start.css, mode: 'start' as const },
-  { label: 'End', color: NODE_COLORS.end.css, mode: 'end' as const },
-  { label: 'Wall', color: NODE_COLORS.wall.css, mode: 'wall' as const },
-  { label: 'Weight', color: NODE_COLORS.weight.css, mode: 'weight' as const },
-  { label: 'Visited', color: NODE_COLORS.visited.css, mode: null },
-  { label: 'Path', color: NODE_COLORS.path.css, mode: null },
+  { label: 'Road', color: NODE_COLORS.empty.css, mode: null },
+  { label: 'Person A', color: NODE_COLORS.start.css, mode: 'start' as const },
+  { label: 'Person B', color: NODE_COLORS.end.css, mode: 'end' as const },
+  { label: 'Building', color: NODE_COLORS.wall.css, mode: 'wall' as const },
+  { label: 'Park', color: NODE_COLORS.weight.css, mode: 'weight' as const },
+  { label: 'Explored', color: NODE_COLORS.visited.css, mode: null },
+  { label: 'Route', color: NODE_COLORS.path.css, mode: null },
 ];
 
 /**
@@ -29,7 +29,7 @@ export default function Legend() {
   const interactionMode = useVisualizerStore((s) => s.interactionMode);
 
   const renderItem = ({ label, color, mode }: typeof LEGEND_ITEMS[number]) => {
-    const isGlowing = label === 'Start' || label === 'End' || label === 'Path';
+    const isGlowing = label === 'Person A' || label === 'Person B' || label === 'Route';
     const isCurrentTool = mode !== null && interactionMode === mode;
     const isDimmed = hoveredItem !== null && hoveredItem !== label;
 
