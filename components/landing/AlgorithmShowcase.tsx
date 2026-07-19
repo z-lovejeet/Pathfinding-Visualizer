@@ -74,7 +74,7 @@ export default function AlgorithmShowcase() {
                 y: -6,
                 transition: { type: 'spring', stiffness: 300, damping: 20 },
               }}
-              className="snap-start shrink-0 w-[260px] md:w-auto glass p-5 rounded-2xl cursor-default group border border-white/8 hover:border-white/15 transition-colors duration-300"
+              className="snap-start shrink-0 w-[260px] md:w-auto glass-elevated p-5 rounded-2xl cursor-default group transition-colors duration-300"
             >
               <div className="flex items-center gap-3 mb-3">
                 <div
