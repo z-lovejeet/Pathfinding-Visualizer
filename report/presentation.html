@@ -13,21 +13,19 @@
     }
 
     :root {
-      --bg: #07070d;
+      --bg: #090910;
       --card-bg: rgba(255, 255, 255, 0.035);
       --card-border: rgba(255, 255, 255, 0.08);
-      --card-highlight: rgba(255, 255, 255, 0.15);
-      --text-main: #f0f0f8;
-      --text-muted: #8c8ca8;
+      --text-main: #f2f2fa;
+      --text-muted: #9494ad;
       --cyan: #00d4ff;
       --purple: #a78bfa;
-      --violet: #7c5cf2;
       --gold: #fbbf24;
       --green: #22c55e;
       --red: #f43f5e;
-      --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+      --font-heading: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
     }
 
     body {
@@ -48,43 +46,31 @@
       align-items: center;
       justify-content: center;
       background: 
-        radial-gradient(circle at 10% 20%, rgba(124, 92, 242, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(0, 212, 255, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 50% 50%, rgba(7, 7, 13, 1) 0%, rgba(4, 4, 8, 1) 100%);
+        radial-gradient(circle at 15% 20%, rgba(124, 92, 242, 0.07) 0%, transparent 45%),
+        radial-gradient(circle at 85% 80%, rgba(0, 212, 255, 0.07) 0%, transparent 45%),
+        #090910;
     }
 
     .slide {
       position: absolute;
-      width: 90vw;
-      max-width: 1380px;
-      height: 84vh;
-      max-height: 800px;
+      width: 88vw;
+      max-width: 1300px;
+      height: 82vh;
+      max-height: 760px;
       display: none;
       flex-direction: column;
       justify-content: space-between;
-      padding: 48px 56px;
+      padding: 44px 52px;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 24px;
-      backdrop-filter: blur(30px);
-      -webkit-backdrop-filter: blur(30px);
-      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-      animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      border-radius: 20px;
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.65);
     }
 
     .slide.active {
       display: flex;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: scale(0.98) translateY(8px);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-      }
     }
 
     /* ─── SLIDE HEADER & FOOTER ─── */
@@ -96,35 +82,20 @@
     }
 
     .slide-category {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 2px;
       color: var(--cyan);
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .slide-category::before {
-      content: "";
-      width: 8px;
-      height: 8px;
-      background: var(--cyan);
-      border-radius: 50%;
-      box-shadow: 0 0 10px var(--cyan);
+      margin-bottom: 4px;
     }
 
     .slide-title {
       font-family: var(--font-heading);
-      font-size: 36px;
-      font-weight: 800;
+      font-size: 34px;
+      font-weight: 700;
       letter-spacing: -0.5px;
       color: #ffffff;
-      background: linear-gradient(135deg, #ffffff 40%, #b8b8d4 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
     }
 
     .slide-tag {
@@ -132,7 +103,7 @@
       border-radius: 999px;
       font-size: 12px;
       font-weight: 600;
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--card-border);
       color: var(--purple);
     }
@@ -150,8 +121,8 @@
       justify-content: space-between;
       align-items: center;
       margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
       font-size: 12px;
       color: var(--text-muted);
     }
@@ -160,42 +131,24 @@
     .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 24px;
+      gap: 22px;
     }
 
     .grid-3 {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
+      gap: 18px;
     }
 
-    .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-    }
-
-    /* ─── FEATURE CARDS ─── */
+    /* ─── CARDS ─── */
     .card {
       background: rgba(255, 255, 255, 0.02);
       border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 16px;
-      padding: 22px;
+      border-radius: 14px;
+      padding: 20px 22px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .card::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      gap: 8px;
     }
 
     .card.highlight-cyan { border-left: 3px solid var(--cyan); }
@@ -205,12 +158,10 @@
     .card.highlight-red { border-left: 3px solid var(--red); }
 
     .card-title {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 700;
       color: #ffffff;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      margin-bottom: 2px;
     }
 
     .card-desc {
@@ -219,45 +170,62 @@
       line-height: 1.6;
     }
 
-    /* ─── BADGES ─── */
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+    .card-desc strong {
+      color: var(--text-main);
     }
-    .badge-yes { background: rgba(34, 197, 94, 0.15); color: var(--green); border: 1px solid rgba(34, 197, 94, 0.25); }
-    .badge-no { background: rgba(244, 63, 94, 0.15); color: var(--red); border: 1px solid rgba(244, 63, 94, 0.25); }
-    .badge-cyan { background: rgba(0, 212, 255, 0.15); color: var(--cyan); border: 1px solid rgba(0, 212, 255, 0.25); }
-    .badge-purple { background: rgba(167, 139, 250, 0.15); color: var(--purple); border: 1px solid rgba(167, 139, 250, 0.25); }
-    .badge-gold { background: rgba(251, 191, 36, 0.15); color: var(--gold); border: 1px solid rgba(251, 191, 36, 0.25); }
+
+    /* ─── BULLET LISTS ─── */
+    ul.point-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    ul.point-list li {
+      position: relative;
+      padding-left: 18px;
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    ul.point-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 8px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--cyan);
+    }
+
+    ul.point-list li strong {
+      color: var(--text-main);
+    }
 
     /* ─── TABLES ─── */
     table {
       width: 100%;
       border-collapse: collapse;
-      margin: 8px 0;
-      font-size: 13.5px;
+      margin: 6px 0;
+      font-size: 13px;
     }
 
     th, td {
-      padding: 12px 14px;
+      padding: 10px 12px;
       text-align: left;
       border: 1px solid rgba(255, 255, 255, 0.06);
     }
 
     th {
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(255, 255, 255, 0.04);
       color: var(--cyan);
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 0.8px;
     }
 
     td {
@@ -273,40 +241,36 @@
       text-align: center;
       justify-content: center;
       align-items: center;
-      position: relative;
     }
 
     .cover-badge {
       display: inline-block;
-      padding: 8px 18px;
-      background: rgba(0, 212, 255, 0.1);
-      border: 1px solid rgba(0, 212, 255, 0.3);
+      padding: 6px 16px;
+      background: rgba(0, 212, 255, 0.08);
+      border: 1px solid rgba(0, 212, 255, 0.25);
       border-radius: 999px;
       color: var(--cyan);
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       letter-spacing: 2px;
       text-transform: uppercase;
-      margin-bottom: 24px;
-      box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+      margin-bottom: 22px;
     }
 
     .cover-title {
       font-family: var(--font-heading);
-      font-size: 58px;
-      font-weight: 900;
+      font-size: 52px;
+      font-weight: 800;
       letter-spacing: -1px;
       line-height: 1.15;
-      margin-bottom: 16px;
-      background: linear-gradient(135deg, #ffffff 30%, #00d4ff 70%, #a78bfa 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      margin-bottom: 14px;
+      color: #ffffff;
     }
 
     .cover-subtitle {
-      font-size: 20px;
+      font-size: 19px;
       color: var(--text-muted);
-      max-width: 720px;
+      max-width: 680px;
       margin: 0 auto 36px;
       line-height: 1.5;
     }
@@ -316,9 +280,9 @@
       gap: 32px;
       justify-content: center;
       padding: 16px 36px;
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(255, 255, 255, 0.025);
       border: 1px solid var(--card-border);
-      border-radius: 16px;
+      border-radius: 14px;
     }
 
     .meta-item {
@@ -336,15 +300,15 @@
     }
 
     .meta-value {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 700;
       color: #ffffff;
     }
 
-    /* ─── DIAGRAMS / FLOW ─── */
+    /* ─── PIPELINE STEPS ─── */
     .flow-step {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 14px;
       background: rgba(255, 255, 255, 0.02);
       border: 1px solid var(--card-border);
@@ -353,17 +317,17 @@
     }
 
     .step-number {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: rgba(0, 212, 255, 0.15);
-      border: 1px solid rgba(0, 212, 255, 0.3);
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: rgba(0, 212, 255, 0.12);
+      border: 1px solid rgba(0, 212, 255, 0.25);
       color: var(--cyan);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 800;
-      font-size: 14px;
+      font-weight: 700;
+      font-size: 13px;
       flex-shrink: 0;
     }
 
@@ -375,41 +339,38 @@
     }
 
     .step-content p {
-      font-size: 12px;
+      font-size: 12.5px;
       color: var(--text-muted);
+      line-height: 1.5;
     }
 
-    /* ─── CODE / MONO BOX ─── */
+    /* ─── CODE BOX ─── */
     .code-box {
       background: #05050a;
       border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 16px 20px;
+      border-radius: 10px;
+      padding: 12px 16px;
       font-family: var(--font-mono);
-      font-size: 13px;
+      font-size: 12.5px;
       color: var(--cyan);
-      line-height: 1.7;
+      line-height: 1.6;
     }
-
-    .code-box .kw { color: var(--purple); }
-    .code-box .num { color: var(--gold); }
-    .code-box .cm { color: #555577; font-style: italic; }
 
     /* ─── NAVIGATION CONTROLS (Floating) ─── */
     .nav-controls {
       position: fixed;
-      bottom: 24px;
+      bottom: 22px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
       align-items: center;
       gap: 12px;
       padding: 8px 16px;
-      background: rgba(18, 18, 30, 0.85);
+      background: rgba(15, 15, 24, 0.9);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 999px;
       backdrop-filter: blur(20px);
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
       z-index: 100;
     }
 
@@ -418,13 +379,10 @@
       border: none;
       color: var(--text-main);
       cursor: pointer;
-      padding: 8px 14px;
+      padding: 6px 14px;
       border-radius: 999px;
       font-size: 13px;
       font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
       transition: all 0.2s;
     }
 
@@ -452,7 +410,7 @@
       top: 0;
       left: 0;
       width: 100%;
-      height: 4px;
+      height: 3px;
       background: rgba(255, 255, 255, 0.05);
       z-index: 101;
     }
@@ -460,9 +418,8 @@
     .progress-bar {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, var(--cyan), var(--purple));
+      background: var(--cyan);
       transition: width 0.3s ease;
-      box-shadow: 0 0 12px var(--cyan);
     }
 
     /* ─── PRINT TO PDF STYLES ─── */
@@ -493,29 +450,24 @@
         box-shadow: none;
         padding: 40px;
       }
-      .slide-title {
+      .slide-title, .cover-title {
         color: #004499;
-        -webkit-text-fill-color: #004499;
-      }
-      .cover-title {
-        color: #004499;
-        -webkit-text-fill-color: #004499;
       }
       .nav-controls, .progress-bar-container {
         display: none !important;
       }
       .card {
-        background: #f7f7fc;
+        background: #f8f8fc;
         border-color: #e0e0ee;
       }
       .card-title { color: #111122; }
       .card-desc { color: #444455; }
-      th { background: #f0f0fa; color: #0055bb; }
+      th { background: #f0f0fa; color: #004499; }
       td { color: #111122; border-color: #e0e0ee; }
       .code-box { background: #f4f4fa; color: #0044aa; border-color: #ddd; }
-      .flow-step { background: #f7f7fc; border-color: #e0e0ee; }
+      .flow-step { background: #f8f8fc; border-color: #e0e0ee; }
       .step-content h4 { color: #111; }
-      .cover-meta { background: #f7f7fc; border-color: #e0e0ee; }
+      .cover-meta { background: #f8f8fc; border-color: #e0e0ee; }
       .meta-value { color: #111; }
     }
   </style>
@@ -531,261 +483,152 @@
   <div class="deck-container">
 
     <!-- ══════════════════════════════════════════
-         SLIDE 1: COVER
+         SLIDE 1: TITLE SLIDE
          ══════════════════════════════════════════ -->
     <section class="slide slide-cover active" data-index="1">
       <div>
-        <div class="cover-badge">DSA Project Viva Defense</div>
+        <div class="cover-badge">Academic Project Presentation</div>
         <h1 class="cover-title">Pathfinding Visualizer</h1>
         <p class="cover-subtitle">
-          An interactive 3D WebGL miniature city diorama for graph traversal algorithms, procedural maze generation, and real-time algorithmic analysis.
+          An interactive 3D WebGL miniature city for graph traversal algorithms, procedural maze generation, and real-time algorithmic analysis.
         </p>
 
         <div class="cover-meta">
           <div class="meta-item">
-            <span class="meta-label">Developer</span>
+            <span class="meta-label">Candidate</span>
             <span class="meta-value">Lovejeet Singh</span>
           </div>
           <div class="meta-item">
-            <span class="meta-label">Subject</span>
+            <span class="meta-label">Course</span>
             <span class="meta-value">Data Structures & Algorithms</span>
           </div>
           <div class="meta-item">
-            <span class="meta-label">Stack</span>
-            <span class="meta-value">Next.js 16 · React 19 · Three.js · TypeScript</span>
+            <span class="meta-label">Tech Stack</span>
+            <span class="meta-value">Next.js 16 · React 19 · Three.js · TypeScript · PostgreSQL</span>
           </div>
           <div class="meta-item">
-            <span class="meta-label">Live Project</span>
+            <span class="meta-label">Live Deployment</span>
             <span class="meta-value">pathfinding-visualizer-flax-one.vercel.app</span>
           </div>
         </div>
       </div>
       <div class="slide-footer">
-        <span>Use ⬅ ➡ Arrow keys or Space to navigate</span>
-        <span>Slide 1 / 13</span>
+        <span>Pathfinding Visualizer</span>
+        <span>Slide 1 / 7</span>
       </div>
     </section>
 
     <!-- ══════════════════════════════════════════
-         SLIDE 2: MOTIVATION & INSPIRATION
+         SLIDE 2: MOTIVATION & OBJECTIVES
          ══════════════════════════════════════════ -->
     <section class="slide" data-index="2">
       <div class="slide-header">
         <div>
-          <div class="slide-category">Background</div>
-          <h2 class="slide-title">Motivation & Inspiration</h2>
+          <div class="slide-category">Project Overview</div>
+          <h2 class="slide-title">Motivation & Objectives</h2>
         </div>
-        <span class="slide-tag">The "Why"</span>
+        <span class="slide-tag">Problem Statement</span>
       </div>
       <div class="slide-body">
         <div class="grid-2">
           <div class="card highlight-cyan">
-            <div class="card-title">📖 The Pedagogical Problem</div>
+            <div class="card-title">Problem Statement</div>
             <p class="card-desc">
-              In academic courses, graph algorithms are often presented through static textbook node-edge diagrams or chalkboard step-throughs. Students struggle to develop an intuitive mental model for concepts like <strong>search-frontier expansion</strong>, <strong>heuristic bias</strong>, and <strong>edge relaxation</strong> under real spatial constraints.
+              Textbook graph algorithms are taught using static node-edge diagrams and abstract matrices. Students often lack an intuitive understanding of <strong>search-frontier expansion</strong>, <strong>heuristic guidance</strong>, and <strong>edge relaxation</strong> under real spatial constraints.
             </p>
-          </div>
-          <div class="card highlight-purple">
-            <div class="card-title">🏙️ The Real-World Inspiration</div>
-            <p class="card-desc">
-              Real navigation systems (Google Maps, autonomous vehicles, game engine NavMeshes) route through complex physical terrain with skyscrapers, traffic penalties, and dynamic barriers. Most existing educational visualizers are flat 2D grids of colored squares. We were inspired to build a <strong>GPU-accelerated 3D miniature city</strong> that makes algorithms tangible.
+            <p class="card-desc" style="margin-top: 6px;">
+              Most existing web visualizers rely on basic 2D DOM tables with colored boxes that fail to reflect physical routing scenarios.
             </p>
-          </div>
-        </div>
-        <div style="margin-top: 20px;">
-          <div class="card highlight-gold">
-            <div class="card-title">🎯 Core Philosophy: Theory Meets Real Engineering</div>
-            <p class="card-desc">
-              Provide an uncompromised full-stack application that simultaneously serves as an <strong>interactive pedagogical tool</strong>, a <strong>high-performance graphics showcase (60 FPS)</strong>, and an <strong>empirical benchmark suite</strong>.
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="slide-footer">
-        <span>Pathfinding Visualizer · Lovejeet Singh</span>
-        <span>Slide 2 / 13</span>
-      </div>
-    </section>
-
-    <!-- ══════════════════════════════════════════
-         SLIDE 3: OBJECTIVES
-         ══════════════════════════════════════════ -->
-    <section class="slide" data-index="3">
-      <div class="slide-header">
-        <div>
-          <div class="slide-category">Scope</div>
-          <h2 class="slide-title">Project Objectives</h2>
-        </div>
-        <span class="slide-tag">Aims & Goals</span>
-      </div>
-      <div class="slide-body">
-        <div class="grid-3">
-          <div class="card highlight-cyan">
-            <div class="card-title">1. Algorithm Diversity</div>
-            <p class="card-desc">
-              Implement and visualize 6 foundational graph algorithms: <strong>BFS, DFS, Dijkstra, A*, Greedy Best-First</strong>, and <strong>Bidirectional BFS</strong> with strict adherence to data structure specifications.
-            </p>
-          </div>
-          <div class="card highlight-purple">
-            <div class="card-title">2. Procedural Mazes</div>
-            <p class="card-desc">
-              Implement 5 distinct maze generation strategies (Recursive Division, DFS Backtracker, Prim's, Kruskal's, Random) with an automated <strong>guaranteed solvability validator</strong>.
-            </p>
-          </div>
-          <div class="card highlight-gold">
-            <div class="card-title">3. 3D Spatial Rendering</div>
-            <p class="card-desc">
-              Render a 25×50 grid (1,250 nodes) with <strong>InstancedMeshes</strong> and spring physics in WebGL/Three.js, modeling walls as buildings and weights as parks.
-            </p>
-          </div>
-          <div class="card highlight-green">
-            <div class="card-title">4. Empirical Analytics</div>
-            <p class="card-desc">
-              Track live performance metrics including <strong>Nodes Visited, Path Length, Traversal Cost</strong>, and <strong>Execution Time (ms)</strong> with comparative charting.
-            </p>
-          </div>
-          <div class="card highlight-red">
-            <div class="card-title">5. Persistence & Sharing</div>
-            <p class="card-desc">
-              Build a RESTful API backed by <strong>Neon serverless PostgreSQL</strong> allowing users to save and share custom grid layouts via unique UUID links.
-            </p>
-          </div>
-          <div class="card highlight-cyan">
-            <div class="card-title">6. Production Standards</div>
-            <p class="card-desc">
-              Enforce strict TypeScript types, zero-allocation render loops, defensive input validation, responsive controls, and high-contrast dark aesthetic.
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="slide-footer">
-        <span>Pathfinding Visualizer · Lovejeet Singh</span>
-        <span>Slide 3 / 13</span>
-      </div>
-    </section>
-
-    <!-- ══════════════════════════════════════════
-         SLIDE 4: ARCHITECTURE & PIPELINE
-         ══════════════════════════════════════════ -->
-    <section class="slide" data-index="4">
-      <div class="slide-header">
-        <div>
-          <div class="slide-category">System Design</div>
-          <h2 class="slide-title">Architecture & Execution Pipeline</h2>
-        </div>
-        <span class="slide-tag">Separation of Concerns</span>
-      </div>
-      <div class="slide-body">
-        <div class="grid-2" style="align-items: center;">
-          <div style="display: flex; flex-direction: column; gap: 12px;">
-            <div class="flow-step">
-              <div class="step-number">1</div>
-              <div class="step-content">
-                <h4>User Interaction & Zustand Store</h4>
-                <p>User selects algorithm, places obstacles, or loads a maze. State is centrally dispatched.</p>
-              </div>
-            </div>
-            <div class="flow-step">
-              <div class="step-number">2</div>
-              <div class="step-content">
-                <h4>Pure Synchronous Algorithm Run (~2ms)</h4>
-                <p>Pure mathematical execution in memory. Zero setTimeout or UI interference. Produces <code>AlgorithmResult</code>.</p>
-              </div>
-            </div>
-            <div class="flow-step">
-              <div class="step-number">3</div>
-              <div class="step-content">
-                <h4>AnimationEngine (GSAP Timeline)</h4>
-                <p>Builds a staggered timeline writing values into flat, shared <code>Float32Array</code> memory buffers.</p>
-              </div>
-            </div>
-            <div class="flow-step">
-              <div class="step-number">4</div>
-              <div class="step-content">
-                <h4>Three.js Render Loop (60 FPS)</h4>
-                <p><code>useFrame()</code> reads buffers directly. Updates InstancedMesh matrices using spring physics.</p>
-              </div>
-            </div>
           </div>
 
           <div class="card highlight-purple">
-            <div class="card-title">💡 Why This Pipeline Wins</div>
-            <ul style="padding-left: 20px; font-size: 13.5px; color: var(--text-muted); line-height: 1.8;">
-              <li><strong style="color: #fff;">Zero GC Stutter:</strong> No React state updates during the 1,250-node traversal loop.</li>
-              <li><strong style="color: #fff;">Dynamic Speed Scrubbing:</strong> <code>timeline.timeScale()</code> changes speed instantly without restarting.</li>
-              <li><strong style="color: #fff;">Race Condition Immunity:</strong> Monotonic <code>runId</code> invalidates previous runs if user clicks "Run" repeatedly.</li>
-              <li><strong style="color: #fff;">Deterministic Benchmarking:</strong> Execution time measured via <code>performance.now()</code> before rendering begins.</li>
+            <div class="card-title">Core Objectives</div>
+            <ul class="point-list">
+              <li><strong>Algorithm Diversity:</strong> Implement 6 foundational algorithms (BFS, DFS, Dijkstra, A*, Greedy, Bidirectional BFS).</li>
+              <li><strong>3D Spatial Realism:</strong> Render a 25×50 grid as a miniature city diorama (buildings as obstacles, parks as weights).</li>
+              <li><strong>Procedural Mazes:</strong> Generate solvable mazes via Division, Backtracker, Prim's, and Kruskal's methods.</li>
+              <li><strong>Empirical Analytics:</strong> Measure execution time, nodes visited, path length, and traversal cost in real time.</li>
             </ul>
           </div>
         </div>
       </div>
       <div class="slide-footer">
         <span>Pathfinding Visualizer · Lovejeet Singh</span>
-        <span>Slide 4 / 13</span>
+        <span>Slide 2 / 7</span>
       </div>
     </section>
 
     <!-- ══════════════════════════════════════════
-         SLIDE 5: 3D MINIATURE CITY METAPHOR
+         SLIDE 3: SYSTEM ARCHITECTURE
          ══════════════════════════════════════════ -->
-    <section class="slide" data-index="5">
+    <section class="slide" data-index="3">
       <div class="slide-header">
         <div>
-          <div class="slide-category">Graphics Metaphor</div>
-          <h2 class="slide-title">Visual Mapping: The Miniature City</h2>
+          <div class="slide-category">System Architecture</div>
+          <h2 class="slide-title">Execution & Animation Pipeline</h2>
         </div>
-        <span class="slide-tag">WebGL Diorama</span>
+        <span class="slide-tag">Separation of Concerns</span>
       </div>
       <div class="slide-body">
-        <div class="grid-4">
-          <div class="card highlight-cyan">
-            <div class="card-title">🛣️ Roads (Tiles)</div>
-            <p class="card-desc">Traversable grid corridors. Dark asphalt surface (<code>#1a1a24</code>) with gaps defining the street grid.</p>
-            <span class="badge badge-cyan">Base Geometry</span>
-          </div>
-
-          <div class="card highlight-purple">
-            <div class="card-title">🏢 Buildings (Walls)</div>
-            <p class="card-desc">Non-traversable barriers. Deep plum towers (<code>#2d2445</code>) with randomized heights (0.5–1.4) and warm amber window glow.</p>
-            <span class="badge badge-purple">Obstacles</span>
-          </div>
-
-          <div class="card highlight-green">
-            <div class="card-title">🌳 Parks (Weights)</div>
-            <p class="card-desc">High-cost terrain (Weight = 5). Green ground tile with procedural pine-tree cone geometry popping up via spring physics.</p>
-            <span class="badge badge-yes">Weighted Cost</span>
+        <div class="grid-2" style="align-items: center;">
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div class="flow-step">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <h4>Pure Synchronous Algorithm Run (~2ms)</h4>
+                <p>Pure mathematical traversal in memory. Generates deterministic <code>AlgorithmResult</code> containing visited nodes and final path.</p>
+              </div>
+            </div>
+            <div class="flow-step">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <h4>AnimationEngine (GSAP Timeline)</h4>
+                <p>Builds a staggered timeline writing per-node phases, target heights, and emissive values into flat <code>Float32Array</code> buffers.</p>
+              </div>
+            </div>
+            <div class="flow-step">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <h4>Three.js WebGL Render Loop (60 FPS)</h4>
+                <p><code>useFrame()</code> reads shared buffers every frame. Spring physics smoothly interpolates building and road elevations.</p>
+              </div>
+            </div>
+            <div class="flow-step">
+              <div class="step-number">4</div>
+              <div class="step-content">
+                <h4>State Baking & Resource Release</h4>
+                <p>Terminal state is baked back into the Zustand store upon completion, freeing memory buffers.</p>
+              </div>
+            </div>
           </div>
 
           <div class="card highlight-gold">
-            <div class="card-title">🧑 Persons (Endpoints)</div>
-            <p class="card-desc">Person A (Start: Cyan) and Person B (Target: Lavender). Miniature human models with pulsing ground halos and floating beacons.</p>
-            <span class="badge badge-gold">Start & Target</span>
+            <div class="card-title">Key Architectural Advantages</div>
+            <ul class="point-list">
+              <li><strong>Zero Garbage Collection Stutter:</strong> Avoids triggering React state re-renders during the 1,250-node traversal loop.</li>
+              <li><strong>Dynamic Speed Scaling:</strong> <code>timeline.timeScale()</code> adjusts playback speed live without restarting.</li>
+              <li><strong>Concurrency Safety:</strong> A monotonic <code>runId</code> invalidates previous runs when user triggers new actions.</li>
+              <li><strong>Accurate Benchmarks:</strong> Algorithm execution time is measured via <code>performance.now()</code> before rendering begins.</li>
+            </ul>
           </div>
-        </div>
-
-        <div style="margin-top: 20px;" class="card highlight-cyan">
-          <div class="card-title">Dynamic Cinematic Exploration Waves</div>
-          <p class="card-desc">
-            As the algorithm searches, road tiles flash in <strong>Bright Cyan</strong> ("current"), transition into a <strong>Violet wave</strong> ("visited"), and once solved, the optimal path ignites with a <strong>Golden glowing ribbon</strong> using bloom post-processing.
-          </p>
         </div>
       </div>
       <div class="slide-footer">
         <span>Pathfinding Visualizer · Lovejeet Singh</span>
-        <span>Slide 5 / 13</span>
+        <span>Slide 3 / 7</span>
       </div>
     </section>
 
     <!-- ══════════════════════════════════════════
-         SLIDE 6: ALGORITHMS COMPARISON TABLE
+         SLIDE 4: ALGORITHMS COMPARISON
          ══════════════════════════════════════════ -->
-    <section class="slide" data-index="6">
+    <section class="slide" data-index="4">
       <div class="slide-header">
         <div>
           <div class="slide-category">Algorithm Analysis</div>
-          <h2 class="slide-title">Pathfinding Algorithms Overview</h2>
+          <h2 class="slide-title">Pathfinding Algorithms Comparison</h2>
         </div>
-        <span class="slide-tag">Theoretical Matrix</span>
+        <span class="slide-tag">Complexity Matrix</span>
       </div>
       <div class="slide-body">
         <table>
@@ -793,8 +636,8 @@
             <tr>
               <th>Algorithm</th>
               <th>Data Structure</th>
-              <th>Supports Weights?</th>
-              <th>Optimal Shortest Path?</th>
+              <th>Weights</th>
+              <th>Optimal Path</th>
               <th>Time Complexity</th>
               <th>Space Complexity</th>
             </tr>
@@ -803,397 +646,223 @@
             <tr>
               <td><strong>Breadth-First Search (BFS)</strong></td>
               <td>Queue (FIFO)</td>
-              <td><span class="badge badge-no">No</span></td>
-              <td><span class="badge badge-yes">Yes (Unweighted)</span></td>
+              <td>No</td>
+              <td>Yes (Unweighted)</td>
               <td>O(V + E)</td>
               <td>O(V)</td>
             </tr>
             <tr>
               <td><strong>Depth-First Search (DFS)</strong></td>
               <td>Stack (LIFO)</td>
-              <td><span class="badge badge-no">No</span></td>
-              <td><span class="badge badge-no">No</span></td>
+              <td>No</td>
+              <td>No</td>
               <td>O(V + E)</td>
               <td>O(V)</td>
             </tr>
             <tr>
               <td><strong>Dijkstra's Algorithm</strong></td>
               <td>Min-Heap (Priority Queue)</td>
-              <td><span class="badge badge-yes">Yes</span></td>
-              <td><span class="badge badge-yes">Yes</span></td>
+              <td>Yes</td>
+              <td>Yes</td>
               <td>O((V + E) log V)</td>
               <td>O(V)</td>
             </tr>
             <tr>
               <td><strong>A* Search</strong></td>
               <td>Min-Heap (f = g + h)</td>
-              <td><span class="badge badge-yes">Yes</span></td>
-              <td><span class="badge badge-yes">Yes (Admissible)</span></td>
+              <td>Yes</td>
+              <td>Yes</td>
               <td>O((V + E) log V)</td>
               <td>O(V)</td>
             </tr>
             <tr>
-              <td><strong>Greedy Best-First Search</strong></td>
+              <td><strong>Greedy Best-First</strong></td>
               <td>Min-Heap (f = h)</td>
-              <td><span class="badge badge-no">No</span></td>
-              <td><span class="badge badge-no">No</span></td>
+              <td>No</td>
+              <td>No</td>
               <td>O((V + E) log V)</td>
               <td>O(V)</td>
             </tr>
             <tr>
               <td><strong>Bidirectional BFS</strong></td>
               <td>2 × Queues + 2 × Sets</td>
-              <td><span class="badge badge-no">No</span></td>
-              <td><span class="badge badge-yes">Yes (Unweighted)</span></td>
+              <td>No</td>
+              <td>Yes (Unweighted)</td>
               <td>O(V + E)</td>
               <td>O(V)</td>
             </tr>
           </tbody>
         </table>
-        <div style="font-size: 12px; color: var(--text-muted); margin-top: 10px;">
-          * Note: On our 25×50 grid, \(V = 1,250\) vertices and \(E \le 4V = 5,000\) edges due to 4-cardinal orthogonal adjacency.
+
+        <div class="grid-2" style="margin-top: 14px;">
+          <div class="card highlight-cyan">
+            <div class="card-title">Dijkstra vs. A* Search</div>
+            <p class="card-desc">
+              Dijkstra expands uniformly in all directions (\(g(n)\) only). A* adds a Manhattan heuristic (\(f(n) = g(n) + h(n)\)), directing exploration toward the goal and exploring up to <strong>70% fewer nodes</strong> with identical optimality.
+            </p>
+          </div>
+          <div class="card highlight-purple">
+            <div class="card-title">Heuristic Admissibility Guard</div>
+            <p class="card-desc">
+              Our 4-way grid uses Manhattan Distance: \(h(n) = |\Delta r| + |\Delta c|\). We multiply this by the minimum terrain weight on the board, ensuring \(h(n) \le h^*(n)\) (strictly admissible and consistent).
+            </p>
+          </div>
         </div>
       </div>
       <div class="slide-footer">
         <span>Pathfinding Visualizer · Lovejeet Singh</span>
-        <span>Slide 6 / 13</span>
+        <span>Slide 4 / 7</span>
       </div>
     </section>
 
     <!-- ══════════════════════════════════════════
-         SLIDE 7: DEEP DIVE: DIJKSTRA VS A*
+         SLIDE 5: MAZE GENERATORS
          ══════════════════════════════════════════ -->
-    <section class="slide" data-index="7">
-      <div class="slide-header">
-        <div>
-          <div class="slide-category">Core DSA Deep Dive</div>
-          <h2 class="slide-title">Dijkstra vs. A* Search: Heuristic Power</h2>
-        </div>
-        <span class="slide-tag">Evaluation Functions</span>
-      </div>
-      <div class="slide-body">
-        <div class="grid-2">
-          <div class="card highlight-gold">
-            <div class="card-title">Dijkstra's Algorithm</div>
-            <div class="code-box">
-              Priority = <span class="kw">g(n)</span><br>
-              <span class="cm">// Uninformed blind search</span><br>
-              Expands in concentric radial circles.<br>
-              Has zero knowledge of target location.
-            </div>
-            <p class="card-desc">
-              Guarantees shortest path on non-negative weighted graphs, but wastes computation exploring nodes that lead away from the destination.
-            </p>
-          </div>
-
-          <div class="card highlight-green">
-            <div class="card-title">A* Search</div>
-            <div class="code-box">
-              Priority = <span class="kw">f(n) = g(n) + h(n)</span><br>
-              <span class="cm">// Informed heuristic search</span><br>
-              g(n) = Exact cost from Start to n<br>
-              h(n) = Estimated cost from n to Target
-            </div>
-            <p class="card-desc">
-              Biases the search beam directly toward the goal. Explores up to <strong>70% fewer nodes</strong> while yielding the exact same optimal cost.
-            </p>
-          </div>
-        </div>
-
-        <div style="margin-top: 18px;" class="card highlight-cyan">
-          <div class="card-title">📐 Manhattan Distance Heuristic & Admissibility Guard</div>
-          <p class="card-desc">
-            Because our grid only permits 4 cardinal moves (no diagonals), the Manhattan distance \(h(n) = |\Delta \text{row}| + |\Delta \text{col}|\) is strictly <strong>admissible</strong> (\(h(n) \le h^*(n)\)) and <strong>consistent</strong> (monotonic). In our implementation, we multiply by the grid's minimum cell weight to guarantee that \(h(n)\) never overestimates in weighted scenarios.
-          </p>
-        </div>
-      </div>
-      <div class="slide-footer">
-        <span>Pathfinding Visualizer · Lovejeet Singh</span>
-        <span>Slide 7 / 13</span>
-      </div>
-    </section>
-
-    <!-- ══════════════════════════════════════════
-         SLIDE 8: MAZE GENERATORS & SOLVABILITY
-         ══════════════════════════════════════════ -->
-    <section class="slide" data-index="8">
+    <section class="slide" data-index="5">
       <div class="slide-header">
         <div>
           <div class="slide-category">Procedural Generation</div>
-          <h2 class="slide-title">Maze Generation & Solvability Guarantee</h2>
+          <h2 class="slide-title">Maze Generators & Solvability Guard</h2>
         </div>
-        <span class="slide-tag">Spanning Trees</span>
+        <span class="slide-tag">Graph Theory</span>
       </div>
       <div class="slide-body">
         <div class="grid-3">
           <div class="card highlight-cyan">
             <div class="card-title">Recursive Division</div>
             <p class="card-desc">
-              Chamber subdivision. Starts with borders; draws horizontal/vertical dividing walls with random passage gaps. Creates distinct rooms and corridors.
+              Subdivides space by adding horizontal/vertical dividing walls with random passage gaps. Produces structured chambers and distinct corridors.
             </p>
           </div>
 
           <div class="card highlight-purple">
-            <div class="card-title">DFS Backtracker</div>
+            <div class="card-title">Recursive Backtracker</div>
             <p class="card-desc">
-              Randomized depth-first carving moving 2 cells at a time. Backtracks via stack on dead ends. Produces deep, winding corridors with high bottlenecking.
+              Randomized DFS moving 2 cells at a time. Backtracks using a stack upon encountering dead ends. Creates deep, winding paths with high branch depth.
             </p>
           </div>
 
           <div class="card highlight-gold">
             <div class="card-title">Randomized Kruskal's</div>
             <p class="card-desc">
-              Treats cells as disjoint sets. Shuffles wall edges using Fisher-Yates. Uses <strong>Union-Find (DSU)</strong> with Path Compression & Rank to unite sets without cycles.
+              Builds a Minimum Spanning Tree (MST). Uses <strong>Disjoint Set Union (Union-Find)</strong> with Path Compression and Union by Rank to unite passages without cycles.
             </p>
           </div>
         </div>
 
-        <div style="margin-top: 20px;" class="card highlight-green">
-          <div class="card-title">🛡️ The Solvability Guard: 0-1 Dijkstra Post-Processor</div>
+        <div style="margin-top: 18px;" class="card highlight-green">
+          <div class="card-title">Automated Solvability Guard: 0-1 Dijkstra Post-Processor</div>
           <p class="card-desc">
-            Random generators can inadvertently isolate the target. Our custom <code>ensureReachableMaze</code> algorithm runs a BFS reachability test. If disconnected, it executes a <strong>0-1 Dijkstra search</strong> (moving on open passages costs 0, tunneling through walls costs 1) to identify the absolute minimum sequence of blocking walls and converts them into passages.
+            Random generation can inadvertently isolate the target. Our <code>ensureReachableMaze</code> algorithm first runs a BFS reachability test. If blocked, it executes a <strong>0-1 Dijkstra search</strong> (open passages cost 0, walls cost 1) to identify the minimum number of walls blocking reachability and surgically carves out an open path.
           </p>
         </div>
       </div>
       <div class="slide-footer">
         <span>Pathfinding Visualizer · Lovejeet Singh</span>
-        <span>Slide 8 / 13</span>
+        <span>Slide 5 / 7</span>
       </div>
     </section>
 
     <!-- ══════════════════════════════════════════
-         SLIDE 9: DIFFICULTIES & SOLUTIONS
+         SLIDE 6: ENGINEERING CHALLENGES
          ══════════════════════════════════════════ -->
-    <section class="slide" data-index="9">
+    <section class="slide" data-index="6">
       <div class="slide-header">
         <div>
           <div class="slide-category">Engineering Challenges</div>
-          <h2 class="slide-title">Difficulties Faced & How We Solved Them</h2>
+          <h2 class="slide-title">Difficulties Faced & Solutions</h2>
         </div>
-        <span class="slide-tag">Key Viva Question</span>
+        <span class="slide-tag">System Optimization</span>
       </div>
       <div class="slide-body">
         <div class="grid-2">
           <div class="card highlight-red">
-            <div class="card-title">1. WebGL 60 FPS Bottleneck</div>
+            <div class="card-title">1. WebGL 60 FPS Draw Call Bottleneck</div>
             <p class="card-desc">
-              <strong>Problem:</strong> Rendering 1,250 individual 3D meshes caused 1,250 draw calls per frame, tanking the browser to 15 FPS.<br>
-              <strong>Solution:</strong> Converted to <code>THREE.InstancedMesh</code> for roads, buildings, and trees. Collapsed 1,250 draw calls into <strong>just 3 draw calls</strong>.
+              <strong>Challenge:</strong> Rendering 1,250 individual 3D mesh instances triggered 1,250 draw calls per frame, dropping frame rates to 15 FPS.<br>
+              <strong>Solution:</strong> Migrated to <code>THREE.InstancedMesh</code> across 3 geometry pools (roads, buildings, trees), reducing 1,250 draw calls to <strong>just 3 draw calls</strong>.
             </p>
           </div>
 
           <div class="card highlight-red">
-            <div class="card-title">2. React State Thrashing</div>
+            <div class="card-title">2. React Re-render Thrashing</div>
             <p class="card-desc">
-              <strong>Problem:</strong> Triggering React component re-renders for every visited node froze the main thread.<br>
-              <strong>Solution:</strong> Decoupled execution. GSAP timeline writes to flat <code>Float32Array</code> buffers that Three.js reads directly in <code>useFrame()</code> without React re-renders.
+              <strong>Challenge:</strong> Updating React state during node exploration locked the browser main thread.<br>
+              <strong>Solution:</strong> Decoupled animation from state. GSAP writes directly to pre-allocated <code>Float32Array</code> buffers read by Three.js per frame without React involvement.
             </p>
           </div>
 
           <div class="card highlight-red">
-            <div class="card-title">3. MinHeap Priority Invalidation</div>
+            <div class="card-title">3. Min-Heap Priority Queue Invalidation</div>
             <p class="card-desc">
-              <strong>Problem:</strong> Mutating node distances in-place corrupted the heap order without an expensive \(O(N)\) rebuild.<br>
-              <strong>Solution:</strong> Stored immutable snapshot objects <code>{ node, distance }</code> and added a stale-entry check on pop: <code>if (entry.distance !== node.distance) continue;</code>.
+              <strong>Challenge:</strong> In-place mutation of a node's distance in binary heap corrupts the heap order without an expensive \(O(N)\) rebuild.<br>
+              <strong>Solution:</strong> Stored immutable snapshot objects <code>{ node, distance }</code> and added a stale-entry check upon pop (<code>if (d !== current.distance) continue;</code>).
             </p>
           </div>
 
           <div class="card highlight-red">
             <div class="card-title">4. Asynchronous Race Conditions</div>
             <p class="card-desc">
-              <strong>Problem:</strong> Users spamming "Run" or "Reset" during animation left orphaned timer callbacks corrupting the board.<br>
-              <strong>Solution:</strong> Implemented a monotonic <code>runId</code> check on all async steps, instantly dropping stale executions.
+              <strong>Challenge:</strong> Rapid user clicks on "Run" or "Reset" during playback created conflicting ghost timers.<br>
+              <strong>Solution:</strong> Implemented a monotonic <code>runId</code> check on all async callbacks to drop stale executions immediately.
             </p>
           </div>
         </div>
       </div>
       <div class="slide-footer">
         <span>Pathfinding Visualizer · Lovejeet Singh</span>
-        <span>Slide 9 / 13</span>
+        <span>Slide 6 / 7</span>
       </div>
     </section>
 
     <!-- ══════════════════════════════════════════
-         SLIDE 10: FULL-STACK REST API & DATABASE
+         SLIDE 7: LEARNING OUTCOMES & CONCLUSION
          ══════════════════════════════════════════ -->
-    <section class="slide" data-index="10">
+    <section class="slide" data-index="7">
       <div class="slide-header">
         <div>
-          <div class="slide-category">Full-Stack Integration</div>
-          <h2 class="slide-title">REST APIs & Database Architecture</h2>
+          <div class="slide-category">Conclusion</div>
+          <h2 class="slide-title">Learning Outcomes & Summary</h2>
         </div>
-        <span class="slide-tag">Next.js + Neon DB</span>
-      </div>
-      <div class="slide-body">
-        <div class="grid-2">
-          <div class="card highlight-cyan">
-            <div class="card-title">📡 RESTful API Route Handlers</div>
-            <table>
-              <tr>
-                <th>Route</th>
-                <th>Method</th>
-                <th>Action</th>
-              </tr>
-              <tr>
-                <td><code>/api/share</code></td>
-                <td><span class="badge badge-yes">POST</span></td>
-                <td>Validates & serializes grid layout; returns UUID.</td>
-              </tr>
-              <tr>
-                <td><code>/api/share/:id</code></td>
-                <td><span class="badge badge-cyan">GET</span></td>
-                <td>Fetches saved grid by UUID; restores board state.</td>
-              </tr>
-            </table>
-            <p class="card-desc" style="margin-top: 8px;">
-              Enforces payload size limits (returns <code>413 Payload Too Large</code>) and strict UUID regex validation before querying the database.
-            </p>
-          </div>
-
-          <div class="card highlight-purple">
-            <div class="card-title">🗄️ Database & Schema Design</div>
-            <div class="code-box">
-              <span class="kw">export const</span> shares = pgTable(<span class="str">'shares'</span>, {<br>
-              &nbsp;&nbsp;id: uuid(<span class="str">'id'</span>).defaultRandom().primaryKey(),<br>
-              &nbsp;&nbsp;title: varchar(<span class="str">'title'</span>, { length: 80 }).notNull(),<br>
-              &nbsp;&nbsp;algorithm: varchar(<span class="str">'algorithm'</span>, { length: 32 }).notNull(),<br>
-              &nbsp;&nbsp;gridData: jsonb(<span class="str">'grid_data'</span>).notNull(),<br>
-              &nbsp;&nbsp;createdAt: timestamp(<span class="str">'created_at'</span>).defaultNow()<br>
-              });
-            </div>
-            <p class="card-desc" style="margin-top: 8px;">
-              Uses <strong>Neon Serverless PostgreSQL</strong> managed via <strong>Drizzle ORM</strong> with committed SQL schema migrations.
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="slide-footer">
-        <span>Pathfinding Visualizer · Lovejeet Singh</span>
-        <span>Slide 10 / 13</span>
-      </div>
-    </section>
-
-    <!-- ══════════════════════════════════════════
-         SLIDE 11: LEARNING OUTCOMES
-         ══════════════════════════════════════════ -->
-    <section class="slide" data-index="11">
-      <div class="slide-header">
-        <div>
-          <div class="slide-category">Key Takeaways</div>
-          <h2 class="slide-title">Personal Learning Outcomes</h2>
-        </div>
-        <span class="slide-tag">What I Learned</span>
+        <span class="slide-tag">Key Takeaways</span>
       </div>
       <div class="slide-body">
         <div class="grid-3">
           <div class="card highlight-cyan">
-            <div class="card-title">1. Algorithmic Mastery</div>
+            <div class="card-title">Algorithmic Depth</div>
             <p class="card-desc">
-              Understood that graphs are not just abstract node-edge diagrams; grids are implicit graphs where \(V=R \times C\). Mastered priority queues, heuristic admissibility, and disjoint set unions.
+              Deepened practical understanding of priority queues, heuristic admissibility, disjoint sets, and spanning tree algorithms in concrete spatial environments.
             </p>
           </div>
 
           <div class="card highlight-purple">
-            <div class="card-title">2. Graphics & Performance</div>
+            <div class="card-title">Performance Engineering</div>
             <p class="card-desc">
-              Learned the critical difference between CPU and GPU workload. Mastered WebGL instancing, matrix transforms, and zero-allocation TypedArray buffer sharing to sustain 60 FPS under load.
+              Mastered GPU instancing, zero-allocation render loops, typed memory buffers, and spring physics simulation for responsive 60 FPS graphics.
             </p>
           </div>
 
           <div class="card highlight-gold">
-            <div class="card-title">3. Systems Architecture</div>
+            <div class="card-title">Full-Stack Architecture</div>
             <p class="card-desc">
-              Learned the architectural necessity of separating mathematical computation from visual presentation. Mastered race condition management and spring physics simulation.
+              Built RESTful API endpoints in Next.js App Router backed by Neon PostgreSQL and Drizzle ORM to enable persistent, shareable grid configurations.
             </p>
           </div>
         </div>
 
         <div style="margin-top: 20px;" class="card highlight-green">
-          <div class="card-title">🚀 Engineering Maturity: Theory vs. Reality</div>
+          <div class="card-title">Summary & Demonstration</div>
           <p class="card-desc">
-            In textbooks, algorithms assume infinite computational resources and instantaneous Decrease-Key operations. In production software engineering, memory management, garbage collection pauses, and user event concurrency dictate the real architecture.
+            The project successfully demonstrates mathematical rigor, clean architectural separation of concerns, and production-grade full-stack standards.
           </p>
-        </div>
-      </div>
-      <div class="slide-footer">
-        <span>Pathfinding Visualizer · Lovejeet Singh</span>
-        <span>Slide 11 / 13</span>
-      </div>
-    </section>
-
-    <!-- ══════════════════════════════════════════
-         SLIDE 12: LIMITATIONS & FUTURE SCOPE
-         ══════════════════════════════════════════ -->
-    <section class="slide" data-index="12">
-      <div class="slide-header">
-        <div>
-          <div class="slide-category">Critical Evaluation</div>
-          <h2 class="slide-title">Limitations & Future Roadmap</h2>
-        </div>
-        <span class="slide-tag">Project Evolution</span>
-      </div>
-      <div class="slide-body">
-        <div class="grid-2">
-          <div class="card highlight-red">
-            <div class="card-title">Current Limitations</div>
-            <ul style="padding-left: 20px; font-size: 13.5px; color: var(--text-muted); line-height: 1.8;">
-              <li><strong>Topology:</strong> Uniform 2D grid only (no arbitrary DAGs or non-grid graphs).</li>
-              <li><strong>Movement:</strong> 4 cardinal directions only; no diagonal traversal.</li>
-              <li><strong>Negative Weights:</strong> Cannot handle negative edge weights (requires Bellman-Ford).</li>
-              <li><strong>Fixed Grid:</strong> 25×50 dimensions are fixed in the current UI.</li>
-            </ul>
-          </div>
-
-          <div class="card highlight-green">
-            <div class="card-title">Future Roadmap</div>
-            <ul style="padding-left: 20px; font-size: 13.5px; color: var(--text-muted); line-height: 1.8;">
-              <li><strong>8-Directional & Continuous:</strong> Add diagonal moves with Octile distance heuristics and Theta* smoothing.</li>
-              <li><strong>Dynamic Environments (D* Lite):</strong> Real-time obstacle replanning while agents are in transit.</li>
-              <li><strong>Real GIS Road Import:</strong> Import actual road networks from OpenStreetMap API.</li>
-              <li><strong>Replay Scrubbing:</strong> Step forward and backward through the priority queue state node-by-node.</li>
-            </ul>
+          <div style="margin-top: 10px; font-size: 13.5px; color: var(--cyan); font-weight: 600;">
+            Live Application: https://pathfinding-visualizer-flax-one.vercel.app · Ready for demonstration.
           </div>
         </div>
       </div>
       <div class="slide-footer">
         <span>Pathfinding Visualizer · Lovejeet Singh</span>
-        <span>Slide 12 / 13</span>
-      </div>
-    </section>
-
-    <!-- ══════════════════════════════════════════
-         SLIDE 13: CONCLUSION & THANK YOU
-         ══════════════════════════════════════════ -->
-    <section class="slide slide-cover" data-index="13">
-      <div>
-        <div class="cover-badge">Conclusion</div>
-        <h1 class="cover-title">Thank You!</h1>
-        <p class="cover-subtitle">
-          "Visualizing complexity with elegance and mathematical rigor."
-        </p>
-
-        <div class="cover-meta" style="margin-bottom: 24px;">
-          <div class="meta-item">
-            <span class="meta-label">Presenter</span>
-            <span class="meta-value">Lovejeet Singh</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">Live Deployment</span>
-            <span class="meta-value">pathfinding-visualizer-flax-one.vercel.app</span>
-          </div>
-          <div class="meta-item">
-            <span class="meta-label">GitHub Repository</span>
-            <span class="meta-value">github.com/z-lovejeet/Pathfinding-Visualizer</span>
-          </div>
-        </div>
-
-        <div style="font-size: 16px; color: var(--cyan); font-weight: 600;">
-          Ready for Questions & Live Demonstration 🚀
-        </div>
-      </div>
-      <div class="slide-footer">
-        <span>Press 'P' or Cmd+P to Print/Save as PDF</span>
-        <span>Slide 13 / 13</span>
+        <span>Slide 7 / 7</span>
       </div>
     </section>
 
@@ -1201,16 +870,10 @@
 
   <!-- Floating Navigation Controls -->
   <div class="nav-controls">
-    <button class="nav-btn" id="prevBtn">
-      <span>⬅</span> Prev
-    </button>
-    <div class="slide-counter" id="slideCounter">1 / 13</div>
-    <button class="nav-btn" id="nextBtn">
-      Next <span>➡</span>
-    </button>
-    <button class="nav-btn" id="fsBtn" title="Toggle Fullscreen">
-      ⛶
-    </button>
+    <button class="nav-btn" id="prevBtn">Prev</button>
+    <div class="slide-counter" id="slideCounter">1 / 7</div>
+    <button class="nav-btn" id="nextBtn">Next</button>
+    <button class="nav-btn" id="fsBtn" title="Toggle Fullscreen">Fullscreen</button>
   </div>
 
   <!-- Presentation Script -->
@@ -1240,7 +903,6 @@
       prevBtn.disabled = currentSlide === 0;
       nextBtn.disabled = currentSlide === totalSlides - 1;
 
-      // Update URL hash
       window.location.hash = `slide-${currentSlide + 1}`;
     }
 
@@ -1255,7 +917,6 @@
       }
     });
 
-    // Keyboard Navigation
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
         e.preventDefault();
@@ -1278,7 +939,6 @@
       }
     });
 
-    // Check initial hash
     const initialHash = window.location.hash;
     if (initialHash && initialHash.startsWith('#slide-')) {
       const slideNum = parseInt(initialHash.replace('#slide-', ''), 10);
