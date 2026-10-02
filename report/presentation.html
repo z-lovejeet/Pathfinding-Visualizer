@@ -140,12 +140,6 @@
       gap: 18px;
     }
 
-    .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-    }
-
     /* ─── CARDS ─── */
     .card {
       background: rgba(255, 255, 255, 0.02);
@@ -348,6 +342,37 @@
       line-height: 1.5;
     }
 
+    /* ─── TECH STACK CARDS ─── */
+    .tech-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .tech-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .tech-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .tech-desc {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
     /* ─── NAVIGATION CONTROLS (Floating) ─── */
     .nav-controls {
       position: fixed;
@@ -448,12 +473,12 @@
       .nav-controls, .progress-bar-container {
         display: none !important;
       }
-      .card {
+      .card, .tech-card {
         background: #f8f8fc;
         border-color: #e0e0ee;
       }
-      .card-title { color: #111122; }
-      .card-desc { color: #444455; }
+      .card-title, .tech-name { color: #111122; }
+      .card-desc, .tech-desc { color: #444455; }
       th { background: #f0f0fa; color: #004499; }
       td { color: #111122; border-color: #e0e0ee; }
       .arch-layer { background: #f8f8fc; border-color: #e0e0ee; }
@@ -505,7 +530,7 @@
       </div>
       <div class="slide-footer">
         <span>Pathfinding Visualizer · Comprehensive System Overview</span>
-        <span>Slide 1 / 7</span>
+        <span>Slide 1 / 8</span>
       </div>
     </section>
 
@@ -546,14 +571,70 @@
       </div>
       <div class="slide-footer">
         <span>Pathfinding Visualizer · System Overview</span>
-        <span>Slide 2 / 7</span>
+        <span>Slide 2 / 8</span>
       </div>
     </section>
 
     <!-- ══════════════════════════════════════════
-         SLIDE 3: OVERALL SYSTEM ARCHITECTURE
+         SLIDE 3: TECH STACK & RATIONALE
          ══════════════════════════════════════════ -->
     <section class="slide" data-index="3">
+      <div class="slide-header">
+        <div>
+          <div class="slide-category">Technical Foundation</div>
+          <h2 class="slide-title">Technology Stack & Architectural Rationale</h2>
+        </div>
+        <span class="slide-tag">Tools & Libraries</span>
+      </div>
+      <div class="slide-body">
+        <div class="grid-3">
+          <div class="tech-card">
+            <div class="tech-title">Application Framework</div>
+            <div class="tech-name">Next.js 16 (App Router) & React 19</div>
+            <div class="tech-desc">Provides modern hybrid rendering, edge-optimized routing, and native API route handlers for backend services without separate server overhead.</div>
+          </div>
+
+          <div class="tech-card">
+            <div class="tech-title">3D Graphics Engine</div>
+            <div class="tech-name">Three.js & React Three Fiber</div>
+            <div class="tech-desc">Direct WebGL GPU acceleration. Enables <code>THREE.InstancedMesh</code> to collapse 1,250 3D node draw calls into 3 draw calls at 60 FPS.</div>
+          </div>
+
+          <div class="tech-card">
+            <div class="tech-title">State & Concurrency</div>
+            <div class="tech-name">Zustand & Monotonic Guards</div>
+            <div class="tech-desc">Lightweight, hook-based global state management without Redux boilerplate. Decouples state mutations from heavy render updates.</div>
+          </div>
+
+          <div class="tech-card">
+            <div class="tech-title">Animation & Buffers</div>
+            <div class="tech-name">GSAP & Float32Array Memory</div>
+            <div class="tech-desc">Drives timeline-based node exploration and smooth speed scrubbing via pre-allocated typed memory buffers, eliminating garbage collection stutter.</div>
+          </div>
+
+          <div class="tech-card">
+            <div class="tech-title">Language & Validation</div>
+            <div class="tech-name">TypeScript 5 (Strict Mode)</div>
+            <div class="tech-desc">Guarantees compile-time type safety across graph data models, algorithm result contracts, and 3D transformation matrices.</div>
+          </div>
+
+          <div class="tech-card">
+            <div class="tech-title">Persistence & Database</div>
+            <div class="tech-name">Neon PostgreSQL & Drizzle ORM</div>
+            <div class="tech-desc">Serverless PostgreSQL with connection pooling. Drizzle ORM provides type-safe schema definitions and migration management for share links.</div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Pathfinding Visualizer · Technology Stack</span>
+        <span>Slide 3 / 8</span>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════
+         SLIDE 4: OVERALL SYSTEM ARCHITECTURE
+         ══════════════════════════════════════════ -->
+    <section class="slide" data-index="4">
       <div class="slide-header">
         <div>
           <div class="slide-category">System Architecture</div>
@@ -606,14 +687,14 @@
       </div>
       <div class="slide-footer">
         <span>Pathfinding Visualizer · Multi-Tier Architecture</span>
-        <span>Slide 3 / 7</span>
+        <span>Slide 4 / 8</span>
       </div>
     </section>
 
     <!-- ══════════════════════════════════════════
-         SLIDE 4: ALGORITHMS COMPARISON
+         SLIDE 5: ALGORITHMS COMPARISON
          ══════════════════════════════════════════ -->
-    <section class="slide" data-index="4">
+    <section class="slide" data-index="5">
       <div class="slide-header">
         <div>
           <div class="slide-category">Algorithmic Suite</div>
@@ -702,14 +783,14 @@
       </div>
       <div class="slide-footer">
         <span>Pathfinding Visualizer · Algorithmic Analysis</span>
-        <span>Slide 4 / 7</span>
+        <span>Slide 5 / 8</span>
       </div>
     </section>
 
     <!-- ══════════════════════════════════════════
-         SLIDE 5: MAZE SUBSYSTEM & SOLVABILITY
+         SLIDE 6: MAZE SUBSYSTEM & SOLVABILITY
          ══════════════════════════════════════════ -->
-    <section class="slide" data-index="5">
+    <section class="slide" data-index="6">
       <div class="slide-header">
         <div>
           <div class="slide-category">Procedural Generation</div>
@@ -750,14 +831,14 @@
       </div>
       <div class="slide-footer">
         <span>Pathfinding Visualizer · Procedural Mazes</span>
-        <span>Slide 5 / 7</span>
+        <span>Slide 6 / 8</span>
       </div>
     </section>
 
     <!-- ══════════════════════════════════════════
-         SLIDE 6: ENGINEERING CHALLENGES & SOLUTIONS
+         SLIDE 7: ENGINEERING CHALLENGES & SOLUTIONS
          ══════════════════════════════════════════ -->
-    <section class="slide" data-index="6">
+    <section class="slide" data-index="7">
       <div class="slide-header">
         <div>
           <div class="slide-category">Performance Engineering</div>
@@ -802,14 +883,14 @@
       </div>
       <div class="slide-footer">
         <span>Pathfinding Visualizer · Performance Optimizations</span>
-        <span>Slide 6 / 7</span>
+        <span>Slide 7 / 8</span>
       </div>
     </section>
 
     <!-- ══════════════════════════════════════════
-         SLIDE 7: FULL-STACK FEATURES & CONCLUSION
+         SLIDE 8: FULL-STACK FEATURES & CONCLUSION
          ══════════════════════════════════════════ -->
-    <section class="slide" data-index="7">
+    <section class="slide" data-index="8">
       <div class="slide-header">
         <div>
           <div class="slide-category">Production & Verification</div>
@@ -853,7 +934,7 @@
       </div>
       <div class="slide-footer">
         <span>Pathfinding Visualizer · Final Summary</span>
-        <span>Slide 7 / 7</span>
+        <span>Slide 8 / 8</span>
       </div>
     </section>
 
@@ -862,7 +943,7 @@
   <!-- Floating Navigation Controls -->
   <div class="nav-controls">
     <button class="nav-btn" id="prevBtn">Prev</button>
-    <div class="slide-counter" id="slideCounter">1 / 7</div>
+    <div class="slide-counter" id="slideCounter">1 / 8</div>
     <button class="nav-btn" id="nextBtn">Next</button>
     <button class="nav-btn" id="fsBtn" title="Toggle Fullscreen">Fullscreen</button>
   </div>
