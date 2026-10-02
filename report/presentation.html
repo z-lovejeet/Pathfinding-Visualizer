@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pathfinding Visualizer — Viva Presentation | Lovejeet Singh</title>
+  <title>Pathfinding Visualizer — Project Presentation</title>
   <style>
     /* ─── RESET & CSS VARIABLES ─── */
     *, *::before, *::after {
@@ -78,7 +78,7 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
     }
 
     .slide-category {
@@ -120,7 +120,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 20px;
+      margin-top: 18px;
       padding-top: 14px;
       border-top: 1px solid rgba(255, 255, 255, 0.06);
       font-size: 12px;
@@ -140,12 +140,18 @@
       gap: 18px;
     }
 
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
     /* ─── CARDS ─── */
     .card {
       background: rgba(255, 255, 255, 0.02);
       border: 1px solid rgba(255, 255, 255, 0.06);
       border-radius: 14px;
-      padding: 20px 22px;
+      padding: 18px 20px;
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -158,14 +164,14 @@
     .card.highlight-red { border-left: 3px solid var(--red); }
 
     .card-title {
-      font-size: 17px;
+      font-size: 16px;
       font-weight: 700;
       color: #ffffff;
       margin-bottom: 2px;
     }
 
     .card-desc {
-      font-size: 14px;
+      font-size: 13.5px;
       color: var(--text-muted);
       line-height: 1.6;
     }
@@ -179,13 +185,13 @@
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 9px;
     }
 
     ul.point-list li {
       position: relative;
       padding-left: 18px;
-      font-size: 14px;
+      font-size: 13.5px;
       color: var(--text-muted);
       line-height: 1.6;
     }
@@ -254,7 +260,7 @@
       font-weight: 700;
       letter-spacing: 2px;
       text-transform: uppercase;
-      margin-bottom: 22px;
+      margin-bottom: 20px;
     }
 
     .cover-title {
@@ -268,10 +274,10 @@
     }
 
     .cover-subtitle {
-      font-size: 19px;
+      font-size: 18px;
       color: var(--text-muted);
-      max-width: 680px;
-      margin: 0 auto 36px;
+      max-width: 720px;
+      margin: 0 auto 34px;
       line-height: 1.5;
     }
 
@@ -305,55 +311,41 @@
       color: #ffffff;
     }
 
-    /* ─── PIPELINE STEPS ─── */
-    .flow-step {
+    /* ─── ARCHITECTURE LAYERS ─── */
+    .arch-layer {
       display: flex;
       align-items: flex-start;
       gap: 14px;
       background: rgba(255, 255, 255, 0.02);
       border: 1px solid var(--card-border);
       border-radius: 12px;
-      padding: 14px 18px;
+      padding: 12px 16px;
     }
 
-    .step-number {
-      width: 28px;
-      height: 28px;
+    .arch-badge {
+      padding: 4px 10px;
       border-radius: 6px;
       background: rgba(0, 212, 255, 0.12);
       border: 1px solid rgba(0, 212, 255, 0.25);
       color: var(--cyan);
-      display: flex;
-      align-items: center;
-      justify-content: center;
       font-weight: 700;
-      font-size: 13px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
       flex-shrink: 0;
     }
 
-    .step-content h4 {
+    .arch-content h4 {
       font-size: 14px;
       font-weight: 700;
       color: #ffffff;
       margin-bottom: 2px;
     }
 
-    .step-content p {
+    .arch-content p {
       font-size: 12.5px;
       color: var(--text-muted);
       line-height: 1.5;
-    }
-
-    /* ─── CODE BOX ─── */
-    .code-box {
-      background: #05050a;
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 12px 16px;
-      font-family: var(--font-mono);
-      font-size: 12.5px;
-      color: var(--cyan);
-      line-height: 1.6;
     }
 
     /* ─── NAVIGATION CONTROLS (Floating) ─── */
@@ -464,9 +456,8 @@
       .card-desc { color: #444455; }
       th { background: #f0f0fa; color: #004499; }
       td { color: #111122; border-color: #e0e0ee; }
-      .code-box { background: #f4f4fa; color: #0044aa; border-color: #ddd; }
-      .flow-step { background: #f8f8fc; border-color: #e0e0ee; }
-      .step-content h4 { color: #111; }
+      .arch-layer { background: #f8f8fc; border-color: #e0e0ee; }
+      .arch-content h4 { color: #111; }
       .cover-meta { background: #f8f8fc; border-color: #e0e0ee; }
       .meta-value { color: #111; }
     }
@@ -487,134 +478,134 @@
          ══════════════════════════════════════════ -->
     <section class="slide slide-cover active" data-index="1">
       <div>
-        <div class="cover-badge">Academic Project Presentation</div>
+        <div class="cover-badge">System Defense Presentation</div>
         <h1 class="cover-title">Pathfinding Visualizer</h1>
         <p class="cover-subtitle">
-          An interactive 3D WebGL miniature city for graph traversal algorithms, procedural maze generation, and real-time algorithmic analysis.
+          An interactive, high-performance 3D WebGL platform for graph traversal, procedural maze generation, and empirical algorithmic benchmarking.
         </p>
 
         <div class="cover-meta">
           <div class="meta-item">
-            <span class="meta-label">Candidate</span>
+            <span class="meta-label">Presented By</span>
             <span class="meta-value">Lovejeet Singh</span>
           </div>
           <div class="meta-item">
-            <span class="meta-label">Course</span>
+            <span class="meta-label">Subject Area</span>
             <span class="meta-value">Data Structures & Algorithms</span>
           </div>
           <div class="meta-item">
-            <span class="meta-label">Tech Stack</span>
-            <span class="meta-value">Next.js 16 · React 19 · Three.js · TypeScript · PostgreSQL</span>
+            <span class="meta-label">Architecture</span>
+            <span class="meta-value">Next.js 16 · Three.js · Zustand · TypeScript · PostgreSQL</span>
           </div>
           <div class="meta-item">
-            <span class="meta-label">Live Deployment</span>
+            <span class="meta-label">Production URL</span>
             <span class="meta-value">pathfinding-visualizer-flax-one.vercel.app</span>
           </div>
         </div>
       </div>
       <div class="slide-footer">
-        <span>Pathfinding Visualizer</span>
+        <span>Pathfinding Visualizer · Comprehensive System Overview</span>
         <span>Slide 1 / 7</span>
       </div>
     </section>
 
     <!-- ══════════════════════════════════════════
-         SLIDE 2: MOTIVATION & OBJECTIVES
+         SLIDE 2: MOTIVATION & SCOPE
          ══════════════════════════════════════════ -->
     <section class="slide" data-index="2">
       <div class="slide-header">
         <div>
-          <div class="slide-category">Project Overview</div>
-          <h2 class="slide-title">Motivation & Objectives</h2>
+          <div class="slide-category">System Overview</div>
+          <h2 class="slide-title">Motivation & Project Scope</h2>
         </div>
-        <span class="slide-tag">Problem Statement</span>
+        <span class="slide-tag">Problem & Solution</span>
       </div>
       <div class="slide-body">
         <div class="grid-2">
           <div class="card highlight-cyan">
             <div class="card-title">Problem Statement</div>
             <p class="card-desc">
-              Textbook graph algorithms are taught using static node-edge diagrams and abstract matrices. Students often lack an intuitive understanding of <strong>search-frontier expansion</strong>, <strong>heuristic guidance</strong>, and <strong>edge relaxation</strong> under real spatial constraints.
+              Academic study of graph theory is conventionally constrained to static blackboards and abstract adjacency matrices. Learners often fail to develop a tangible intuition for <strong>search-frontier dynamics</strong>, <strong>heuristic bias</strong>, and <strong>priority queue edge relaxation</strong> under physical terrain constraints.
             </p>
             <p class="card-desc" style="margin-top: 6px;">
-              Most existing web visualizers rely on basic 2D DOM tables with colored boxes that fail to reflect physical routing scenarios.
+              Most existing web tools rely on basic 2D DOM tables with colored blocks that lack realistic spatial modeling and GPU acceleration.
             </p>
           </div>
 
           <div class="card highlight-purple">
-            <div class="card-title">Core Objectives</div>
+            <div class="card-title">System Scope & Deliverables</div>
             <ul class="point-list">
-              <li><strong>Algorithm Diversity:</strong> Implement 6 foundational algorithms (BFS, DFS, Dijkstra, A*, Greedy, Bidirectional BFS).</li>
-              <li><strong>3D Spatial Realism:</strong> Render a 25×50 grid as a miniature city diorama (buildings as obstacles, parks as weights).</li>
-              <li><strong>Procedural Mazes:</strong> Generate solvable mazes via Division, Backtracker, Prim's, and Kruskal's methods.</li>
-              <li><strong>Empirical Analytics:</strong> Measure execution time, nodes visited, path length, and traversal cost in real time.</li>
+              <li><strong>Interactive 3D Simulation:</strong> Models a 25×50 grid as a miniature city diorama (buildings as obstacles, parks as weights).</li>
+              <li><strong>Algorithm Suite:</strong> Fully implements 6 graph traversal engines (BFS, DFS, Dijkstra, A*, Greedy, Bidirectional).</li>
+              <li><strong>Procedural Maze Generation:</strong> Implements 5 algorithms with an autonomous reachability validator.</li>
+              <li><strong>Empirical Analytics:</strong> Live capture of nodes visited, path cost, path length, and sub-millisecond execution times.</li>
+              <li><strong>Cloud Grid Persistence:</strong> Full-stack REST API and database integration for saving and sharing board layouts.</li>
             </ul>
           </div>
         </div>
       </div>
       <div class="slide-footer">
-        <span>Pathfinding Visualizer · Lovejeet Singh</span>
+        <span>Pathfinding Visualizer · System Overview</span>
         <span>Slide 2 / 7</span>
       </div>
     </section>
 
     <!-- ══════════════════════════════════════════
-         SLIDE 3: SYSTEM ARCHITECTURE
+         SLIDE 3: OVERALL SYSTEM ARCHITECTURE
          ══════════════════════════════════════════ -->
     <section class="slide" data-index="3">
       <div class="slide-header">
         <div>
           <div class="slide-category">System Architecture</div>
-          <h2 class="slide-title">Execution & Animation Pipeline</h2>
+          <h2 class="slide-title">End-to-End System Architecture</h2>
         </div>
-        <span class="slide-tag">Separation of Concerns</span>
+        <span class="slide-tag">Multi-Tier Design</span>
       </div>
       <div class="slide-body">
-        <div class="grid-2" style="align-items: center;">
-          <div style="display: flex; flex-direction: column; gap: 10px;">
-            <div class="flow-step">
-              <div class="step-number">1</div>
-              <div class="step-content">
-                <h4>Pure Synchronous Algorithm Run (~2ms)</h4>
-                <p>Pure mathematical traversal in memory. Generates deterministic <code>AlgorithmResult</code> containing visited nodes and final path.</p>
-              </div>
-            </div>
-            <div class="flow-step">
-              <div class="step-number">2</div>
-              <div class="step-content">
-                <h4>AnimationEngine (GSAP Timeline)</h4>
-                <p>Builds a staggered timeline writing per-node phases, target heights, and emissive values into flat <code>Float32Array</code> buffers.</p>
-              </div>
-            </div>
-            <div class="flow-step">
-              <div class="step-number">3</div>
-              <div class="step-content">
-                <h4>Three.js WebGL Render Loop (60 FPS)</h4>
-                <p><code>useFrame()</code> reads shared buffers every frame. Spring physics smoothly interpolates building and road elevations.</p>
-              </div>
-            </div>
-            <div class="flow-step">
-              <div class="step-number">4</div>
-              <div class="step-content">
-                <h4>State Baking & Resource Release</h4>
-                <p>Terminal state is baked back into the Zustand store upon completion, freeing memory buffers.</p>
-              </div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div class="arch-layer">
+            <div class="arch-badge">Presentation</div>
+            <div class="arch-content">
+              <h4>Client UI & Control Hub (React 19 & Tailwind CSS 4)</h4>
+              <p>Glassmorphic interface, interactive raycasting controls, speed slider, algorithm selector, and Shiki-rendered code education hub.</p>
             </div>
           </div>
 
-          <div class="card highlight-gold">
-            <div class="card-title">Key Architectural Advantages</div>
-            <ul class="point-list">
-              <li><strong>Zero Garbage Collection Stutter:</strong> Avoids triggering React state re-renders during the 1,250-node traversal loop.</li>
-              <li><strong>Dynamic Speed Scaling:</strong> <code>timeline.timeScale()</code> adjusts playback speed live without restarting.</li>
-              <li><strong>Concurrency Safety:</strong> A monotonic <code>runId</code> invalidates previous runs when user triggers new actions.</li>
-              <li><strong>Accurate Benchmarks:</strong> Algorithm execution time is measured via <code>performance.now()</code> before rendering begins.</li>
-            </ul>
+          <div class="arch-layer">
+            <div class="arch-badge">State & Sync</div>
+            <div class="arch-content">
+              <h4>State Management & Concurrency Guard (Zustand)</h4>
+              <p>Centralized reactive store tracking grid topography. Monotonic <code>runId</code> counters drop stale asynchronous runs upon new user actions.</p>
+            </div>
+          </div>
+
+          <div class="arch-layer">
+            <div class="arch-badge">Core Engine</div>
+            <div class="arch-content">
+              <h4>Algorithmic Processing & Shared Buffer Pipeline (GSAP + TypedArrays)</h4>
+              <p>Algorithms execute synchronously in memory (~2ms). Handed to an animation engine writing per-node phases and elevations to flat <code>Float32Array</code> buffers.</p>
+            </div>
+          </div>
+
+          <div class="arch-layer">
+            <div class="arch-badge">3D Graphics</div>
+            <div class="arch-content">
+              <h4>WebGL Rendering Engine (Three.js & React Three Fiber)</h4>
+              <p>Renders 1,250 nodes using 3 batched <code>InstancedMesh</code> pools. <code>useFrame()</code> drives spring physics at 60 FPS directly from memory buffers.</p>
+            </div>
+          </div>
+
+          <div class="arch-layer">
+            <div class="arch-badge">Persistence</div>
+            <div class="arch-content">
+              <h4>Backend REST API & Serverless Database (Next.js & Neon PostgreSQL)</h4>
+              <p><code>POST /api/share</code> validates board payloads and stores layout states. Dynamic <code>GET /api/share/:id</code> retrieves states by UUID.</p>
+            </div>
           </div>
         </div>
       </div>
       <div class="slide-footer">
-        <span>Pathfinding Visualizer · Lovejeet Singh</span>
+        <span>Pathfinding Visualizer · Multi-Tier Architecture</span>
         <span>Slide 3 / 7</span>
       </div>
     </section>
@@ -625,10 +616,10 @@
     <section class="slide" data-index="4">
       <div class="slide-header">
         <div>
-          <div class="slide-category">Algorithm Analysis</div>
-          <h2 class="slide-title">Pathfinding Algorithms Comparison</h2>
+          <div class="slide-category">Algorithmic Suite</div>
+          <h2 class="slide-title">Pathfinding Algorithms & Heuristics</h2>
         </div>
-        <span class="slide-tag">Complexity Matrix</span>
+        <span class="slide-tag">Theoretical Matrix</span>
       </div>
       <div class="slide-body">
         <table>
@@ -636,8 +627,8 @@
             <tr>
               <th>Algorithm</th>
               <th>Data Structure</th>
-              <th>Weights</th>
-              <th>Optimal Path</th>
+              <th>Supports Weights</th>
+              <th>Guarantees Shortest Path</th>
               <th>Time Complexity</th>
               <th>Space Complexity</th>
             </tr>
@@ -671,7 +662,7 @@
               <td><strong>A* Search</strong></td>
               <td>Min-Heap (f = g + h)</td>
               <td>Yes</td>
-              <td>Yes</td>
+              <td>Yes (Admissible)</td>
               <td>O((V + E) log V)</td>
               <td>O(V)</td>
             </tr>
@@ -698,7 +689,7 @@
           <div class="card highlight-cyan">
             <div class="card-title">Dijkstra vs. A* Search</div>
             <p class="card-desc">
-              Dijkstra expands uniformly in all directions (\(g(n)\) only). A* adds a Manhattan heuristic (\(f(n) = g(n) + h(n)\)), directing exploration toward the goal and exploring up to <strong>70% fewer nodes</strong> with identical optimality.
+              Dijkstra expands uniformly in all directions (\(g(n)\) only). A* incorporates a Manhattan heuristic (\(f(n) = g(n) + h(n)\)), directing exploration toward the goal and exploring up to <strong>70% fewer nodes</strong> with identical optimality.
             </p>
           </div>
           <div class="card highlight-purple">
@@ -710,19 +701,19 @@
         </div>
       </div>
       <div class="slide-footer">
-        <span>Pathfinding Visualizer · Lovejeet Singh</span>
+        <span>Pathfinding Visualizer · Algorithmic Analysis</span>
         <span>Slide 4 / 7</span>
       </div>
     </section>
 
     <!-- ══════════════════════════════════════════
-         SLIDE 5: MAZE GENERATORS
+         SLIDE 5: MAZE SUBSYSTEM & SOLVABILITY
          ══════════════════════════════════════════ -->
     <section class="slide" data-index="5">
       <div class="slide-header">
         <div>
           <div class="slide-category">Procedural Generation</div>
-          <h2 class="slide-title">Maze Generators & Solvability Guard</h2>
+          <h2 class="slide-title">Maze Subsystem & Solvability Engine</h2>
         </div>
         <span class="slide-tag">Graph Theory</span>
       </div>
@@ -731,137 +722,137 @@
           <div class="card highlight-cyan">
             <div class="card-title">Recursive Division</div>
             <p class="card-desc">
-              Subdivides space by adding horizontal/vertical dividing walls with random passage gaps. Produces structured chambers and distinct corridors.
+              Chamber subdivision model. Recursively adds horizontal and vertical dividing walls with single passage gaps, creating structured rooms and corridors.
             </p>
           </div>
 
           <div class="card highlight-purple">
             <div class="card-title">Recursive Backtracker</div>
             <p class="card-desc">
-              Randomized DFS moving 2 cells at a time. Backtracks using a stack upon encountering dead ends. Creates deep, winding paths with high branch depth.
+              Randomized DFS moving 2 cells at a time. Backtracks using a stack upon dead ends. Generates deep, winding corridors with high solution path depth.
             </p>
           </div>
 
           <div class="card highlight-gold">
             <div class="card-title">Randomized Kruskal's</div>
             <p class="card-desc">
-              Builds a Minimum Spanning Tree (MST). Uses <strong>Disjoint Set Union (Union-Find)</strong> with Path Compression and Union by Rank to unite passages without cycles.
+              Constructs a Minimum Spanning Tree (MST). Uses <strong>Disjoint Set Union (Union-Find)</strong> with Path Compression & Rank to unite passages without cycles.
             </p>
           </div>
         </div>
 
         <div style="margin-top: 18px;" class="card highlight-green">
-          <div class="card-title">Automated Solvability Guard: 0-1 Dijkstra Post-Processor</div>
+          <div class="card-title">Autonomous Solvability Engine: 0-1 Dijkstra Post-Processor</div>
           <p class="card-desc">
-            Random generation can inadvertently isolate the target. Our <code>ensureReachableMaze</code> algorithm first runs a BFS reachability test. If blocked, it executes a <strong>0-1 Dijkstra search</strong> (open passages cost 0, walls cost 1) to identify the minimum number of walls blocking reachability and surgically carves out an open path.
+            Random generation can inadvertently isolate the target node. The custom <code>ensureReachableMaze</code> subsystem runs a BFS reachability test. If disconnected, it executes a <strong>0-1 Dijkstra search</strong> (open passages cost 0, walls cost 1) to identify the absolute minimum sequence of blocking walls and surgically carves out an open path.
           </p>
         </div>
       </div>
       <div class="slide-footer">
-        <span>Pathfinding Visualizer · Lovejeet Singh</span>
+        <span>Pathfinding Visualizer · Procedural Mazes</span>
         <span>Slide 5 / 7</span>
       </div>
     </section>
 
     <!-- ══════════════════════════════════════════
-         SLIDE 6: ENGINEERING CHALLENGES
+         SLIDE 6: ENGINEERING CHALLENGES & SOLUTIONS
          ══════════════════════════════════════════ -->
     <section class="slide" data-index="6">
       <div class="slide-header">
         <div>
-          <div class="slide-category">Engineering Challenges</div>
-          <h2 class="slide-title">Difficulties Faced & Solutions</h2>
+          <div class="slide-category">Performance Engineering</div>
+          <h2 class="slide-title">Key Engineering Challenges & Solutions</h2>
         </div>
-        <span class="slide-tag">System Optimization</span>
+        <span class="slide-tag">System Optimizations</span>
       </div>
       <div class="slide-body">
         <div class="grid-2">
           <div class="card highlight-red">
-            <div class="card-title">1. WebGL 60 FPS Draw Call Bottleneck</div>
+            <div class="card-title">1. WebGL Draw Call Bottleneck</div>
             <p class="card-desc">
-              <strong>Challenge:</strong> Rendering 1,250 individual 3D mesh instances triggered 1,250 draw calls per frame, dropping frame rates to 15 FPS.<br>
-              <strong>Solution:</strong> Migrated to <code>THREE.InstancedMesh</code> across 3 geometry pools (roads, buildings, trees), reducing 1,250 draw calls to <strong>just 3 draw calls</strong>.
+              <strong>Challenge:</strong> Rendering 1,250 individual Three.js Mesh instances created 1,250 draw calls per frame, degrading frame rates to 15 FPS.<br>
+              <strong>Solution:</strong> Migrated to <code>THREE.InstancedMesh</code> across 3 geometry pools (roads, buildings, trees), collapsing 1,250 draw calls into <strong>just 3 draw calls</strong>.
             </p>
           </div>
 
           <div class="card highlight-red">
-            <div class="card-title">2. React Re-render Thrashing</div>
+            <div class="card-title">2. React State Thrashing During Playback</div>
             <p class="card-desc">
-              <strong>Challenge:</strong> Updating React state during node exploration locked the browser main thread.<br>
-              <strong>Solution:</strong> Decoupled animation from state. GSAP writes directly to pre-allocated <code>Float32Array</code> buffers read by Three.js per frame without React involvement.
+              <strong>Challenge:</strong> Triggering React component re-renders per visited node locked the browser main thread.<br>
+              <strong>Solution:</strong> Decoupled animation from UI state. GSAP writes directly to pre-allocated <code>Float32Array</code> buffers read by Three.js per frame without React involvement.
             </p>
           </div>
 
           <div class="card highlight-red">
             <div class="card-title">3. Min-Heap Priority Queue Invalidation</div>
             <p class="card-desc">
-              <strong>Challenge:</strong> In-place mutation of a node's distance in binary heap corrupts the heap order without an expensive \(O(N)\) rebuild.<br>
-              <strong>Solution:</strong> Stored immutable snapshot objects <code>{ node, distance }</code> and added a stale-entry check upon pop (<code>if (d !== current.distance) continue;</code>).
+              <strong>Challenge:</strong> In-place mutation of a node's distance in binary heap corrupts the heap invariant without an expensive \(O(N)\) rebuild.<br>
+              <strong>Solution:</strong> Stored immutable snapshot objects <code>{ node, distance }</code> and added a stale-entry check upon pop: <code>if (d !== current.distance) continue;</code>.
             </p>
           </div>
 
           <div class="card highlight-red">
             <div class="card-title">4. Asynchronous Race Conditions</div>
             <p class="card-desc">
-              <strong>Challenge:</strong> Rapid user clicks on "Run" or "Reset" during playback created conflicting ghost timers.<br>
+              <strong>Challenge:</strong> Rapid user clicks on "Run" or "Reset" during playback left orphaned timer callbacks corrupting the board.<br>
               <strong>Solution:</strong> Implemented a monotonic <code>runId</code> check on all async callbacks to drop stale executions immediately.
             </p>
           </div>
         </div>
       </div>
       <div class="slide-footer">
-        <span>Pathfinding Visualizer · Lovejeet Singh</span>
+        <span>Pathfinding Visualizer · Performance Optimizations</span>
         <span>Slide 6 / 7</span>
       </div>
     </section>
 
     <!-- ══════════════════════════════════════════
-         SLIDE 7: LEARNING OUTCOMES & CONCLUSION
+         SLIDE 7: FULL-STACK FEATURES & CONCLUSION
          ══════════════════════════════════════════ -->
     <section class="slide" data-index="7">
       <div class="slide-header">
         <div>
-          <div class="slide-category">Conclusion</div>
-          <h2 class="slide-title">Learning Outcomes & Summary</h2>
+          <div class="slide-category">Production & Verification</div>
+          <h2 class="slide-title">Full-Stack Features & Project Conclusion</h2>
         </div>
-        <span class="slide-tag">Key Takeaways</span>
+        <span class="slide-tag">Final Summary</span>
       </div>
       <div class="slide-body">
         <div class="grid-3">
           <div class="card highlight-cyan">
-            <div class="card-title">Algorithmic Depth</div>
+            <div class="card-title">Cloud Share REST API</div>
             <p class="card-desc">
-              Deepened practical understanding of priority queues, heuristic admissibility, disjoint sets, and spanning tree algorithms in concrete spatial environments.
+              Built Next.js API route handlers with strict payload validation and UUID lookups, allowing users to save and share customized grid configurations via <strong>Neon PostgreSQL</strong>.
             </p>
           </div>
 
           <div class="card highlight-purple">
-            <div class="card-title">Performance Engineering</div>
+            <div class="card-title">Dual Comparative Engine</div>
             <p class="card-desc">
-              Mastered GPU instancing, zero-allocation render loops, typed memory buffers, and spring physics simulation for responsive 60 FPS graphics.
+              Includes a dedicated <code>/compare</code> module running two algorithms concurrently on identical boards, visualized with synchronized charts and performance metrics.
             </p>
           </div>
 
           <div class="card highlight-gold">
-            <div class="card-title">Full-Stack Architecture</div>
+            <div class="card-title">Interactive Education Portal</div>
             <p class="card-desc">
-              Built RESTful API endpoints in Next.js App Router backed by Neon PostgreSQL and Drizzle ORM to enable persistent, shareable grid configurations.
+              Features a comprehensive <code>/learn</code> hub with syntax-highlighted pseudocode via Shiki, complexity breakdowns, and pedagogical algorithm walkthroughs.
             </p>
           </div>
         </div>
 
-        <div style="margin-top: 20px;" class="card highlight-green">
-          <div class="card-title">Summary & Demonstration</div>
+        <div style="margin-top: 18px;" class="card highlight-green">
+          <div class="card-title">Conclusion & Live Verification</div>
           <p class="card-desc">
-            The project successfully demonstrates mathematical rigor, clean architectural separation of concerns, and production-grade full-stack standards.
+            The project delivers a production-grade, mathematically verified pathfinding platform that successfully combines algorithmic rigor with modern WebGL computer graphics.
           </p>
-          <div style="margin-top: 10px; font-size: 13.5px; color: var(--cyan); font-weight: 600;">
-            Live Application: https://pathfinding-visualizer-flax-one.vercel.app · Ready for demonstration.
+          <div style="margin-top: 8px; font-size: 13.5px; color: var(--cyan); font-weight: 600;">
+            Live Application: https://pathfinding-visualizer-flax-one.vercel.app · Open for live demonstration.
           </div>
         </div>
       </div>
       <div class="slide-footer">
-        <span>Pathfinding Visualizer · Lovejeet Singh</span>
+        <span>Pathfinding Visualizer · Final Summary</span>
         <span>Slide 7 / 7</span>
       </div>
     </section>
