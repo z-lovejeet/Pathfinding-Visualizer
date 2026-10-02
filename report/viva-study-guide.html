@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pathfinding Visualizer — Viva Study Guide</title>
+<style>
+  /* ─── RESET & BASE ─── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  :root {
+    --bg: #0a0a12;
+    --surface: #12121e;
+    --card: #181828;
+    --border: #252540;
+    --text: #e0e0f0;
+    --text-dim: #8888aa;
+    --cyan: #00d4ff;
+    --purple: #a78bfa;
+    --gold: #fbbf24;
+    --green: #22c55e;
+    --red: #f43f5e;
+    --amber: #f59e0b;
+    --violet: #7c5cf2;
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+    padding: 0;
+  }
+
+  /* ─── LAYOUT ─── */
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+  
+  /* ─── COVER PAGE ─── */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 24px;
+    background: radial-gradient(ellipse at 50% 30%, rgba(0,212,255,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 70%, rgba(124,92,242,0.06) 0%, transparent 50%);
+    page-break-after: always;
+  }
+  .cover h1 {
+    font-size: 42px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--cyan), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+  .cover .subtitle {
+    font-size: 20px;
+    color: var(--text-dim);
+    margin-bottom: 40px;
+  }
+  .cover .meta {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 2;
+  }
+  .cover .meta strong { color: var(--text); }
+  .cover .team {
+    margin-top: 24px;
+    padding: 20px 32px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: inline-block;
+  }
+  .cover .team h3 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--cyan);
+    margin-bottom: 10px;
+  }
+  .cover .team p { font-size: 14px; color: var(--text); }
+
+  /* ─── SECTION HEADERS ─── */
+  h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 48px 0 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+    color: var(--cyan);
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 32px 0 12px;
+    color: var(--purple);
+    page-break-after: avoid;
+  }
+  h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 20px 0 8px;
+    color: var(--gold);
+  }
+
+  /* ─── TOC ─── */
+  .toc {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin: 0 0 40px;
+    page-break-after: always;
+  }
+  .toc h2 { margin-top: 0; border: none; padding: 0; margin-bottom: 16px; }
+  .toc ol { padding-left: 20px; }
+  .toc li {
+    padding: 6px 0;
+    color: var(--text);
+    font-size: 15px;
+  }
+  .toc li::marker { color: var(--cyan); font-weight: 700; }
+  .toc a { color: var(--text); text-decoration: none; }
+  .toc a:hover { color: var(--cyan); }
+
+  /* ─── CARDS ─── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 16px 0;
+    page-break-inside: avoid;
+  }
+  .card.highlight-cyan { border-left: 4px solid var(--cyan); }
+  .card.highlight-purple { border-left: 4px solid var(--purple); }
+  .card.highlight-gold { border-left: 4px solid var(--gold); }
+  .card.highlight-green { border-left: 4px solid var(--green); }
+  .card.highlight-red { border-left: 4px solid var(--red); }
+
+  /* ─── TABLES ─── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 13.5px;
+    page-break-inside: avoid;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border: 1px solid var(--border);
+  }
+  th {
+    background: var(--surface);
+    color: var(--cyan);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  td { color: var(--text); }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  /* ─── CODE ─── */
+  pre, code {
+    font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', monospace;
+    font-size: 13px;
+  }
+  pre {
+    background: #0d0d18;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    margin: 12px 0;
+    line-height: 1.6;
+    page-break-inside: avoid;
+  }
+  code { color: var(--cyan); }
+  .keyword { color: var(--purple); }
+  .comment { color: #555577; font-style: italic; }
+  .string { color: var(--green); }
+  .number { color: var(--gold); }
+
+  /* ─── BADGES ─── */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge-yes { background: rgba(34,197,94,0.15); color: var(--green); }
+  .badge-no { background: rgba(244,63,94,0.15); color: var(--red); }
+  .badge-info { background: rgba(0,212,255,0.12); color: var(--cyan); }
+
+  /* ─── FLOWCHARTS (SVG) ─── */
+  .flowchart {
+    text-align: center;
+    margin: 20px 0;
+    page-break-inside: avoid;
+  }
+  .flowchart svg { max-width: 100%; height: auto; }
+
+  /* ─── ALGO HEADER ─── */
+  .algo-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .algo-header h3 { margin: 0; }
+
+  /* ─── KEY POINTS ─── */
+  .key-point {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 8px 0;
+  }
+  .key-point .icon {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+  .kp-cyan .icon { background: rgba(0,212,255,0.15); color: var(--cyan); }
+  .kp-gold .icon { background: rgba(251,191,36,0.15); color: var(--gold); }
+  .kp-red .icon { background: rgba(244,63,94,0.15); color: var(--red); }
+  .kp-green .icon { background: rgba(34,197,94,0.15); color: var(--green); }
+  .kp-purple .icon { background: rgba(167,139,250,0.15); color: var(--purple); }
+
+  /* ─── Q&A ─── */
+  .qa { margin: 16px 0; page-break-inside: avoid; }
+  .qa .q {
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 6px;
+    font-size: 15px;
+  }
+  .qa .q::before { content: "Q: "; color: var(--cyan); }
+  .qa .a { color: var(--text); padding-left: 4px; }
+  .qa .a::before { content: "A: "; color: var(--green); font-weight: 700; }
+
+  /* ─── LISTS ─── */
+  ul, ol { padding-left: 24px; margin: 8px 0; }
+  li { margin: 4px 0; }
+  li::marker { color: var(--cyan); }
+
+  /* ─── FORMULA ─── */
+  .formula {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 20px;
+    text-align: center;
+    font-size: 17px;
+    font-weight: 600;
+    margin: 12px 0;
+    color: var(--gold);
+    page-break-inside: avoid;
+  }
+
+  /* ─── COMPARISON GRID ─── */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .compare-grid .card { margin: 0; }
+
+  /* ─── SEPARATOR ─── */
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 32px 0;
+  }
+  .page-break { page-break-after: always; }
+
+  /* ─── PRINT STYLES ─── */
+  @media print {
+    body { background: white; color: #1a1a2e; font-size: 12px; }
+    .container { padding: 0; max-width: 100%; }
+    .cover { min-height: auto; padding: 60px 20px; background: white; }
+    .cover h1 { -webkit-text-fill-color: #1a1a2e; color: #1a1a2e; font-size: 32px; }
+    .cover .subtitle { color: #555; }
+    .cover .meta { color: #555; }
+    .cover .meta strong { color: #1a1a2e; }
+    .cover .team { background: #f5f5f5; border-color: #ddd; }
+    .cover .team h3 { color: #0066cc; }
+
+    h2 { color: #0066cc; border-color: #ddd; font-size: 22px; margin-top: 32px; }
+    h3 { color: #4a2fc4; font-size: 16px; }
+    h4 { color: #b8860b; font-size: 14px; }
+
+    .card { background: #f8f8fc; border-color: #ddd; padding: 16px; }
+    .card.highlight-cyan { border-left-color: #0066cc; }
+    .card.highlight-purple { border-left-color: #6633cc; }
+    .card.highlight-gold { border-left-color: #cc8800; }
+    .card.highlight-green { border-left-color: #228833; }
+    .card.highlight-red { border-left-color: #cc3344; }
+
+    .toc { background: #f8f8fc; border-color: #ddd; }
+    
+    th { background: #eee; color: #0066cc; }
+    td { color: #1a1a2e; }
+    th, td { border-color: #ccc; }
+
+    pre { background: #f5f5f5; border-color: #ddd; }
+    code { color: #0066cc; }
+    .keyword { color: #6633cc; }
+    .comment { color: #888; }
+    .string { color: #228833; }
+    .number { color: #b8860b; }
+
+    .badge-yes { background: #e8f5e9; color: #228833; }
+    .badge-no { background: #fce4ec; color: #cc3344; }
+    .badge-info { background: #e3f2fd; color: #0066cc; }
+
+    .formula { background: #f5f5f5; border-color: #ddd; color: #b8860b; }
+    .qa .q { color: #b8860b; }
+    .qa .q::before { color: #0066cc; }
+    .qa .a::before { color: #228833; }
+
+    .key-point .icon { border: 1px solid #ccc; }
+    var { color: #1a1a2e; }
+    
+    .flowchart svg text { fill: #1a1a2e !important; }
+    .flowchart svg rect { stroke: #333 !important; }
+  }
+
+  @page { margin: 1.5cm; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--              COVER PAGE                     -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="cover">
+  <h1>Pathfinding Visualizer</h1>
+  <p class="subtitle">DSA Viva Preparation — Complete Study Guide</p>
+  <div class="meta">
+    <strong>Subject:</strong> Data Structures & Algorithms<br>
+    <strong>Project:</strong> Interactive 3D Pathfinding Visualizer<br>
+    <strong>Tech Stack:</strong> Next.js 16 · React 19 · Three.js · TypeScript<br>
+    <strong>Live Demo:</strong> pathfinding-visualizer-flax-one.vercel.app
+  </div>
+  <div class="team">
+    <h3>Team Members</h3>
+    <p>Lovejeet Singh · Sachit Babbar · Mohammad Asim<br>Shubham Kumar · Vineetosh Kumar</p>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ═══════════════════════════════════════════ -->
+<!--           TABLE OF CONTENTS                 -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="toc">
+  <h2>📑 Table of Contents</h2>
+  <ol>
+    <li><a href="#overview">Project Overview & Your Role</a></li>
+    <li><a href="#architecture">Architecture & Tech Stack</a></li>
+    <li><a href="#grid">Grid Data Model</a></li>
+    <li><a href="#ds">Data Structures (MinHeap, UnionFind)</a></li>
+    <li><a href="#algorithms">All 6 Pathfinding Algorithms</a></li>
+    <li><a href="#comparison">Algorithm Comparison Table</a></li>
+    <li><a href="#mazes">All 5 Maze Generators</a></li>
+    <li><a href="#animation">Animation Engine & 3D Rendering</a></li>
+    <li><a href="#state">State Management</a></li>
+    <li><a href="#workflow">Complete Workflow (How It All Connects)</a></li>
+    <li><a href="#limitations">Limitations</a></li>
+    <li><a href="#future">Future Scope</a></li>
+    <li><a href="#viva">50 Viva Questions & Answers</a></li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--         1. PROJECT OVERVIEW                 -->
+<!-- ═══════════════════════════════════════════ -->
+<h2 id="overview">1. Project Overview & Your Role</h2>
+
+<div class="card highlight-cyan">
+  <h4>What is this project?</h4>
+  <p>An <strong>interactive 3D pathfinding visualizer</strong> that renders a 25×50 grid as a miniature city. Users can place buildings (walls), parks (weighted terrain), and two person markers (start/end), then watch pathfinding algorithms explore the city streets in real-time with spring-physics animations.</p>
+</div>
+
+<h4>Key Features Built</h4>
+<ul>
+  <li><strong>3D Miniature City</strong> — Buildings spring up as walls, parks have pine trees, roads glow during algorithm execution</li>
+  <li><strong>6 Pathfinding Algorithms</strong> — BFS, DFS, Dijkstra, A*, Greedy Best-First, Bidirectional BFS</li>
+  <li><strong>5 Maze Generators</strong> — Recursive Division, Recursive Backtracker, Prim's, Kruskal's, Random Scatter</li>
+  <li><strong>Real-time Animation</strong> — GSAP timelines with shared typed-array buffers for 60fps 3D rendering</li>
+  <li><strong>Compare Page</strong> — Run two algorithms on the same board to compare metrics and see a bar chart</li>
+  <li><strong>Learn Page</strong> — Algorithm cards with syntax-highlighted pseudocode and step-by-step explanations</li>
+  <li><strong>Share Links</strong> — Persist and share board layouts via PostgreSQL database</li>
+</ul>
+
+<h4>Your Role (adapt this to yourself)</h4>
+<div class="card highlight-purple">
+  <ul>
+    <li>Full-stack development — frontend (React/Three.js) + backend (Next.js API routes + Neon DB)</li>
+    <li>Implemented all 6 pathfinding algorithms with proper data structures</li>
+    <li>Designed the 3D city rendering with instanced meshes and spring physics</li>
+    <li>Built the animation engine connecting algorithm results to 3D visual playback</li>
+    <li>Integrated maze generation with solvability enforcement</li>
+  </ul>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--       2. ARCHITECTURE & TECH STACK          -->
+<!-- ═══════════════════════════════════════════ -->
+<h2 id="architecture">2. Architecture & Tech Stack</h2>
+
+<table>
+  <tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
+  <tr><td>Framework</td><td>Next.js 16 (App Router)</td><td>Server/client routing, API routes, SSR</td></tr>
+  <tr><td>UI Library</td><td>React 19</td><td>Component-based UI with hooks</td></tr>
+  <tr><td>Language</td><td>TypeScript (strict)</td><td>Type safety across entire codebase</td></tr>
+  <tr><td>3D Rendering</td><td>Three.js + React Three Fiber</td><td>WebGL-based 3D scene</td></tr>
+  <tr><td>Animation</td><td>GSAP + Framer Motion</td><td>Timeline-based algo animation + UI transitions</td></tr>
+  <tr><td>State</td><td>Zustand</td><td>Lightweight global state store</td></tr>
+  <tr><td>Styling</td><td>Tailwind CSS 4</td><td>Utility-first CSS + glassmorphism system</td></tr>
+  <tr><td>Database</td><td>Neon PostgreSQL + Drizzle ORM</td><td>Serverless DB for share links</td></tr>
+  <tr><td>Charts</td><td>Recharts</td><td>Algorithm comparison bar charts</td></tr>
+  <tr><td>Code Display</td><td>Shiki</td><td>Syntax-highlighted pseudocode on Learn page</td></tr>
+</table>
+
+<h3>Architecture Diagram</h3>
+<div class="flowchart">
+<svg width="800" height="360" viewBox="0 0 800 360">
+  <!-- User Layer -->
+  <rect x="280" y="10" width="240" height="40" rx="8" fill="#1a1a2e" stroke="#00d4ff" stroke-width="2"/>
+  <text x="400" y="36" text-anchor="middle" fill="#00d4ff" font-size="14" font-weight="700">👤 User Interaction (Browser)</text>
+  
+  <!-- Arrow down -->
+  <line x1="400" y1="50" x2="400" y2="75" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  
+  <!-- React + Zustand -->
+  <rect x="180" y="75" width="200" height="40" rx="8" fill="#1a1a2e" stroke="#a78bfa" stroke-width="2"/>
+  <text x="280" y="100" text-anchor="middle" fill="#a78bfa" font-size="13" font-weight="600">React UI + Zustand Store</text>
+  
+  <rect x="420" y="75" width="200" height="40" rx="8" fill="#1a1a2e" stroke="#a78bfa" stroke-width="2"/>
+  <text x="520" y="100" text-anchor="middle" fill="#a78bfa" font-size="13" font-weight="600">RaycastHandler (3D Input)</text>
+  
+  <!-- Arrows down -->
+  <line x1="280" y1="115" x2="280" y2="150" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="520" y1="115" x2="520" y2="150" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  
+  <!-- Algorithm Engine Row -->
+  <rect x="80" y="150" width="180" height="40" rx="8" fill="#1a1a2e" stroke="#fbbf24" stroke-width="2"/>
+  <text x="170" y="175" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="600">Pathfinding Algos</text>
+
+  <rect x="290" y="150" width="180" height="40" rx="8" fill="#1a1a2e" stroke="#fbbf24" stroke-width="2"/>
+  <text x="380" y="175" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="600">Maze Generators</text>
+
+  <rect x="500" y="150" width="200" height="40" rx="8" fill="#1a1a2e" stroke="#fbbf24" stroke-width="2"/>
+  <text x="600" y="175" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="600">Animation Engine (GSAP)</text>
+  
+  <!-- Arrows down -->
+  <line x1="170" y1="190" x2="170" y2="225" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="380" y1="190" x2="380" y2="225" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="600" y1="190" x2="600" y2="225" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+  
+  <!-- Data Layer -->
+  <rect x="80" y="225" width="180" height="40" rx="8" fill="#1a1a2e" stroke="#22c55e" stroke-width="2"/>
+  <text x="170" y="250" text-anchor="middle" fill="#22c55e" font-size="13" font-weight="600">Grid[][] (2D Array)</text>
+
+  <rect x="290" y="225" width="180" height="40" rx="8" fill="#1a1a2e" stroke="#22c55e" stroke-width="2"/>
+  <text x="380" y="250" text-anchor="middle" fill="#22c55e" font-size="13" font-weight="600">MazeStep[] Array</text>
+
+  <rect x="500" y="225" width="200" height="40" rx="8" fill="#1a1a2e" stroke="#22c55e" stroke-width="2"/>
+  <text x="600" y="250" text-anchor="middle" fill="#22c55e" font-size="13" font-weight="600">Float32Array Buffers</text>
+
+  <!-- Arrow down to 3D -->
+  <line x1="400" y1="265" x2="400" y2="300" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- 3D Render -->
+  <rect x="220" y="300" width="360" height="45" rx="8" fill="#1a1a2e" stroke="#00d4ff" stroke-width="2"/>
+  <text x="400" y="328" text-anchor="middle" fill="#00d4ff" font-size="14" font-weight="700">🏙️ Three.js CityMesh (3 InstancedMeshes)</text>
+  
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#555"/></marker></defs>
+</svg>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--         3. GRID DATA MODEL                  -->
+<!-- ═══════════════════════════════════════════ -->
+<h2 id="grid">3. Grid Data Model</h2>
+
+<div class="card highlight-cyan">
+  <h4>GridNode — The Core Data Unit</h4>
+  <p>Every cell in the 25×50 grid is a <code>GridNode</code> object:</p>
+  <pre>GridNode {
+  row, col          <span class="comment">// Position in grid</span>
+  type              <span class="comment">// 'empty' | 'wall' | 'start' | 'end' | 'weight'</span>
+  weight            <span class="comment">// 1 for normal, 5 for weighted terrain</span>
+  distance          <span class="comment">// g(n): cost from start (init: Infinity)</span>
+  heuristic         <span class="comment">// h(n): estimated cost to end (Manhattan)</span>
+  totalCost         <span class="comment">// f(n) = g(n) + h(n)</span>
+  isVisited         <span class="comment">// Has algorithm processed this node?</span>
+  previousNode      <span class="comment">// Pointer to reconstruct path</span>
+  visualState       <span class="comment">// 'unvisited' | 'visited' | 'path' | 'current'</span>
+}</pre>
+</div>
+
+<h4>Movement Model</h4>
+<div class="card highlight-gold">
+  <p><strong>4-directional only:</strong> Up, Right, Down, Left. No diagonal movement.</p>
+  <p><strong>Neighbor order:</strong> Consistent across all algorithms — Up → Right → Down → Left.</p>
+  <p><strong>Wall blocking:</strong> If <code>neighbor.type === 'wall'</code>, the neighbor is skipped entirely.</p>
+</div>
+
+<h4>Path Reconstruction</h4>
+<p>All algorithms use the same <code>reconstructPath(endNode)</code> function:</p>
+<pre><span class="keyword">function</span> reconstructPath(endNode):
+    path = []
+    current = endNode
+    <span class="keyword">while</span> current !== <span class="keyword">null</span>:
+        path.unshift(current)       <span class="comment">// Prepend to front</span>
+        current = current.previousNode
+    <span class="keyword">return</span> path</pre>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--     4. DATA STRUCTURES                      -->
+<!-- ═══════════════════════════════════════════ -->
+<h2 id="ds">4. Core Data Structures</h2>
+
+<div class="compare-grid">
+  <div class="card highlight-cyan">
+    <h4>MinHeap (Priority Queue)</h4>
+    <p><strong>Used by:</strong> Dijkstra, A*, Greedy</p>
+    <p><strong>Type:</strong> Binary min-heap with custom comparator</p>
+    <ul>
+      <li><code>push(val)</code> → sift up — O(log n)</li>
+      <li><code>pop()</code> → swap root with last, sift down — O(log n)</li>
+      <li><code>peek()</code> → return root — O(1)</li>
+    </ul>
+    <p><strong>Key detail:</strong> Uses immutable snapshot entries to prevent heap corruption when node distances are updated in-place.</p>
+  </div>
+
+  <div class="card highlight-purple">
+    <h4>UnionFind (Disjoint Set Union)</h4>
+    <p><strong>Used by:</strong> Kruskal's Maze Generator</p>
+    <p><strong>Optimizations:</strong></p>
+    <ul>
+      <li><strong>Path Compression:</strong> <code>find(x)</code> flattens tree</li>
+      <li><strong>Union by Rank:</strong> attaches smaller tree under larger</li>
+    </ul>
+    <p><strong>Complexity:</strong> Nearly O(1) per operation (amortized O(α(n)) — inverse Ackermann).</p>
+  </div>
+</div>
+
+<h3>MinHeap — How Sift Up/Down Works</h3>
+<div class="flowchart">
+<svg width="700" height="200" viewBox="0 0 700 200">
+  <!-- Push: Sift Up -->
+  <rect x="10" y="10" width="320" height="180" rx="10" fill="none" stroke="#00d4ff" stroke-width="1.5" stroke-dasharray="5,5"/>
+  <text x="170" y="35" text-anchor="middle" fill="#00d4ff" font-size="14" font-weight="700">push() → Sift Up</text>
+  <text x="170" y="60" text-anchor="middle" fill="#e0e0f0" font-size="12">1. Add element at end of array</text>
+  <text x="170" y="80" text-anchor="middle" fill="#e0e0f0" font-size="12">2. Compare with parent: floor((i-1)/2)</text>
+  <text x="170" y="100" text-anchor="middle" fill="#e0e0f0" font-size="12">3. If child &lt; parent → swap</text>
+  <text x="170" y="120" text-anchor="middle" fill="#e0e0f0" font-size="12">4. Repeat until root or no swap needed</text>
+  <text x="170" y="155" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="600">O(log n) — tree height</text>
+
+  <!-- Pop: Sift Down -->
+  <rect x="370" y="10" width="320" height="180" rx="10" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="5,5"/>
+  <text x="530" y="35" text-anchor="middle" fill="#a78bfa" font-size="14" font-weight="700">pop() → Sift Down</text>
+  <text x="530" y="60" text-anchor="middle" fill="#e0e0f0" font-size="12">1. Save root (min element)</text>
+  <text x="530" y="80" text-anchor="middle" fill="#e0e0f0" font-size="12">2. Move last element to root</text>
+  <text x="530" y="100" text-anchor="middle" fill="#e0e0f0" font-size="12">3. Compare with children: 2i+1, 2i+2</text>
+  <text x="530" y="120" text-anchor="middle" fill="#e0e0f0" font-size="12">4. Swap with smallest child if needed</text>
+  <text x="530" y="140" text-anchor="middle" fill="#e0e0f0" font-size="12">5. Repeat until leaf or no swap needed</text>
+  <text x="530" y="170" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="600">O(log n) — tree height</text>
+</svg>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--        5. ALL 6 ALGORITHMS                  -->
+<!-- ═══════════════════════════════════════════ -->
+<h2 id="algorithms">5. All 6 Pathfinding Algorithms</h2>
+
+<!-- ─── BFS ─── -->
+<h3>5.1 Breadth-First Search (BFS)</h3>
+<div class="card highlight-cyan">
+  <div class="algo-header">
+    <span class="badge badge-info">Queue (FIFO)</span>
+    <span class="badge badge-no">No Weights</span>
+    <span class="badge badge-yes">Shortest Path ✓</span>
+  </div>
+  
+  <p><strong>How it works:</strong> Explores all neighbors at the current depth level before moving deeper. Think of it as a <em>wave expanding outward</em> from the start — like dropping a stone in water.</p>
+  
+  <h4>Pseudocode</h4>
+  <pre><span class="keyword">function</span> BFS(grid, start, end):
+    queue = [start]
+    start.isVisited = <span class="keyword">true</span>
+    start.distance = <span class="number">0</span>
+    
+    <span class="keyword">while</span> queue is not empty:
+        current = queue.dequeue()     <span class="comment">// Remove from FRONT</span>
+        
+        <span class="keyword">if</span> current === end:
+            <span class="keyword">return</span> reconstructPath(end)   <span class="comment">// Found!</span>
+        
+        <span class="keyword">for each</span> neighbor <span class="keyword">in</span> getNeighbors(current):  <span class="comment">// Up, Right, Down, Left</span>
+            <span class="keyword">if</span> !neighbor.isVisited AND neighbor.type ≠ <span class="string">'wall'</span>:
+                neighbor.isVisited = <span class="keyword">true</span>
+                neighbor.distance = current.distance + <span class="number">1</span>
+                neighbor.previousNode = current
+                queue.enqueue(neighbor)     <span class="comment">// Add to BACK</span>
+    
+    <span class="keyword">return</span> <span class="string">"No path found"</span></pre>
+
+  <h4>Why it guarantees shortest path (unweighted)</h4>
+  <p>BFS explores level-by-level. Every node at distance <em>d</em> is processed before any node at distance <em>d+1</em>. So the first time BFS reaches the end node, it found the path with the <strong>fewest hops</strong>.</p>
+
+  <div class="formula">Time: O(V + E) = O(R × C) &nbsp;&nbsp;|&nbsp;&nbsp; Space: O(V) = O(R × C)</div>
+</div>
+
+<!-- ─── DFS ─── -->
+<h3>5.2 Depth-First Search (DFS)</h3>
+<div class="card highlight-purple">
+  <div class="algo-header">
+    <span class="badge badge-info">Stack (LIFO)</span>
+    <span class="badge badge-no">No Weights</span>
+    <span class="badge badge-no">NOT Shortest Path ✗</span>
+  </div>
+
+  <p><strong>How it works:</strong> Dives as deep as possible down one branch before backtracking. Think of it as exploring a maze by always turning the same direction until you hit a dead end.</p>
+
+  <h4>Pseudocode</h4>
+  <pre><span class="keyword">function</span> DFS(grid, start, end):
+    stack = [start]
+    
+    <span class="keyword">while</span> stack is not empty:
+        current = stack.pop()          <span class="comment">// Remove from TOP</span>
+        
+        <span class="keyword">if</span> current.isVisited: <span class="keyword">continue</span>
+        current.isVisited = <span class="keyword">true</span>
+        
+        <span class="keyword">if</span> current === end:
+            <span class="keyword">return</span> reconstructPath(end)
+        
+        <span class="keyword">for each</span> neighbor <span class="keyword">in</span> reverse(getNeighbors(current)):
+            <span class="keyword">if</span> !neighbor.isVisited AND neighbor.type ≠ <span class="string">'wall'</span>:
+                neighbor.previousNode = current
+                stack.push(neighbor)    <span class="comment">// Add to TOP</span>
+    
+    <span class="keyword">return</span> <span class="string">"No path found"</span></pre>
+
+  <h4>Why it does NOT guarantee shortest path</h4>
+  <p>DFS commits to one deep branch. It may find the end via a long, winding route while a much shorter path existed elsewhere. It depends on which direction it explores first.</p>
+
+  <div class="formula">Time: O(V + E) = O(R × C) &nbsp;&nbsp;|&nbsp;&nbsp; Space: O(V) = O(R × C)</div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ─── DIJKSTRA ─── -->
+<h3>5.3 Dijkstra's Algorithm</h3>
+<div class="card highlight-gold">
+  <div class="algo-header">
+    <span class="badge badge-info">Min-Heap (Priority Queue)</span>
+    <span class="badge badge-yes">Handles Weights ✓</span>
+    <span class="badge badge-yes">Shortest Path ✓</span>
+  </div>
+
+  <p><strong>How it works:</strong> Always expands the node with the <em>smallest known distance from start</em>. Discovers shortest paths layer-by-layer but accounts for weighted edges.</p>
+
+  <h4>Key Concept — Edge Relaxation</h4>
+  <div class="formula">
+    If&nbsp;&nbsp; g(current) + weight(neighbor) &lt; g(neighbor) &nbsp;&nbsp;→&nbsp;&nbsp; Update g(neighbor)
+  </div>
+
+  <h4>Pseudocode</h4>
+  <pre><span class="keyword">function</span> Dijkstra(grid, start, end):
+    start.distance = <span class="number">0</span>
+    pq = MinHeap()
+    pq.push({node: start, distance: <span class="number">0</span>})
+    
+    <span class="keyword">while</span> pq is not empty:
+        {node: current, distance: d} = pq.pop()
+        
+        <span class="keyword">if</span> d ≠ current.distance OR current.isVisited: <span class="keyword">continue</span>  <span class="comment">// Stale entry</span>
+        <span class="keyword">if</span> current.distance === Infinity: <span class="keyword">break</span>              <span class="comment">// Unreachable</span>
+        current.isVisited = <span class="keyword">true</span>
+        
+        <span class="keyword">if</span> current === end:
+            <span class="keyword">return</span> reconstructPath(end)
+        
+        <span class="keyword">for each</span> neighbor <span class="keyword">in</span> getNeighbors(current):
+            <span class="keyword">if</span> !neighbor.isVisited AND neighbor.type ≠ <span class="string">'wall'</span>:
+                newDist = current.distance + neighbor.weight
+                <span class="keyword">if</span> newDist < neighbor.distance:    <span class="comment">// RELAXATION</span>
+                    neighbor.distance = newDist
+                    neighbor.previousNode = current
+                    pq.push({node: neighbor, distance: newDist})
+    
+    <span class="keyword">return</span> <span class="string">"No path found"</span></pre>
+
+  <h4>Stale Entry Handling</h4>
+  <p>When a node's distance is updated (relaxed), a <strong>new entry</strong> is pushed into the heap. The old entry becomes "stale". When popped, the check <code>d ≠ current.distance</code> discards it.</p>
+
+  <div class="formula">Time: O((V + E) log V) &nbsp;&nbsp;|&nbsp;&nbsp; Space: O(V)</div>
+</div>
+
+<!-- ─── A* ─── -->
+<h3>5.4 A* Search</h3>
+<div class="card highlight-green">
+  <div class="algo-header">
+    <span class="badge badge-info">Min-Heap (f = g + h)</span>
+    <span class="badge badge-yes">Handles Weights ✓</span>
+    <span class="badge badge-yes">Shortest Path ✓</span>
+  </div>
+
+  <p><strong>How it works:</strong> Like Dijkstra, but uses a <em>heuristic</em> to guide the search toward the goal. Expands the node with the smallest <strong>f(n) = g(n) + h(n)</strong>.</p>
+
+  <div class="formula">
+    f(n) = g(n) + h(n)<br>
+    <small style="font-weight:400; color: var(--text-dim);">
+      g(n) = actual cost from start &nbsp;&nbsp;|&nbsp;&nbsp; h(n) = estimated cost to end (Manhattan distance)
+    </small>
+  </div>
+
+  <h4>Manhattan Distance Heuristic</h4>
+  <pre>h(node) = |node.row - end.row| + |node.col - end.col|</pre>
+  <p><strong>Why Manhattan?</strong> Our grid only allows 4-directional movement. Manhattan distance is <em>admissible</em> (never overestimates) and <em>consistent</em>, guaranteeing optimality.</p>
+
+  <h4>Admissibility Guard (from our code)</h4>
+  <p>Our A* implementation scans the grid for the <strong>minimum cell weight</strong> and multiplies: <code>h(n) = manhattanDistance × minWeight</code>. This ensures the heuristic stays admissible even with weighted terrain.</p>
+
+  <h4>Why A* is faster than Dijkstra</h4>
+  <p>A* explores fewer nodes because the heuristic guides it toward the goal. Dijkstra blindly expands in all directions (like a circle), while A* biases toward the goal direction (like an ellipse).</p>
+
+  <div class="formula">Time: O((V + E) log V) &nbsp;&nbsp;|&nbsp;&nbsp; Space: O(V)</div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ─── GREEDY ─── -->
+<h3>5.5 Greedy Best-First Search</h3>
+<div class="card highlight-red">
+  <div class="algo-header">
+    <span class="badge badge-info">Min-Heap (f = h only)</span>
+    <span class="badge badge-no">Ignores Weights</span>
+    <span class="badge badge-no">NOT Shortest Path ✗</span>
+  </div>
+
+  <p><strong>How it works:</strong> Always expands the node that <em>appears closest to the goal</em> (smallest h(n)). Very fast, but easily tricked by obstacles.</p>
+
+  <div class="formula">f(n) = h(n) only &nbsp;&nbsp;(ignores g(n) entirely)</div>
+
+  <h4>Why it fails</h4>
+  <p>Greedy rushes directly toward the goal. If a wall blocks the direct path, it gets stuck exploring around the obstacle, often finding a suboptimal route. It doesn't track cumulative costs, so it can't guarantee optimality.</p>
+
+  <h4>Uses a Discovered Set</h4>
+  <p>Unlike Dijkstra/A*, Greedy uses a <code>Set&lt;GridNode&gt;</code> to prevent re-enqueueing the same node (since there's no relaxation step).</p>
+
+  <div class="formula">Time: O((V + E) log V) &nbsp;&nbsp;|&nbsp;&nbsp; Space: O(V)</div>
+</div>
+
+<!-- ─── BIDIRECTIONAL BFS ─── -->
+<h3>5.6 Bidirectional BFS</h3>
+<div class="card highlight-purple">
+  <div class="algo-header">
+    <span class="badge badge-info">2 × Queue + 2 × Set</span>
+    <span class="badge badge-no">No Weights</span>
+    <span class="badge badge-yes">Shortest Path ✓</span>
+  </div>
+
+  <p><strong>How it works:</strong> Runs two simultaneous BFS searches — one from start, one from end. When the two frontiers collide, merge the paths.</p>
+
+  <h4>Why it's faster than regular BFS</h4>
+  <div class="card" style="background: var(--surface);">
+    <p>Regular BFS explores a circle of radius <em>r</em>: area = π·r²</p>
+    <p>Bidirectional explores two circles of radius <em>r/2</em>: area = 2 × π·(r/2)² = <strong>π·r²/2</strong></p>
+    <p style="color: var(--cyan); font-weight: 600;">→ Explores roughly HALF the nodes in practice!</p>
+  </div>
+
+  <h4>Path Merging</h4>
+  <pre><span class="comment">// When frontiers collide at meetingNode:</span>
+forwardPath  = trace(meetingNode → start)  using parentForward map
+backwardPath = trace(meetingNode → end)    using parentBackward map
+fullPath     = [...forwardPath, ...backwardPath]</pre>
+
+  <div class="formula">Time: O(V + E) &nbsp;&nbsp;|&nbsp;&nbsp; Space: O(V) &nbsp;&nbsp;(but ~50% fewer nodes explored)</div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--       6. ALGORITHM COMPARISON               -->
+<!-- ═══════════════════════════════════════════ -->
+<h2 id="comparison">6. Algorithm Comparison</h2>
+
+<table>
+  <tr>
+    <th>Algorithm</th>
+    <th>Data Structure</th>
+    <th>Weighted?</th>
+    <th>Optimal?</th>
+    <th>Time</th>
+    <th>Best For</th>
+  </tr>
+  <tr>
+    <td><strong>BFS</strong></td>
+    <td>Queue (FIFO)</td>
+    <td><span class="badge badge-no">No</span></td>
+    <td><span class="badge badge-yes">Yes</span></td>
+    <td>O(V+E)</td>
+    <td>Unweighted shortest path</td>
+  </tr>
+  <tr>
+    <td><strong>DFS</strong></td>
+    <td>Stack (LIFO)</td>
+    <td><span class="badge badge-no">No</span></td>
+    <td><span class="badge badge-no">No</span></td>
+    <td>O(V+E)</td>
+    <td>Maze solving, connectivity</td>
+  </tr>
+  <tr>
+    <td><strong>Dijkstra</strong></td>
+    <td>Min-Heap</td>
+    <td><span class="badge badge-yes">Yes</span></td>
+    <td><span class="badge badge-yes">Yes</span></td>
+    <td>O((V+E) log V)</td>
+    <td>Weighted shortest path</td>
+  </tr>
+  <tr>
+    <td><strong>A*</strong></td>
+    <td>Min-Heap (g+h)</td>
+    <td><span class="badge badge-yes">Yes</span></td>
+    <td><span class="badge badge-yes">Yes</span></td>
+    <td>O((V+E) log V)</td>
+    <td>Fastest optimal weighted</td>
+  </tr>
+  <tr>
+    <td><strong>Greedy</strong></td>
+    <td>Min-Heap (h)</td>
+    <td><span class="badge badge-no">No</span></td>
+    <td><span class="badge badge-no">No</span></td>
+    <td>O((V+E) log V)</td>
+    <td>Quick approximation</td>
+  </tr>
+  <tr>
+    <td><strong>Bidirectional</strong></td>
+    <td>2 × Queue</td>
+    <td><span class="badge badge-no">No</span></td>
+    <td><span class="badge badge-yes">Yes</span></td>
+    <td>O(V+E)</td>
+    <td>Large unweighted graphs</td>
+  </tr>
+</table>
+
+<h3>When to Use Which?</h3>
+<div class="card highlight-gold">
+  <ul>
+    <li><strong>No weights, need shortest path →</strong> BFS (simple) or Bidirectional BFS (faster)</li>
+    <li><strong>Weighted edges, need optimal →</strong> A* (with good heuristic) or Dijkstra (no heuristic available)</li>
+    <li><strong>Just need any path, fast →</strong> Greedy or DFS</li>
+    <li><strong>Large graph, unweighted →</strong> Bidirectional BFS (explores ~50% fewer nodes)</li>
+  </ul>
+</div>
+
+<h3>A* vs Dijkstra — The Key Difference</h3>
+<div class="compare-grid">
+  <div class="card highlight-gold">
+    <h4>Dijkstra</h4>
+    <p>Priority = <strong>g(n)</strong> only</p>
+    <p>Expands in all directions equally (circle-like). No knowledge of where the goal is.</p>
+    <p style="color: var(--amber);">Guaranteed optimal ✓</p>
+  </div>
+  <div class="card highlight-green">
+    <h4>A*</h4>
+    <p>Priority = <strong>g(n) + h(n)</strong></p>
+    <p>Guided toward the goal by the heuristic. Explores fewer nodes, same optimal result.</p>
+    <p style="color: var(--green);">Guaranteed optimal ✓ (if h is admissible)</p>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--       7. MAZE GENERATORS                    -->
+<!-- ═══════════════════════════════════════════ -->
+<h2 id="mazes">7. Maze Generators</h2>
+
+<table>
+  <tr>
+    <th>Generator</th>
+    <th>Strategy</th>
+    <th>How It Works</th>
+    <th>Solvable?</th>
+  </tr>
+  <tr>
+    <td><strong>Recursive Division</strong></td>
+    <td>Chamber Subdivision</td>
+    <td>Starts with border walls. Recursively divides space with horizontal or vertical walls, leaving one random passage gap.</td>
+    <td><span class="badge badge-yes">Yes</span></td>
+  </tr>
+  <tr>
+    <td><strong>Recursive Backtracker</strong></td>
+    <td>Randomized DFS</td>
+    <td>Fills grid with walls. Picks random start, carves corridors by moving 2 cells at a time. Backtracks via stack when stuck.</td>
+    <td><span class="badge badge-yes">Yes</span></td>
+  </tr>
+  <tr>
+    <td><strong>Randomized Prim's</strong></td>
+    <td>Growing Tree / MST</td>
+    <td>Fills with walls. Picks seed cell. Maintains frontier list. Randomly connects frontier to existing maze by carving intervening wall.</td>
+    <td><span class="badge badge-yes">Yes</span></td>
+  </tr>
+  <tr>
+    <td><strong>Randomized Kruskal's</strong></td>
+    <td>Union-Find / MST</td>
+    <td>Fills with walls. Marks odd cells as passages. Shuffles all wall edges (Fisher-Yates). Removes wall if it connects two disconnected regions.</td>
+    <td><span class="badge badge-yes">Yes</span></td>
+  </tr>
+  <tr>
+    <td><strong>Random Scatter</strong></td>
+    <td>Bernoulli Trials</td>
+    <td>Each cell independently has 30% chance of becoming a wall. Start and end are always kept open.</td>
+    <td><span class="badge badge-no">No guarantee</span></td>
+  </tr>
+</table>
+
+<h3>Solvability Enforcement — <code>ensureReachableMaze</code></h3>
+<div class="card highlight-green">
+  <p>The first four generators call <code>ensureReachableMaze()</code> which:</p>
+  <ol>
+    <li><strong>Builds a passability map</strong> — 2D boolean grid from maze steps</li>
+    <li><strong>Runs BFS</strong> from start → end to check if a path exists</li>
+    <li><strong>If blocked</strong>, runs <strong>0-1 Dijkstra</strong> to find the minimum number of walls to carve to create a connection</li>
+    <li><strong>Appends</strong> the carved passages to the maze steps</li>
+  </ol>
+  <p style="color: var(--green); font-weight: 600;">This guarantees every generated maze (except Random Scatter) is always solvable.</p>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--       8. ANIMATION ENGINE                   -->
+<!-- ═══════════════════════════════════════════ -->
+<h2 id="animation">8. Animation Engine & 3D Rendering</h2>
+
+<h3>Animation Engine (GSAP Timelines)</h3>
+<div class="card highlight-cyan">
+  <h4>How Algorithm Results Become 3D Animations</h4>
+  <ol>
+    <li>Algorithm runs <strong>synchronously</strong> → produces <code>{visitedNodesInOrder, shortestPath}</code></li>
+    <li>Results handed to <code>AnimationEngine</code> which creates a <strong>GSAP timeline</strong></li>
+    <li>Timeline writes to <strong>shared Float32Array buffers</strong> (targetHeights, targetEmissives, nodePhase)</li>
+    <li>Three.js <code>useFrame()</code> loop reads these buffers <strong>every frame</strong> (60fps)</li>
+    <li>Spring physics interpolate actual mesh positions toward the target values</li>
+  </ol>
+</div>
+
+<h4>Two-Phase Timeline</h4>
+<table>
+  <tr><th>Phase</th><th>Visual</th><th>Buffers Set</th></tr>
+  <tr>
+    <td><strong>Phase 1: Visited Exploration</strong></td>
+    <td>Each visited node gets a cyan flash → then transitions to violet glow</td>
+    <td>nodePhase: CURRENT → VISITED<br>targetHeights: 0.5 → 0.4<br>targetEmissives: 2.5 → 1.5</td>
+  </tr>
+  <tr>
+    <td><strong>Phase 2: Shortest Path</strong></td>
+    <td>Golden wave traces the final route with elastic bounce</td>
+    <td>nodePhase: PATH<br>targetHeights: 0.7<br>targetEmissives: 3.0</td>
+  </tr>
+</table>
+
+<h3>3D City Rendering (CityMesh)</h3>
+<div class="card highlight-purple">
+  <h4>Three Instanced Meshes</h4>
+  <table>
+    <tr><th>Mesh</th><th>Count</th><th>Purpose</th><th>Geometry</th></tr>
+    <tr><td>Roads</td><td>1,250</td><td>Flat asphalt tiles for ALL cells</td><td>Box [0.92, h, 0.92]</td></tr>
+    <tr><td>Buildings</td><td>1,250</td><td>Tall boxes for WALL cells only</td><td>Box [0.82, h, 0.82]</td></tr>
+    <tr><td>Trees</td><td>1,250</td><td>Cones for WEIGHT cells only</td><td>Cone [0.28, 0.55, 6]</td></tr>
+  </table>
+  <p><strong>Why InstancedMesh?</strong> Drawing 1,250 individual meshes would be 1,250 draw calls. InstancedMesh renders all 1,250 in a <strong>single draw call</strong> — massive performance gain.</p>
+</div>
+
+<h4>Spring Physics</h4>
+<pre><span class="comment">// Every frame, for each cell:</span>
+displacement = targetHeight - currentHeight
+springForce  = stiffness × displacement
+dampingForce = damping × velocity
+acceleration = springForce - dampingForce
+
+velocity += acceleration × deltaTime
+height   += velocity × deltaTime</pre>
+<p>This creates the satisfying <strong>bounce and overshoot</strong> when buildings spring up or roads glow during animation.</p>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--       9. STATE MANAGEMENT                   -->
+<!-- ═══════════════════════════════════════════ -->
+<h2 id="state">9. State Management (Zustand)</h2>
+
+<div class="card highlight-cyan">
+  <h4>Why Zustand?</h4>
+  <p>Lightweight alternative to Redux. No boilerplate, no providers needed. Direct subscriptions mean only components that use specific state values re-render.</p>
+
+  <h4>Key State</h4>
+  <pre>grid: GridNode[][]          <span class="comment">// The 25×50 grid</span>
+algorithm: AlgorithmType    <span class="comment">// 'bfs' | 'dfs' | 'dijkstra' | 'astar' | 'greedy' | 'bidirectional'</span>
+speed: number               <span class="comment">// 1–100 slider value</span>
+isVisualizing: boolean      <span class="comment">// Is an algorithm running?</span>
+isPaused: boolean           <span class="comment">// Is it paused?</span>
+interactionMode: string     <span class="comment">// What tool is active? (wall/weight/erase/start/end)</span>
+animationEngine: AnimationEngine | null</pre>
+</div>
+
+<h4>Concurrency Guard — <code>runId</code></h4>
+<div class="card highlight-gold">
+  <p>Problem: What if the user clicks "Run" while an animation is already playing?</p>
+  <p>Solution: Each run increments a <code>runId</code>. All async callbacks check <code>current.runId === capturedRunId</code>. If the runId has changed (new run started), old callbacks silently exit — preventing race conditions.</p>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--       10. WORKFLOW                          -->
+<!-- ═══════════════════════════════════════════ -->
+<h2 id="workflow">10. Complete Workflow</h2>
+
+<div class="flowchart">
+<svg width="800" height="420" viewBox="0 0 800 420">
+  <rect x="280" y="10" width="240" height="36" rx="8" fill="#1a1a2e" stroke="#00d4ff" stroke-width="2"/>
+  <text x="400" y="33" text-anchor="middle" fill="#00d4ff" font-size="13" font-weight="700">User clicks "Run Algorithm"</text>
+  <line x1="400" y1="46" x2="400" y2="70" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="250" y="70" width="300" height="36" rx="8" fill="#1a1a2e" stroke="#a78bfa" stroke-width="2"/>
+  <text x="400" y="93" text-anchor="middle" fill="#a78bfa" font-size="13">1. Cancel previous run (increment runId)</text>
+  <line x1="400" y1="106" x2="400" y2="130" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="250" y="130" width="300" height="36" rx="8" fill="#1a1a2e" stroke="#a78bfa" stroke-width="2"/>
+  <text x="400" y="153" text-anchor="middle" fill="#a78bfa" font-size="13">2. Reset algorithm state on all nodes</text>
+  <line x1="400" y1="166" x2="400" y2="190" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="220" y="190" width="360" height="36" rx="8" fill="#1a1a2e" stroke="#fbbf24" stroke-width="2"/>
+  <text x="400" y="213" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="600">3. Run algorithm SYNCHRONOUSLY → Result</text>
+  <line x1="400" y1="226" x2="400" y2="250" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="220" y="250" width="360" height="36" rx="8" fill="#1a1a2e" stroke="#fbbf24" stroke-width="2"/>
+  <text x="400" y="273" text-anchor="middle" fill="#fbbf24" font-size="13">4. Hand result to AnimationEngine</text>
+  <line x1="400" y1="286" x2="400" y2="310" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="200" y="310" width="390" height="36" rx="8" fill="#1a1a2e" stroke="#22c55e" stroke-width="2"/>
+  <text x="395" y="333" text-anchor="middle" fill="#22c55e" font-size="13">5. GSAP timeline writes to shared buffers (async)</text>
+  <line x1="400" y1="346" x2="400" y2="370" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="190" y="370" width="420" height="40" rx="8" fill="#1a1a2e" stroke="#00d4ff" stroke-width="2"/>
+  <text x="400" y="395" text-anchor="middle" fill="#00d4ff" font-size="13" font-weight="700">6. Three.js reads buffers every frame → 3D animation 🏙️</text>
+</svg>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--       11. LIMITATIONS                       -->
+<!-- ═══════════════════════════════════════════ -->
+<h2 id="limitations">11. Limitations</h2>
+
+<div class="card highlight-red">
+  <ol>
+    <li><strong>Grid-only topology</strong> — Only supports 2D grid graphs; no arbitrary graph structures or road networks</li>
+    <li><strong>4-directional movement</strong> — No diagonal traversal; real-world pathfinding often allows 8 directions</li>
+    <li><strong>Fixed grid size (25×50)</strong> — Cannot resize dynamically; limits scalability testing</li>
+    <li><strong>No negative weights</strong> — Dijkstra and A* require non-negative weights; Bellman-Ford not implemented</li>
+    <li><strong>Single heuristic</strong> — Only Manhattan distance; no Euclidean, Chebyshev, or custom heuristics</li>
+    <li><strong>No real-time obstacle changes</strong> — Cannot modify the board while an algorithm is running</li>
+    <li><strong>Browser-only</strong> — Performance depends on client GPU; no server-side computation for large grids</li>
+    <li><strong>Random Scatter maze not guaranteed solvable</strong></li>
+    <li><strong>Compare page uses 2D DOM grids</strong>, not the 3D city renderer</li>
+  </ol>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--       12. FUTURE SCOPE                      -->
+<!-- ═══════════════════════════════════════════ -->
+<h2 id="future">12. Future Scope</h2>
+
+<div class="card highlight-green">
+  <ol>
+    <li><strong>Dynamic grid sizes</strong> — Let users choose custom rows × columns</li>
+    <li><strong>8-directional movement</strong> — Add diagonal traversal with Euclidean/Octile distance heuristics</li>
+    <li><strong>More algorithms</strong> — Bellman-Ford, Floyd-Warshall, Jump Point Search, D* Lite</li>
+    <li><strong>3D Compare page</strong> — Dual 3D city renderers side-by-side</li>
+    <li><strong>Terrain types</strong> — Water, mud, ice with different traversal costs</li>
+    <li><strong>Mobile optimization</strong> — Touch-friendly controls, reduced draw calls for mobile GPUs</li>
+    <li><strong>Export/Import boards</strong> — Save maze configurations as JSON files</li>
+    <li><strong>Algorithm replay controls</strong> — Step forward/backward through individual nodes</li>
+    <li><strong>Multiplayer collaboration</strong> — Real-time shared board editing via WebSockets</li>
+    <li><strong>Performance benchmarking</strong> — Auto-run all 6 algorithms and display timing comparison</li>
+  </ol>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!--       13. VIVA Q&A                          -->
+<!-- ═══════════════════════════════════════════ -->
+<h2 id="viva">13. 50 Viva Questions & Answers</h2>
+
+<h3>Project & Architecture</h3>
+
+<div class="qa">
+  <p class="q">What is your project about?</p>
+  <p class="a">It's an interactive 3D pathfinding visualizer where users can build a miniature city — place buildings as walls, parks as weighted terrain — and watch 6 different pathfinding algorithms explore the city streets in real-time with spring-physics animations.</p>
+</div>
+
+<div class="qa">
+  <p class="q">What was your role in this project?</p>
+  <p class="a">I worked on full-stack development — implementing the pathfinding algorithms with proper data structures, building the 3D city renderer using Three.js instanced meshes, creating the GSAP-based animation engine, and integrating the Neon PostgreSQL database for share links.</p>
+</div>
+
+<div class="qa">
+  <p class="q">What tech stack did you use and why?</p>
+  <p class="a">Next.js 16 with React 19 for the framework (server-side rendering + API routes), Three.js with React Three Fiber for WebGL 3D rendering, Zustand for lightweight state management, GSAP for timeline-based animations, TypeScript for type safety, and Tailwind CSS for styling with a custom glassmorphism design system.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Why did you choose Zustand over Redux?</p>
+  <p class="a">Zustand is much lighter — no boilerplate, no provider wrappers, no action creators. It gives us direct state subscriptions, so only the components that read a specific piece of state re-render. For a performance-critical app updating 60fps, this matters.</p>
+</div>
+
+<div class="qa">
+  <p class="q">How does the 3D rendering work?</p>
+  <p class="a">We use three InstancedMeshes — one for roads (1,250 flat tiles), one for buildings (tall boxes visible only for wall cells), and one for trees (cones visible only for weight cells). InstancedMesh renders all 1,250 instances in a single draw call, which is critical for 60fps performance.</p>
+</div>
+
+<div class="qa">
+  <p class="q">What is the grid size and how is the grid represented?</p>
+  <p class="a">The grid is 25 rows × 50 columns (1,250 cells). It's stored as a 2D array of GridNode objects. Each GridNode has properties like type (empty/wall/weight/start/end), weight, distance, heuristic, previousNode for path reconstruction, and visual state for rendering.</p>
+</div>
+
+<hr>
+<h3>Algorithm Questions</h3>
+
+<div class="qa">
+  <p class="q">Explain how BFS works.</p>
+  <p class="a">BFS uses a FIFO queue. It starts from the source, marks it visited, and enqueues it. Then it repeatedly dequeues the front node, adds unvisited non-wall neighbors to the back of the queue (marking them visited immediately), and continues until it finds the destination or exhausts the queue. It explores level-by-level, so it guarantees the shortest path on unweighted graphs.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Why does BFS guarantee shortest path but DFS does not?</p>
+  <p class="a">BFS explores all nodes at distance d before any node at distance d+1 — it spreads like a wave. So the first time it reaches the end, it found the minimum number of hops. DFS, on the other hand, commits deeply to one branch. It might find the end via a long winding path while a much shorter path existed in a different direction.</p>
+</div>
+
+<div class="qa">
+  <p class="q">What is the difference between BFS and DFS in terms of data structure?</p>
+  <p class="a">BFS uses a Queue (FIFO — First In, First Out). DFS uses a Stack (LIFO — Last In, First Out). The queue ensures breadth-first exploration; the stack ensures depth-first exploration.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Explain Dijkstra's algorithm.</p>
+  <p class="a">Dijkstra uses a min-heap priority queue. It starts with the source at distance 0, all others at infinity. It repeatedly extracts the node with the smallest distance, then "relaxes" all its neighbors: if current.distance + edge_weight < neighbor.distance, update the neighbor's distance and push it to the heap. This guarantees shortest paths with non-negative edge weights.</p>
+</div>
+
+<div class="qa">
+  <p class="q">What is edge relaxation?</p>
+  <p class="a">Relaxation is the process of checking whether we've found a shorter path to a node. If the new distance (current.distance + neighbor.weight) is less than the previously known distance, we update it. It's called "relaxation" because we're gradually tightening the upper bound on the shortest distance.</p>
+</div>
+
+<div class="qa">
+  <p class="q">What is A* and how does it differ from Dijkstra?</p>
+  <p class="a">A* is Dijkstra plus a heuristic. While Dijkstra uses f(n) = g(n) as priority (actual cost from start), A* uses f(n) = g(n) + h(n) where h(n) is an estimated cost to the goal. The heuristic guides the search toward the destination, so A* typically explores far fewer nodes while still finding the optimal path — provided the heuristic is admissible (never overestimates).</p>
+</div>
+
+<div class="qa">
+  <p class="q">What heuristic do you use in A* and why?</p>
+  <p class="a">Manhattan distance: |row₁ - row₂| + |col₁ - col₂|. We use it because our grid only allows 4-directional movement (no diagonals). Manhattan distance exactly measures the minimum number of steps needed on such a grid, making it both admissible and consistent — which guarantees A* finds the optimal path.</p>
+</div>
+
+<div class="qa">
+  <p class="q">What does "admissible" mean for a heuristic?</p>
+  <p class="a">An admissible heuristic never overestimates the actual cost to reach the goal. It's always ≤ the true shortest distance. This is essential for A* to guarantee optimality. If the heuristic overestimates, A* might skip the optimal path and settle for a suboptimal one.</p>
+</div>
+
+<div class="qa">
+  <p class="q">What is Greedy Best-First Search and why is it not optimal?</p>
+  <p class="a">Greedy uses f(n) = h(n) only — just the heuristic estimate, completely ignoring the actual cost from start (g(n)). It rushes directly toward the goal, which is fast but easily fooled by obstacles. It might take a long detour around a wall instead of finding a shorter path that initially goes away from the goal.</p>
+</div>
+
+<div class="qa">
+  <p class="q">How does Bidirectional BFS work and why is it faster?</p>
+  <p class="a">It runs two BFS searches simultaneously — one from start expanding forward, one from end expanding backward. They alternate expanding one level at a time. When the two frontiers meet, we merge the paths. It's faster because instead of one BFS exploring a circle of radius r (area πr²), we have two circles of radius r/2 (total area πr²/2) — roughly half the nodes explored.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Which algorithms handle weighted edges and which don't?</p>
+  <p class="a">Only Dijkstra and A* properly handle weighted edges — they account for node.weight when calculating distances. BFS, DFS, Greedy, and Bidirectional BFS treat all edges as weight 1.</p>
+</div>
+
+<div class="qa">
+  <p class="q">What is the time complexity of BFS and DFS?</p>
+  <p class="a">Both are O(V + E) where V is the number of vertices and E is the number of edges. For our grid, V = rows × cols and E ≈ 4V (each cell has up to 4 neighbors), so it's effectively O(R × C).</p>
+</div>
+
+<div class="qa">
+  <p class="q">Why is Dijkstra's complexity O((V+E) log V)?</p>
+  <p class="a">Each node can be pushed to the heap (O(log V) per push), and each edge can cause a relaxation that pushes to the heap. So we have at most V pops (O(log V) each) and E pushes (O(log V) each), giving O((V+E) log V).</p>
+</div>
+
+<div class="qa">
+  <p class="q">Can Dijkstra handle negative weights?</p>
+  <p class="a">No. Dijkstra assumes once a node is popped from the priority queue, its shortest distance is finalized. Negative weights can violate this assumption. For negative weights, you'd need Bellman-Ford (which we haven't implemented).</p>
+</div>
+
+<div class="qa">
+  <p class="q">How do you handle stale entries in the priority queue?</p>
+  <p class="a">When we relax a node, we push a new entry with the updated distance but don't remove the old entry. When we pop an entry, we check if its recorded distance matches the node's current distance. If they differ, the entry is stale and we skip it. This avoids the need for a decrease-key operation.</p>
+</div>
+
+<hr>
+<h3>Data Structures</h3>
+
+<div class="qa">
+  <p class="q">What is a MinHeap and how does it work?</p>
+  <p class="a">A MinHeap is a complete binary tree where each parent is smaller than its children. It's stored as an array where parent of index i is at (i-1)/2, and children are at 2i+1 and 2i+2. Push adds to the end and "sifts up" (swaps with parent while smaller). Pop removes the root, moves the last element to root, and "sifts down" (swaps with smallest child). Both operations are O(log n).</p>
+</div>
+
+<div class="qa">
+  <p class="q">What is Union-Find and where do you use it?</p>
+  <p class="a">Union-Find (Disjoint Set Union) tracks which elements belong to connected groups. We use it in Kruskal's maze generator to track which cells are already connected. When considering removing a wall between two cells, we check if they're in the same set — if not, we remove the wall and union them. Path compression and union by rank make operations nearly O(1).</p>
+</div>
+
+<div class="qa">
+  <p class="q">Why did you use immutable snapshot entries in the priority queue?</p>
+  <p class="a">When we relax a node and update its distance, if we had mutable references in the heap, the heap order would be corrupted (a node's priority changed without the heap knowing). By pushing immutable snapshots {node, distance}, the old entry stays valid in the heap until popped, at which point we check if it's stale.</p>
+</div>
+
+<hr>
+<h3>Maze Generation</h3>
+
+<div class="qa">
+  <p class="q">How does Recursive Division maze work?</p>
+  <p class="a">It starts with an empty grid bordered by walls. Then it recursively divides the space: pick a random horizontal or vertical line to draw a wall, leave one random gap as a passage. Repeat for each sub-chamber. This creates maze-like structures with corridors and rooms.</p>
+</div>
+
+<div class="qa">
+  <p class="q">How does Recursive Backtracker maze work?</p>
+  <p class="a">It fills the grid with walls, then performs a randomized DFS. It carves corridors by moving 2 cells at a time (to create walls between passages). When it reaches a dead end (no unvisited neighbors 2 cells away), it backtracks using a stack until it finds an unvisited neighbor. This creates long, winding corridors.</p>
+</div>
+
+<div class="qa">
+  <p class="q">How do you ensure generated mazes are solvable?</p>
+  <p class="a">After generating the maze, we run the ensureReachableMaze helper. It does a BFS from start to end. If the path exists, great. If not, it runs a 0-1 Dijkstra to find the minimum number of walls to remove to create a connection, then carves those walls. This guarantees solvability.</p>
+</div>
+
+<div class="qa">
+  <p class="q">What is 0-1 Dijkstra used in maze solvability?</p>
+  <p class="a">0-1 Dijkstra is a variant where edge weights are either 0 or 1. Moving to an open passage costs 0, moving through a wall costs 1. Using a min-heap, it finds the path from start to end that requires removing the fewest walls. Standard Dijkstra works here because weights are non-negative.</p>
+</div>
+
+<div class="qa">
+  <p class="q">What is Fisher-Yates shuffle and where do you use it?</p>
+  <p class="a">Fisher-Yates is an algorithm for generating a uniformly random permutation of an array. We use it in Kruskal's maze to randomly shuffle all wall edges before processing them, ensuring the maze is random.</p>
+</div>
+
+<hr>
+<h3>Animation & 3D</h3>
+
+<div class="qa">
+  <p class="q">How do you animate algorithm results in 3D?</p>
+  <p class="a">The algorithm runs synchronously and produces an array of visited nodes and the shortest path. The AnimationEngine creates a GSAP timeline that writes to shared Float32Array buffers (heights, colors, phases). The Three.js render loop reads these buffers every frame and uses spring physics to smoothly interpolate the mesh positions and colors.</p>
+</div>
+
+<div class="qa">
+  <p class="q">What are InstancedMeshes and why do you use them?</p>
+  <p class="a">InstancedMesh is a Three.js optimization that renders many copies of the same geometry in a single draw call. Instead of 1,250 separate mesh objects (1,250 draw calls), we have 3 InstancedMeshes (3 draw calls total) — one for roads, one for buildings, one for trees. Each instance gets its own position, scale, and color via matrix and color arrays.</p>
+</div>
+
+<div class="qa">
+  <p class="q">What is spring physics in your animations?</p>
+  <p class="a">Instead of linear interpolation, we simulate a spring: springForce = stiffness × displacement, dampingForce = damping × velocity. This creates natural-feeling animations with overshoot and bounce — like buildings "popping up" when placed and roads "bouncing" when the path is found.</p>
+</div>
+
+<div class="qa">
+  <p class="q">How does the speed slider work during animation?</p>
+  <p class="a">We adjust the GSAP timeline's timeScale property using an exponential curve: timeScale = 0.15 + (speed/100)^1.5 × 5.85. This maps the 1-100 slider to a smooth range from 0.15× (very slow) to 6× (ultra fast) without restarting the animation.</p>
+</div>
+
+<hr>
+<h3>Integration & Workflow</h3>
+
+<div class="qa">
+  <p class="q">Walk me through the complete flow when a user clicks "Run".</p>
+  <p class="a">1) Cancel any existing animation and increment runId for concurrency safety. 2) Reset algorithm state on all grid nodes (distances to infinity, clear visited flags). 3) Run the selected algorithm synchronously — this returns visitedNodesInOrder and shortestPath arrays. 4) Create an AnimationEngine with a GSAP timeline that plays back the visited sequence with staggered delays. 5) The timeline writes to shared Float32Array buffers. 6) Three.js useFrame reads these buffers 60 times per second and uses spring physics to animate the 3D city mesh.</p>
+</div>
+
+<div class="qa">
+  <p class="q">How do you handle race conditions when the user clicks Run multiple times?</p>
+  <p class="a">We use a runId counter. Each new run increments it and cancels the previous AnimationEngine. All async callbacks capture the runId when they're created and check if it still matches before executing. If a newer run started, old callbacks silently exit.</p>
+</div>
+
+<div class="qa">
+  <p class="q">How does the Share Grid feature work?</p>
+  <p class="a">When a user clicks Share, the board layout (walls, weights, algorithm) is serialized and sent via POST to our API route. The server validates the payload and stores it in a Neon PostgreSQL database with a UUID. The user gets a shareable URL like /visualizer?share=uuid. When someone opens that URL, it fetches the layout from the database and restores it on the grid.</p>
+</div>
+
+<div class="qa">
+  <p class="q">How does the Compare page work?</p>
+  <p class="a">The Compare page has one shared board layout with two algorithm selectors. When you run the comparison, both algorithms execute on the same grid configuration. The results are displayed as two side-by-side animated 2D grids showing the exploration pattern, plus metrics cards and a Recharts bar chart comparing visited nodes, path length, and path cost.</p>
+</div>
+
+<hr>
+<h3>Theory & Concepts</h3>
+
+<div class="qa">
+  <p class="q">What is the difference between a graph and a tree?</p>
+  <p class="a">A tree is a connected, acyclic graph. A graph can have cycles, multiple connected components, and edges going in any direction. Our grid is a graph (nodes can have multiple paths between them), but when we build a maze using Kruskal's or Prim's, we're essentially finding a spanning tree of the grid.</p>
+</div>
+
+<div class="qa">
+  <p class="q">What is a spanning tree?</p>
+  <p class="a">A spanning tree of a graph is a subgraph that includes all vertices but is a tree (no cycles). The maze generators (Prim's, Kruskal's, Backtracker) all create spanning trees of the grid graph — every cell is reachable from every other cell via exactly one path.</p>
+</div>
+
+<div class="qa">
+  <p class="q">What is the difference between a priority queue and a regular queue?</p>
+  <p class="a">A regular queue processes elements in FIFO order. A priority queue processes the element with the highest priority (smallest value in a min-heap). BFS uses a regular queue (process in order added). Dijkstra/A* use a priority queue (process the node closest to start / with lowest f-value first).</p>
+</div>
+
+<div class="qa">
+  <p class="q">What is path cost vs path length?</p>
+  <p class="a">Path length is the number of nodes in the path. Path cost is the sum of all node weights along the path (excluding the start node). On an unweighted grid, path cost = path length - 1. On a weighted grid, path cost can be much higher due to weight-5 terrain cells.</p>
+</div>
+
+<div class="qa">
+  <p class="q">What are the limitations of your project?</p>
+  <p class="a">Fixed 25×50 grid size, 4-directional movement only (no diagonals), no negative weight support, only Manhattan heuristic for A*, cannot modify board during animation, and the Compare page uses 2D grids instead of 3D. Also, Random Scatter maze doesn't guarantee solvability.</p>
+</div>
+
+<div class="qa">
+  <p class="q">What would you improve in the future?</p>
+  <p class="a">Dynamic grid sizes, 8-directional movement with Octile distance heuristic, more algorithms like Jump Point Search and Bellman-Ford, dual 3D city renderers on the Compare page, different terrain types with varied costs, step-by-step replay controls, and mobile optimization.</p>
+</div>
+
+<div class="qa">
+  <p class="q">How would you handle diagonal movement?</p>
+  <p class="a">Add 4 more neighbor directions: (r-1,c-1), (r-1,c+1), (r+1,c-1), (r+1,c+1). Change the heuristic from Manhattan to Octile distance: max(|Δr|, |Δc|) + (√2 - 1) × min(|Δr|, |Δc|). Diagonal moves would cost √2 ≈ 1.414 instead of 1.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Why is TypeScript important for this project?</p>
+  <p class="a">TypeScript catches type errors at compile time. With complex data structures like GridNode, animation buffers, and state management, TypeScript ensures we don't accidentally pass wrong types, access undefined properties, or break the contract between the algorithm layer and the rendering layer.</p>
+</div>
+
+<div class="qa">
+  <p class="q">What is glassmorphism in your UI?</p>
+  <p class="a">Glassmorphism is a design style using frosted glass effects — translucent backgrounds with backdrop blur, subtle borders, and soft shadows. We built a custom CSS system with classes like .glass and .glass-elevated using backdrop-filter: blur() and semi-transparent backgrounds, giving the UI a premium, layered look on top of the 3D scene.</p>
+</div>
+
+<hr>
+<h3>Quick Fire Round</h3>
+
+<div class="qa">
+  <p class="q">BFS uses which data structure?</p>
+  <p class="a">Queue (FIFO).</p>
+</div>
+<div class="qa">
+  <p class="q">DFS uses which data structure?</p>
+  <p class="a">Stack (LIFO).</p>
+</div>
+<div class="qa">
+  <p class="q">What is f(n) in A*?</p>
+  <p class="a">f(n) = g(n) + h(n) — actual cost from start plus heuristic estimate to goal.</p>
+</div>
+<div class="qa">
+  <p class="q">What happens if h(n) = 0 in A*?</p>
+  <p class="a">A* degenerates to Dijkstra's algorithm (f(n) = g(n) only).</p>
+</div>
+<div class="qa">
+  <p class="q">What happens if g(n) = 0 in A*?</p>
+  <p class="a">A* degenerates to Greedy Best-First Search (f(n) = h(n) only).</p>
+</div>
+<div class="qa">
+  <p class="q">Time complexity of MinHeap push?</p>
+  <p class="a">O(log n).</p>
+</div>
+<div class="qa">
+  <p class="q">What is the weight of a weighted cell in your project?</p>
+  <p class="a">5 (default). Normal cells have weight 1.</p>
+</div>
+<div class="qa">
+  <p class="q">How many algorithms does your project support?</p>
+  <p class="a">6 pathfinding algorithms and 5 maze generators.</p>
+</div>
+<div class="qa">
+  <p class="q">What does "consistent heuristic" mean?</p>
+  <p class="a">For every pair of nodes A and B, h(A) ≤ cost(A→B) + h(B). Manhattan distance on a 4-directional grid is consistent.</p>
+</div>
+<div class="qa">
+  <p class="q">What is the live demo URL?</p>
+  <p class="a">pathfinding-visualizer-flax-one.vercel.app</p>
+</div>
+
+<hr>
+<div style="text-align: center; padding: 40px 0; color: var(--text-dim);">
+  <p style="font-size: 18px; color: var(--cyan); font-weight: 700; margin-bottom: 8px;">Good luck with your viva! 🚀</p>
+  <p>Remember: Speak confidently, explain with examples, and relate everything back to your actual project code.</p>
+</div>
+
+</div>
+</body>
+</html>
